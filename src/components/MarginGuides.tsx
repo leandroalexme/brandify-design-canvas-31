@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Lock, Unlock, Palette } from 'lucide-react';
+import { Lock, Unlock, ChevronUp, ChevronDown } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ColorPicker } from './ColorPicker';
 
@@ -52,29 +52,68 @@ export const MarginGuides = ({
   };
 
   const handleInputChange = (margin: 'top' | 'right' | 'bottom' | 'left', value: string) => {
+    // Remove 'px' and any non-numeric characters except for decimal points
+    const numericValue = value.replace(/[^\d.]/g, '');
     setCurrentPreset('personalizado');
     
     if (proportionLocked) {
-      // Apply the same value to all margins when proportion is locked
-      onMarginChange('top', value);
-      onMarginChange('right', value);
-      onMarginChange('bottom', value);
-      onMarginChange('left', value);
+      onMarginChange('top', numericValue);
+      onMarginChange('right', numericValue);
+      onMarginChange('bottom', numericValue);
+      onMarginChange('left', numericValue);
     } else {
-      onMarginChange(margin, value);
+      onMarginChange(margin, numericValue);
     }
   };
 
-  const getBorderClass = (position: 'top' | 'right' | 'bottom' | 'left') => {
-    if (selectedMargin !== position) return 'border-slate-600/30';
+  const handleSpinner = (margin: 'top' | 'right' | 'bottom' | 'left', direction: 'up' | 'down') => {
+    const currentValue = (() => {
+      switch (margin) {
+        case 'top': return parseFloat(marginTop) || 0;
+        case 'right': return parseFloat(marginRight) || 0;
+        case 'bottom': return parseFloat(marginBottom) || 0;
+        case 'left': return parseFloat(marginLeft) || 0;
+      }
+    })();
     
-    switch (position) {
-      case 'top': return 'border-t-4 border-t-blue-500 border-r-slate-600/30 border-b-slate-600/30 border-l-slate-600/30';
-      case 'right': return 'border-r-4 border-r-blue-500 border-t-slate-600/30 border-b-slate-600/30 border-l-slate-600/30';
-      case 'bottom': return 'border-b-4 border-b-blue-500 border-t-slate-600/30 border-r-slate-600/30 border-l-slate-600/30';
-      case 'left': return 'border-l-4 border-l-blue-500 border-t-slate-600/30 border-r-slate-600/30 border-b-slate-600/30';
-      default: return 'border-slate-600/30';
+    const newValue = direction === 'up' ? currentValue + 1 : Math.max(0, currentValue - 1);
+    handleInputChange(margin, newValue.toString());
+  };
+
+  const formatValue = (value: string) => {
+    const numericValue = parseFloat(value) || 0;
+    return `${numericValue}px`;
+  };
+
+  const getBorderStyle = () => {
+    if (!selectedMargin) return 'border-2 border-slate-600/30';
+    
+    const baseStyle = 'border-2';
+    const gradientColor = guideColor;
+    
+    switch (selectedMargin) {
+      case 'top':
+        return `${baseStyle} border-t-2 border-r-slate-600/30 border-b-slate-600/30 border-l-slate-600/30`;
+      case 'right':
+        return `${baseStyle} border-r-2 border-t-slate-600/30 border-b-slate-600/30 border-l-slate-600/30`;
+      case 'bottom':
+        return `${baseStyle} border-b-2 border-t-slate-600/30 border-r-slate-600/30 border-l-slate-600/30`;
+      case 'left':
+        return `${baseStyle} border-l-2 border-t-slate-600/30 border-r-slate-600/30 border-b-slate-600/30`;
+      default:
+        return `${baseStyle} border-slate-600/30`;
     }
+  };
+
+  const getBorderGradientStyle = () => {
+    if (!selectedMargin) return {};
+    
+    const gradientColor = guideColor;
+    
+    return {
+      borderImage: `linear-gradient(45deg, ${gradientColor}, #60A5FA, ${gradientColor}) 1`,
+      borderImageSlice: 1,
+    };
   };
 
   const handleReset = () => {
@@ -85,6 +124,57 @@ export const MarginGuides = ({
     setCurrentPreset('personalizado');
   };
 
+  const SpinnerInput = ({ 
+    value, 
+    onChange, 
+    onClick, 
+    onSpinner, 
+    isSelected, 
+    position 
+  }: {
+    value: string;
+    onChange: (value: string) => void;
+    onClick: () => void;
+    onSpinner: (direction: 'up' | 'down') => void;
+    isSelected: boolean;
+    position: 'top' | 'right' | 'bottom' | 'left';
+  }) => (
+    <div className="relative group">
+      <input
+        type="text"
+        value={formatValue(value)}
+        onChange={(e) => onChange(e.target.value)}
+        onClick={onClick}
+        className={`w-20 px-2 py-1 text-sm rounded-lg text-center border focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 ${
+          isSelected 
+            ? 'bg-blue-500 text-white border-blue-400' 
+            : 'bg-slate-600 text-slate-200 border-slate-500 hover:bg-slate-500'
+        }`}
+        readOnly
+      />
+      <div className="absolute right-1 top-0 bottom-0 flex flex-col justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+        <button
+          onMouseDown={(e) => {
+            e.preventDefault();
+            onSpinner('up');
+          }}
+          className="text-blue-400 hover:text-blue-300 p-0.5"
+        >
+          <ChevronUp className="w-3 h-3" />
+        </button>
+        <button
+          onMouseDown={(e) => {
+            e.preventDefault();
+            onSpinner('down');
+          }}
+          className="text-blue-400 hover:text-blue-300 p-0.5"
+        >
+          <ChevronDown className="w-3 h-3" />
+        </button>
+      </div>
+    </div>
+  );
+
   return (
     <div className="bg-slate-800/30 rounded-lg p-6 space-y-6">
       <div className="flex items-center justify-between">
@@ -92,9 +182,10 @@ export const MarginGuides = ({
         <div className="flex items-center gap-2">
           <Popover open={showColorPicker} onOpenChange={setShowColorPicker}>
             <PopoverTrigger asChild>
-              <button className="w-8 h-8 rounded-lg border-2 border-slate-600/60 hover:border-slate-500/80 transition-colors flex items-center justify-center">
-                <Palette className="w-4 h-4 text-slate-300" />
-              </button>
+              <button 
+                className="w-8 h-8 rounded-lg border-2 border-slate-600/60 hover:border-slate-500/80 transition-colors"
+                style={{ backgroundColor: guideColor }}
+              />
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="end">
               <ColorPicker
@@ -121,74 +212,61 @@ export const MarginGuides = ({
         </div>
       </div>
 
-      {/* Visual Margin Layout */}
-      <div className="relative bg-slate-700/40 rounded-xl p-8">
+      {/* Visual Margin Layout - Square Format */}
+      <div className="relative bg-slate-700/40 rounded-xl p-12 flex items-center justify-center">
         {/* Top Margin Input */}
-        <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-          <input
-            type="text"
+        <div className="absolute top-4 left-1/2 transform -translate-x-1/2">
+          <SpinnerInput
             value={marginTop}
-            onChange={(e) => handleInputChange('top', e.target.value)}
+            onChange={(value) => handleInputChange('top', value)}
             onClick={() => handleMarginClick('top')}
-            className={`w-16 px-2 py-1 text-sm rounded-lg text-center border focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 ${
-              selectedMargin === 'top' 
-                ? 'bg-blue-500 text-white border-blue-400' 
-                : 'bg-slate-600 text-slate-200 border-slate-500 hover:bg-slate-500'
-            }`}
-            placeholder="10px"
+            onSpinner={(direction) => handleSpinner('top', direction)}
+            isSelected={selectedMargin === 'top'}
+            position="top"
           />
         </div>
         
         {/* Left Margin Input */}
-        <div className="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-4">
-          <input
-            type="text"
+        <div className="absolute left-4 top-1/2 transform -translate-y-1/2">
+          <SpinnerInput
             value={marginLeft}
-            onChange={(e) => handleInputChange('left', e.target.value)}
+            onChange={(value) => handleInputChange('left', value)}
             onClick={() => handleMarginClick('left')}
-            className={`w-16 px-2 py-1 text-sm rounded-lg text-center focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 ${
-              selectedMargin === 'left' 
-                ? 'bg-blue-500 text-white border-blue-400' 
-                : 'bg-slate-600 text-slate-200 border border-slate-500 hover:bg-slate-500'
-            }`}
-            placeholder="30px"
+            onSpinner={(direction) => handleSpinner('left', direction)}
+            isSelected={selectedMargin === 'left'}
+            position="left"
           />
         </div>
         
         {/* Right Margin Input */}
-        <div className="absolute right-0 top-1/2 transform -translate-y-1/2 translate-x-4">
-          <input
-            type="text"
+        <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
+          <SpinnerInput
             value={marginRight}
-            onChange={(e) => handleInputChange('right', e.target.value)}
+            onChange={(value) => handleInputChange('right', value)}
             onClick={() => handleMarginClick('right')}
-            className={`w-16 px-2 py-1 text-sm rounded-lg text-center border focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 ${
-              selectedMargin === 'right' 
-                ? 'bg-blue-500 text-white border-blue-400' 
-                : 'bg-slate-600 text-slate-200 border-slate-500 hover:bg-slate-500'
-            }`}
-            placeholder="10px"
+            onSpinner={(direction) => handleSpinner('right', direction)}
+            isSelected={selectedMargin === 'right'}
+            position="right"
           />
         </div>
         
         {/* Bottom Margin Input */}
-        <div className="absolute -bottom-4 left-1/2 transform -translate-x-1/2">
-          <input
-            type="text"
+        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
+          <SpinnerInput
             value={marginBottom}
-            onChange={(e) => handleInputChange('bottom', e.target.value)}
+            onChange={(value) => handleInputChange('bottom', value)}
             onClick={() => handleMarginClick('bottom')}
-            className={`w-16 px-2 py-1 text-sm rounded-lg text-center border focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 ${
-              selectedMargin === 'bottom' 
-                ? 'bg-blue-500 text-white border-blue-400' 
-                : 'bg-slate-600 text-slate-200 border-slate-500 hover:bg-slate-500'
-            }`}
-            placeholder="10px"
+            onSpinner={(direction) => handleSpinner('bottom', direction)}
+            isSelected={selectedMargin === 'bottom'}
+            position="bottom"
           />
         </div>
 
-        {/* Central Canvas Area with dynamic border gradients */}
-        <div className={`w-full h-24 rounded-lg bg-slate-600/20 border-2 transition-all duration-300 ${getBorderClass(selectedMargin || 'top')}`}>
+        {/* Central Square Canvas Area with gradient borders */}
+        <div 
+          className={`w-32 h-32 rounded-2xl bg-slate-600/20 transition-all duration-300 ${getBorderStyle()}`}
+          style={getBorderGradientStyle()}
+        >
         </div>
       </div>
 
