@@ -8,15 +8,9 @@ interface TextPropertiesPanelProps {
 }
 
 export const TextPropertiesPanel = ({ isOpen, onClose }: TextPropertiesPanelProps) => {
-  React.useEffect(() => {
-    console.log('🎨 [TEXT PANEL] Render state:', { isOpen });
-  }, [isOpen]);
-
   if (!isOpen) {
     return null;
   }
-
-  console.log('✅ [TEXT PANEL] Rendering panel...');
 
   const tools = [
     { id: 'typography', icon: Type, label: 'Tipografia' },
@@ -29,21 +23,16 @@ export const TextPropertiesPanel = ({ isOpen, onClose }: TextPropertiesPanelProp
   ];
 
   const handleToolClick = (toolId: string) => {
-    console.log(`🔧 [TEXT PANEL] Tool clicked: ${toolId}`);
-  };
-
-  const handleClose = () => {
-    console.log('🚪 [TEXT PANEL] Closing panel');
-    onClose();
+    console.log(`Text tool clicked: ${toolId}`);
   };
 
   return (
     <div className="fixed left-6 top-1/2 transform -translate-y-1/2 z-[1000] animate-fade-in">
-      <div className="bg-slate-800/95 backdrop-blur-sm border border-slate-700/60 rounded-2xl shadow-2xl flex flex-col w-16 p-3 gap-2">
+      <div className="floating-module flex flex-col w-16 p-3 gap-2">
         <div className="flex items-center justify-between mb-2">
           <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
           <button
-            onClick={handleClose}
+            onClick={onClose}
             className="w-6 h-6 rounded-lg bg-slate-700/60 hover:bg-slate-600/80 flex items-center justify-center text-slate-400 hover:text-slate-200 transition-colors"
           >
             <X className="w-3 h-3" />
@@ -57,7 +46,7 @@ export const TextPropertiesPanel = ({ isOpen, onClose }: TextPropertiesPanelProp
               <button
                 key={tool.id}
                 onClick={() => handleToolClick(tool.id)}
-                className="w-10 h-10 rounded-xl bg-slate-700/40 hover:bg-slate-600/60 border border-slate-600/40 hover:border-slate-500/60 text-slate-300 hover:text-slate-100 transition-all duration-200 flex items-center justify-center group hover:scale-105"
+                className="action-button w-10 h-10"
                 title={tool.label}
                 style={{
                   animationDelay: `${index * 50}ms`
