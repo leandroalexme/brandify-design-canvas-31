@@ -69,6 +69,12 @@
       inset 0px 1px 0px rgba(255, 255, 255, 0.05);
   }
   
+  /* Floating menu specific styling */
+  .floating-menu {
+    @apply floating-module;
+    animation: slide-up 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  
   /* Panel Design System - Global Standardization */
   .panel-container {
     @apply fixed z-50 floating-module w-72 max-h-[calc(100vh-200px)] flex flex-col;
@@ -127,6 +133,19 @@
     box-shadow: 
       0px 4px 16px -4px rgba(0, 0, 0, 0.3),
       0px 1px 4px -1px rgba(0, 0, 0, 0.2);
+  }
+  
+  /* Action buttons for menus */
+  .action-button {
+    @apply w-12 h-12 rounded-lg bg-slate-700/60 hover:bg-slate-600/80 
+           border border-slate-600/40 hover:border-slate-500/60
+           flex items-center justify-center text-slate-300 hover:text-slate-100
+           transition-all duration-200 transform hover:scale-105 active:scale-95;
+  }
+  
+  .action-button.selected {
+    @apply bg-blue-500/80 border-blue-400/60 text-white;
+    box-shadow: 0px 4px 16px -4px rgba(59, 130, 246, 0.4);
   }
   
   /* Tool buttons */
@@ -188,10 +207,15 @@
   background: rgba(148, 163, 184, 0.5);
 }
 
-/* Animation keyframes */
+/* Enhanced Animation System */
 @keyframes fade-in {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-out {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(10px); }
 }
 
 @keyframes scale-in {
@@ -199,10 +223,158 @@
   to { opacity: 1; transform: scale(1); }
 }
 
+@keyframes scale-out {
+  from { opacity: 1; transform: scale(1); }
+  to { opacity: 0; transform: scale(0.95); }
+}
+
+@keyframes slide-up {
+  from { 
+    opacity: 0; 
+    transform: translateY(20px) scale(0.95);
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes slide-down {
+  from { 
+    opacity: 1; 
+    transform: translateY(0) scale(1);
+  }
+  to { 
+    opacity: 0; 
+    transform: translateY(20px) scale(0.95);
+  }
+}
+
+@keyframes slide-left {
+  from { 
+    opacity: 0; 
+    transform: translateX(20px) scale(0.95);
+  }
+  to { 
+    opacity: 1; 
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes slide-right {
+  from { 
+    opacity: 0; 
+    transform: translateX(-20px) scale(0.95);
+  }
+  to { 
+    opacity: 1; 
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes bounce-in {
+  0% { 
+    opacity: 0; 
+    transform: scale(0.3);
+  }
+  50% { 
+    opacity: 1; 
+    transform: scale(1.05);
+  }
+  70% { 
+    transform: scale(0.98);
+  }
+  100% { 
+    opacity: 1; 
+    transform: scale(1);
+  }
+}
+
+@keyframes pulse-select {
+  0%, 100% { 
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
+  }
+  50% { 
+    transform: scale(1.02);
+    box-shadow: 0 0 0 8px rgba(59, 130, 246, 0);
+  }
+}
+
+@keyframes stagger-fade {
+  from { 
+    opacity: 0; 
+    transform: translateY(10px);
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0);
+  }
+}
+
+/* Animation Classes */
 .animate-fade-in {
-  animation: fade-in 0.3s ease-out;
+  animation: fade-in 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.animate-fade-out {
+  animation: fade-out 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .animate-scale-in {
-  animation: scale-in 0.2s ease-out;
+  animation: scale-in 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.animate-scale-out {
+  animation: scale-out 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.animate-slide-up {
+  animation: slide-up 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.animate-slide-down {
+  animation: slide-down 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.animate-slide-left {
+  animation: slide-left 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.animate-slide-right {
+  animation: slide-right 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.animate-bounce-in {
+  animation: bounce-in 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.animate-pulse-select {
+  animation: pulse-select 1.5s infinite;
+}
+
+.animate-stagger-fade {
+  animation: stagger-fade 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Staggered animation delays */
+.animate-stagger-1 { animation-delay: 0.1s; }
+.animate-stagger-2 { animation-delay: 0.2s; }
+.animate-stagger-3 { animation-delay: 0.3s; }
+.animate-stagger-4 { animation-delay: 0.4s; }
+.animate-stagger-5 { animation-delay: 0.5s; }
+.animate-stagger-6 { animation-delay: 0.6s; }
+.animate-stagger-7 { animation-delay: 0.7s; }
+
+/* Smooth transitions */
+.smooth-transition {
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.smooth-transform {
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.smooth-colors {
+  transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
 }

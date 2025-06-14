@@ -13,6 +13,7 @@ interface MainToolbarProps {
 export const MainToolbar = ({ selectedTool, onToolSelect }: MainToolbarProps) => {
   const [showShapesMenu, setShowShapesMenu] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
+  const [selectedShape, setSelectedShape] = useState<string>('');
   const shapesButtonRef = useRef<HTMLButtonElement>(null);
   const pressTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -74,10 +75,10 @@ export const MainToolbar = ({ selectedTool, onToolSelect }: MainToolbarProps) =>
   const showShapesMenuAtPosition = (e: React.MouseEvent) => {
     if (shapesButtonRef.current) {
       const rect = shapesButtonRef.current.getBoundingClientRect();
-      // Position the menu to the left of the toolbar to avoid overlapping panels
+      // Pass the button's center position for intelligent positioning
       setMenuPosition({
-        x: rect.left - 80, // Position to the left with margin
-        y: rect.top // Align with the button
+        x: rect.left + rect.width / 2,
+        y: rect.top
       });
       setShowShapesMenu(true);
     }
@@ -85,18 +86,19 @@ export const MainToolbar = ({ selectedTool, onToolSelect }: MainToolbarProps) =>
 
   const handleShapeSelect = (shape: string) => {
     console.log('Shape selected:', shape);
+    setSelectedShape(shape);
     onToolSelect('shapes');
   };
 
   return (
     <>
       <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50">
-        <div className="floating-module p-3 flex items-center space-x-2">
+        <div className="floating-module p-3 flex items-center space-x-2 animate-slide-up">
           {tools.map((tool) => (
             <button
               key={tool.id}
               ref={tool.id === 'shapes' ? shapesButtonRef : undefined}
-              className={`tool-button ${selectedTool === tool.id ? 'active' : ''}`}
+              className={`tool-button smooth-transition ${selectedTool === tool.id ? 'active' : ''}`}
               onClick={tool.id === 'shapes' ? handleShapesClick : () => onToolSelect(tool.id as any)}
               onMouseDown={tool.id === 'shapes' ? handleShapesMouseDown : undefined}
               onMouseUp={tool.id === 'shapes' ? handleShapesMouseUp : undefined}
@@ -114,6 +116,7 @@ export const MainToolbar = ({ selectedTool, onToolSelect }: MainToolbarProps) =>
         onClose={() => setShowShapesMenu(false)}
         onShapeSelect={handleShapeSelect}
         position={menuPosition}
+        selectedShape={selectedShape}
       />
     </>
   );
