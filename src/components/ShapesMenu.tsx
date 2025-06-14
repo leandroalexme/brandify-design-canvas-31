@@ -1,3 +1,4 @@
+
 import React, { useRef, useEffect, useState } from 'react';
 import { Circle, Square, Triangle, Hexagon, Star, PieChart, Diamond } from 'lucide-react';
 
@@ -26,10 +27,11 @@ export const ShapesMenu = ({ isOpen, onClose, onShapeSelect, position, selectedS
 
   // Intelligent positioning system
   const calculateOptimalPosition = (): { position: { x: number; y: number }; direction: 'up' | 'down' | 'left' | 'right' } => {
-    const menuWidth = 72; // 60px + padding
-    const menuHeight = shapes.length * 52 + 16; // buttons + padding
+    const menuWidth = 72;
+    const menuHeight = shapes.length * 52 + 16;
     const margin = 20;
-    const toolbarHeight = 80; // approximate toolbar height
+    const toolbarHeight = 100; // Increased toolbar height to account for padding and margins
+    const bottomMargin = 120; // Distance from bottom where toolbar is located
     
     const viewport = {
       width: window.innerWidth,
@@ -39,29 +41,30 @@ export const ShapesMenu = ({ isOpen, onClose, onShapeSelect, position, selectedS
     let optimalPosition = { ...position };
     let direction: 'up' | 'down' | 'left' | 'right' = 'up';
 
-    // Priority: above → left → right → below
+    // Calculate available space above the toolbar
+    const spaceAbove = viewport.height - bottomMargin - menuHeight - margin;
     
-    // Try above (preferred)
-    if (position.y - menuHeight - margin >= 0) {
-      optimalPosition.y = position.y - menuHeight - margin;
+    // Always try to position above first, with sufficient margin from toolbar
+    if (spaceAbove >= margin) {
+      optimalPosition.y = viewport.height - bottomMargin - menuHeight - margin;
       direction = 'up';
     }
-    // Try left
+    // Try left if not enough space above
     else if (position.x - menuWidth - margin >= 0) {
       optimalPosition.x = position.x - menuWidth - margin;
-      optimalPosition.y = Math.max(margin, Math.min(position.y, viewport.height - menuHeight - margin));
+      optimalPosition.y = Math.max(margin, Math.min(position.y - menuHeight/2, viewport.height - menuHeight - bottomMargin - margin));
       direction = 'left';
     }
     // Try right
     else if (position.x + menuWidth + margin <= viewport.width) {
       optimalPosition.x = position.x + margin;
-      optimalPosition.y = Math.max(margin, Math.min(position.y, viewport.height - menuHeight - margin));
+      optimalPosition.y = Math.max(margin, Math.min(position.y - menuHeight/2, viewport.height - menuHeight - bottomMargin - margin));
       direction = 'right';
     }
-    // Fallback to below
+    // Fallback: force above with minimum spacing
     else {
-      optimalPosition.y = Math.min(position.y + toolbarHeight + margin, viewport.height - menuHeight - margin);
-      direction = 'down';
+      optimalPosition.y = Math.max(margin, viewport.height - bottomMargin - menuHeight - 10);
+      direction = 'up';
     }
 
     // Ensure horizontal bounds
@@ -115,7 +118,7 @@ export const ShapesMenu = ({ isOpen, onClose, onShapeSelect, position, selectedS
   return (
     <div 
       ref={menuRef}
-      className={`fixed z-[300] floating-menu p-3 flex flex-col gap-2 ${getAnimationClass()}`}
+      className={`fixed z-[400] floating-menu p-3 flex flex-col gap-2 ${getAnimationClass()}`}
       style={{
         left: finalPosition.x,
         top: finalPosition.y,
