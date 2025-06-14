@@ -17,7 +17,7 @@ export const useToolAutoReturn = (
     console.log('Activity reset for tool:', selectedTool);
   };
 
-  // Handle click outside detection - DETECÇÃO MELHORADA
+  // Handle click outside detection - DETECÇÃO MELHORADA COM CANVAS CORRETO
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (isSubTool(selectedTool)) {
@@ -25,16 +25,18 @@ export const useToolAutoReturn = (
         const isClickOnToolbar = target.closest('[data-toolbar]');
         const isClickOnCanvas = canvasRef?.current?.contains(target);
         const isClickOnSubmenu = target.closest('[data-submenu]');
+        const isClickOnPanel = target.closest('[data-panel]');
         
         console.log('Click outside detected:', {
           selectedTool,
           isClickOnToolbar: !!isClickOnToolbar,
           isClickOnCanvas: !!isClickOnCanvas,
-          isClickOnSubmenu: !!isClickOnSubmenu
+          isClickOnSubmenu: !!isClickOnSubmenu,
+          isClickOnPanel: !!isClickOnPanel
         });
         
-        // Se o clique foi fora do canvas, toolbar e submenus, voltar para ferramenta principal
-        if (!isClickOnToolbar && !isClickOnCanvas && !isClickOnSubmenu) {
+        // Se o clique foi fora das áreas protegidas, voltar para ferramenta principal
+        if (!isClickOnToolbar && !isClickOnCanvas && !isClickOnSubmenu && !isClickOnPanel) {
           const mainTool = getMainToolForSubTool(selectedTool);
           console.log('Returning to main tool due to outside click:', mainTool);
           onToolSelect(mainTool);
@@ -46,7 +48,7 @@ export const useToolAutoReturn = (
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [selectedTool, onToolSelect, canvasRef]);
 
-  // Handle auto return after inactivity - TIMEOUT MELHORADO
+  // Handle auto return after inactivity - TIMEOUT OTIMIZADO
   useEffect(() => {
     if (isSubTool(selectedTool)) {
       console.log('Setting auto-return timeout for sub-tool:', selectedTool);
@@ -56,12 +58,12 @@ export const useToolAutoReturn = (
         clearTimeout(timeoutRef.current);
       }
 
-      // Definir novo timeout para auto-retorno
+      // Definir novo timeout para auto-retorno (reduzido para 5 segundos para teste)
       timeoutRef.current = setTimeout(() => {
         const mainTool = getMainToolForSubTool(selectedTool);
         console.log('Auto-returning to main tool after timeout:', mainTool);
         onToolSelect(mainTool);
-      }, 8000);
+      }, 5000);
 
       return () => {
         if (timeoutRef.current) {

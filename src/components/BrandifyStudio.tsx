@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Canvas } from './Canvas';
 import { MainToolbar } from './MainToolbar';
 import { FloatingPropertiesPanel } from './FloatingPropertiesPanel';
@@ -40,6 +40,9 @@ export const BrandifyStudio = () => {
   const [showLayersPanel, setShowLayersPanel] = useState(false);
   const [showAlignmentPanel, setShowAlignmentPanel] = useState(false);
   const [showArtboardsPanel, setShowArtboardsPanel] = useState(false);
+
+  // Referência correta do canvas para detecção de cliques externos
+  const canvasRef = useRef<HTMLDivElement>(null);
 
   const addElement = (element: Omit<DesignElement, 'id' | 'selected'>) => {
     const newElement: DesignElement = {
@@ -94,15 +97,17 @@ export const BrandifyStudio = () => {
       {/* Zoom Indicator */}
       <ZoomIndicator zoom={zoom} />
       
-      {/* Canvas */}
-      <Canvas
-        elements={elements}
-        selectedTool={getCanvasToolType(selectedTool)}
-        selectedColor={selectedColor}
-        onAddElement={addElement}
-        onSelectElement={selectElement}
-        onUpdateElement={updateElement}
-      />
+      {/* Canvas com referência correta */}
+      <div ref={canvasRef}>
+        <Canvas
+          elements={elements}
+          selectedTool={getCanvasToolType(selectedTool)}
+          selectedColor={selectedColor}
+          onAddElement={addElement}
+          onSelectElement={selectElement}
+          onUpdateElement={updateElement}
+        />
+      </div>
       
       {/* Main Toolbar - Bottom Center */}
       <MainToolbar 
@@ -110,6 +115,7 @@ export const BrandifyStudio = () => {
         onToolSelect={setSelectedTool}
         selectedColor={selectedColor}
         onColorSelect={setSelectedColor}
+        canvasRef={canvasRef}
       />
       
       {/* Corner Controls */}
