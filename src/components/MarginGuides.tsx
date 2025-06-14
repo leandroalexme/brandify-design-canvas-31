@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Lock, Unlock, Palette } from 'lucide-react';
+import { Lock, Unlock } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ColorPicker } from './ColorPicker';
 
@@ -55,7 +55,6 @@ export const MarginGuides = ({
     setCurrentPreset('personalizado');
     
     if (proportionLocked) {
-      // Apply the same value to all margins when proportion is locked
       onMarginChange('top', value);
       onMarginChange('right', value);
       onMarginChange('bottom', value);
@@ -65,15 +64,55 @@ export const MarginGuides = ({
     }
   };
 
-  const getBorderClass = (position: 'top' | 'right' | 'bottom' | 'left') => {
-    if (selectedMargin !== position) return 'border-slate-600/30';
+  const getBorderStyle = (position: 'top' | 'right' | 'bottom' | 'left') => {
+    const baseStyle = 'border-2';
+    
+    if (selectedMargin === position) {
+      switch (position) {
+        case 'top': 
+          return `${baseStyle} border-t-[3px] border-r-slate-600/30 border-b-slate-600/30 border-l-slate-600/30`;
+        case 'right': 
+          return `${baseStyle} border-r-[3px] border-t-slate-600/30 border-b-slate-600/30 border-l-slate-600/30`;
+        case 'bottom': 
+          return `${baseStyle} border-b-[3px] border-t-slate-600/30 border-r-slate-600/30 border-l-slate-600/30`;
+        case 'left': 
+          return `${baseStyle} border-l-[3px] border-t-slate-600/30 border-r-slate-600/30 border-b-slate-600/30`;
+        default: 
+          return `${baseStyle} border-slate-600/30`;
+      }
+    }
+    
+    return `${baseStyle} border-slate-600/30`;
+  };
+
+  const getBorderGradientStyle = (position: 'top' | 'right' | 'bottom' | 'left') => {
+    if (selectedMargin !== position) return {};
+    
+    const gradientColor = guideColor;
     
     switch (position) {
-      case 'top': return 'border-t-4 border-t-blue-500 border-r-slate-600/30 border-b-slate-600/30 border-l-slate-600/30';
-      case 'right': return 'border-r-4 border-r-blue-500 border-t-slate-600/30 border-b-slate-600/30 border-l-slate-600/30';
-      case 'bottom': return 'border-b-4 border-b-blue-500 border-t-slate-600/30 border-r-slate-600/30 border-l-slate-600/30';
-      case 'left': return 'border-l-4 border-l-blue-500 border-t-slate-600/30 border-r-slate-600/30 border-b-slate-600/30';
-      default: return 'border-slate-600/30';
+      case 'top':
+        return {
+          borderImage: `linear-gradient(90deg, ${gradientColor}, #60A5FA, ${gradientColor}) 1`,
+          borderTopWidth: '3px'
+        };
+      case 'right':
+        return {
+          borderImage: `linear-gradient(180deg, ${gradientColor}, #60A5FA, ${gradientColor}) 1`,
+          borderRightWidth: '3px'
+        };
+      case 'bottom':
+        return {
+          borderImage: `linear-gradient(90deg, ${gradientColor}, #60A5FA, ${gradientColor}) 1`,
+          borderBottomWidth: '3px'
+        };
+      case 'left':
+        return {
+          borderImage: `linear-gradient(180deg, ${gradientColor}, #60A5FA, ${gradientColor}) 1`,
+          borderLeftWidth: '3px'
+        };
+      default:
+        return {};
     }
   };
 
@@ -92,9 +131,10 @@ export const MarginGuides = ({
         <div className="flex items-center gap-2">
           <Popover open={showColorPicker} onOpenChange={setShowColorPicker}>
             <PopoverTrigger asChild>
-              <button className="w-8 h-8 rounded-lg border-2 border-slate-600/60 hover:border-slate-500/80 transition-colors flex items-center justify-center">
-                <Palette className="w-4 h-4 text-slate-300" />
-              </button>
+              <button 
+                className="w-8 h-8 rounded-lg border-2 border-slate-600/60 hover:border-slate-500/80 transition-colors"
+                style={{ backgroundColor: guideColor }}
+              />
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="end">
               <ColorPicker
@@ -130,7 +170,7 @@ export const MarginGuides = ({
             value={marginTop}
             onChange={(e) => handleInputChange('top', e.target.value)}
             onClick={() => handleMarginClick('top')}
-            className={`w-16 px-2 py-1 text-sm rounded-lg text-center border focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 ${
+            className={`w-16 px-2 py-1 text-sm rounded-lg text-center border focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 cursor-ns-resize hover:cursor-ns-resize ${
               selectedMargin === 'top' 
                 ? 'bg-blue-500 text-white border-blue-400' 
                 : 'bg-slate-600 text-slate-200 border-slate-500 hover:bg-slate-500'
@@ -146,7 +186,7 @@ export const MarginGuides = ({
             value={marginLeft}
             onChange={(e) => handleInputChange('left', e.target.value)}
             onClick={() => handleMarginClick('left')}
-            className={`w-16 px-2 py-1 text-sm rounded-lg text-center focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 ${
+            className={`w-16 px-2 py-1 text-sm rounded-lg text-center focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 cursor-ew-resize hover:cursor-ew-resize ${
               selectedMargin === 'left' 
                 ? 'bg-blue-500 text-white border-blue-400' 
                 : 'bg-slate-600 text-slate-200 border border-slate-500 hover:bg-slate-500'
@@ -162,7 +202,7 @@ export const MarginGuides = ({
             value={marginRight}
             onChange={(e) => handleInputChange('right', e.target.value)}
             onClick={() => handleMarginClick('right')}
-            className={`w-16 px-2 py-1 text-sm rounded-lg text-center border focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 ${
+            className={`w-16 px-2 py-1 text-sm rounded-lg text-center border focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 cursor-ew-resize hover:cursor-ew-resize ${
               selectedMargin === 'right' 
                 ? 'bg-blue-500 text-white border-blue-400' 
                 : 'bg-slate-600 text-slate-200 border-slate-500 hover:bg-slate-500'
@@ -178,7 +218,7 @@ export const MarginGuides = ({
             value={marginBottom}
             onChange={(e) => handleInputChange('bottom', e.target.value)}
             onClick={() => handleMarginClick('bottom')}
-            className={`w-16 px-2 py-1 text-sm rounded-lg text-center border focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 ${
+            className={`w-16 px-2 py-1 text-sm rounded-lg text-center border focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 cursor-ns-resize hover:cursor-ns-resize ${
               selectedMargin === 'bottom' 
                 ? 'bg-blue-500 text-white border-blue-400' 
                 : 'bg-slate-600 text-slate-200 border-slate-500 hover:bg-slate-500'
@@ -187,8 +227,11 @@ export const MarginGuides = ({
           />
         </div>
 
-        {/* Central Canvas Area with dynamic border gradients */}
-        <div className={`w-full h-24 rounded-lg bg-slate-600/20 border-2 transition-all duration-300 ${getBorderClass(selectedMargin || 'top')}`}>
+        {/* Central Canvas Area with gradient borders */}
+        <div 
+          className={`w-full h-24 rounded-lg bg-slate-600/20 transition-all duration-300 ${getBorderStyle(selectedMargin || 'top')}`}
+          style={getBorderGradientStyle(selectedMargin || 'top')}
+        >
         </div>
       </div>
 
