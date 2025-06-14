@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { X, MoreHorizontal } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
@@ -36,7 +37,7 @@ export const AlignmentPanel = ({ onClose }: AlignmentPanelProps) => {
     <TooltipProvider>
       <div className="fixed bottom-20 right-6 z-50 floating-module p-4 w-80 max-h-[calc(100vh-200px)] overflow-y-auto">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-sm font-medium text-slate-200">Guides Grid</h3>
+          <h3 className="text-lg font-semibold text-slate-200">Guides Grid</h3>
           <div className="flex items-center gap-2">
             <Tooltip>
               <TooltipTrigger asChild>
