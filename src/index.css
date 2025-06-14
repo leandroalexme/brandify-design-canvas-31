@@ -1,48 +1,62 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system - Dark Theme */
-
 @layer base {
   :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222.2 84% 4.9%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96%;
+    --accent-foreground: 222.2 84% 4.9%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222.2 84% 4.9%;
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+    --radius: 0.5rem;
+  }
+
+  .dark {
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
-
     --card: 222.2 84% 4.9%;
     --card-foreground: 210 40% 98%;
-
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
-
-    --primary: 221.2 83.2% 53.3%;
-    --primary-foreground: 210 40% 98%;
-
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
-
     --muted: 217.2 32.6% 17.5%;
     --muted-foreground: 215 20.2% 65.1%;
-
     --accent: 217.2 32.6% 17.5%;
     --accent-foreground: 210 40% 98%;
-
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
-
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 224.3 76.3% 48%;
-    --radius: 1rem;
-
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --ring: 212.7 26.8% 83.9%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
   }
 }
 
@@ -50,417 +64,22 @@
   * {
     @apply border-border;
   }
-
   body {
-    @apply bg-slate-900 text-slate-100 font-inter overflow-hidden;
-    font-feature-settings: "rlig" 1, "calt" 1;
+    @apply bg-background text-foreground;
   }
 }
 
-/* Design System Components */
-@layer components {
-  /* Floating modules with glassmorphism */
-  .floating-module {
-    @apply bg-slate-800/90 backdrop-blur-xl border border-slate-700/60 rounded-2xl shadow-2xl;
-    box-shadow: 
-      0px 8px 32px -8px rgba(0, 0, 0, 0.4),
-      0px 2px 8px -2px rgba(0, 0, 0, 0.2),
-      inset 0px 1px 0px rgba(255, 255, 255, 0.05);
-  }
-  
-  /* Floating menu specific styling */
-  .floating-menu {
-    @apply floating-module;
-    animation: slide-up 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-  
-  /* Submenu Design System - Sistema Global Padronizado */
-  .submenu-container {
-    @apply fixed z-[450] floating-module flex flex-col;
-    /* Distância padrão fixa de 50px da toolbar */
-    --submenu-toolbar-spacing: 50px;
-    width: 72px !important;
-    padding: 12px !important;
-    gap: 8px !important;
-  }
-  
-  .submenu-option {
-    @apply rounded-xl bg-transparent 
-           hover:bg-slate-700/50 text-slate-300 hover:text-white 
-           transition-all duration-200 smooth-transform hover:scale-105 active:scale-95;
-    /* Sistema global de alinhamento centralizado FORÇADO */
-    width: 48px !important;
-    height: 48px !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    flex-shrink: 0 !important;
-    position: relative !important;
-    border: none !important;
-    outline: none !important;
-  }
-  
-  .submenu-option svg {
-    /* Alinhamento global FORÇADO para todos os ícones SVG */
-    position: absolute !important;
-    top: 50% !important;
-    left: 50% !important;
-    transform: translate(-50%, -50%) !important;
-    width: 20px !important;
-    height: 20px !important;
-    flex-shrink: 0 !important;
-    margin: 0 !important;
-    padding: 0 !important;
-  }
-  
-  .submenu-option.selected {
-    @apply bg-blue-500/80 border-blue-400/60 text-white;
-    box-shadow: 0px 4px 16px -4px rgba(59, 130, 246, 0.4);
-  }
-  
-  /* Panel Design System - Global Standardization */
-  .panel-container {
-    @apply fixed z-50 floating-module w-72 max-h-[calc(100vh-200px)] flex flex-col;
-  }
-  
-  .panel-header {
-    @apply flex items-center justify-between p-4 border-b border-slate-700/60 flex-shrink-0;
-  }
-  
-  .panel-title {
-    @apply text-lg font-semibold text-slate-200;
-  }
-  
-  .panel-action-button {
-    @apply w-8 h-8 flex items-center justify-center text-slate-400 hover:text-slate-200 transition-colors rounded-lg hover:bg-slate-700/50;
-  }
-  
-  .panel-content {
-    @apply flex-1 min-h-0 overflow-hidden;
-  }
-  
-  .panel-section {
-    @apply p-4 space-y-3;
-  }
-  
-  .panel-section-title {
-    @apply text-xs font-medium text-slate-400 uppercase tracking-wider mb-3;
-  }
-  
-  .panel-scrollable {
-    @apply overflow-y-auto;
-  }
-  
-  .panel-footer {
-    @apply p-4 border-t border-slate-700/60 flex-shrink-0;
-  }
-  
-  /* Panel positioning system */
-  .panel-bottom-left {
-    @apply bottom-20 left-6;
-  }
-  
-  .panel-bottom-right {
-    @apply bottom-20 right-6;
-  }
-  
-  .panel-top-right {
-    @apply top-20 right-6;
-  }
-  
-  /* Control buttons */
-  .control-button {
-    @apply w-12 h-12 rounded-2xl bg-slate-800/90 backdrop-blur-xl border border-slate-700/60 
-           hover:bg-slate-700/90 active:bg-slate-600/90 transition-all duration-200
-           flex items-center justify-center text-slate-300 hover:text-slate-100;
-    box-shadow: 
-      0px 4px 16px -4px rgba(0, 0, 0, 0.3),
-      0px 1px 4px -1px rgba(0, 0, 0, 0.2);
-  }
-  
-  /* Action buttons for menus */
-  .action-button {
-    @apply w-12 h-12 rounded-lg bg-slate-700/60 hover:bg-slate-600/80 
-           border border-slate-600/40 hover:border-slate-500/60
-           flex items-center justify-center text-slate-300 hover:text-slate-100
-           transition-all duration-200 transform hover:scale-105 active:scale-95;
-  }
-  
-  .action-button.selected {
-    @apply bg-blue-500/80 border-blue-400/60 text-white;
-    box-shadow: 0px 4px 16px -4px rgba(59, 130, 246, 0.4);
-  }
-  
-  /* Tool buttons - Sistema unificado para toolbar principal com animação de volta */
-  .tool-button {
-    @apply relative w-12 h-12 rounded-xl flex items-center justify-center 
-           transition-all duration-200 smooth-transform
-           border border-slate-700/40 hover:border-slate-600/60;
-    /* Animação de volta quando retorna ao estado normal */
-    animation: tool-return 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-  
-  .tool-button.active {
-    @apply bg-gradient-to-br from-blue-500 to-blue-600 text-white border-blue-400/60
-           shadow-lg shadow-blue-500/25 transform hover:scale-105;
-    /* Animação quando fica ativo */
-    animation: tool-activate 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-  
-  .tool-button:not(.active) {
-    @apply bg-transparent text-slate-300 hover:bg-slate-700/50 
-           hover:text-white hover:scale-105;
-  }
-  
-  .tool-button:active {
-    @apply scale-95;
-  }
-  
-  /* Artboard with blue selection border */
-  .artboard-container {
-    @apply relative rounded-2xl border-2 border-blue-500;
-    box-shadow: 
-      0px 12px 48px -12px rgba(0, 0, 0, 0.6),
-      0px 4px 16px -4px rgba(0, 0, 0, 0.4),
-      0px 0px 0px 1px rgba(59, 130, 246, 0.5);
-  }
-  
-  /* Grid background */
-  .grid-background {
-    background-image: radial-gradient(circle, rgba(148, 163, 184, 0.3) 1px, transparent 1px);
-    background-size: 20px 20px;
-  }
-  
-  /* Zoom indicator */
-  .zoom-indicator {
-    @apply fixed top-6 left-1/2 transform -translate-x-1/2 
-           px-3 py-1 rounded-full bg-slate-800/90 backdrop-blur-xl 
-           border border-slate-700/60 text-xs font-medium text-slate-300;
-    box-shadow: 0px 4px 12px -4px rgba(0, 0, 0, 0.3);
-  }
-}
-
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background: rgba(148, 163, 184, 0.3);
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(148, 163, 184, 0.5);
-}
-
-/* Enhanced Animation System */
 @keyframes fade-in {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes fade-out {
-  from { opacity: 1; transform: translateY(0); }
-  to { opacity: 0; transform: translateY(10px); }
-}
-
-@keyframes scale-in {
-  from { opacity: 0; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1); }
-}
-
-@keyframes scale-out {
-  from { opacity: 1; transform: scale(1); }
-  to { opacity: 0; transform: scale(0.95); }
-}
-
-@keyframes slide-up {
-  from { 
-    opacity: 0; 
-    transform: translateY(15px) scale(0.96);
+  from {
+    opacity: 0;
+    transform: translateX(-20px) translateY(-50%);
   }
-  to { 
-    opacity: 1; 
-    transform: translateY(0) scale(1);
-  }
-}
-
-@keyframes slide-down {
-  from { 
-    opacity: 1; 
-    transform: translateY(0) scale(1);
-  }
-  to { 
-    opacity: 0; 
-    transform: translateY(15px) scale(0.96);
-  }
-}
-
-@keyframes slide-left {
-  from { 
-    opacity: 0; 
-    transform: translateX(15px) scale(0.96);
-  }
-  to { 
-    opacity: 1; 
-    transform: translateX(0) scale(1);
-  }
-}
-
-@keyframes slide-right {
-  from { 
-    opacity: 0; 
-    transform: translateX(-15px) scale(0.96);
-  }
-  to { 
-    opacity: 1; 
-    transform: translateX(0) scale(1);
-  }
-}
-
-@keyframes bounce-in {
-  0% { 
-    opacity: 0; 
-    transform: scale(0.3);
-  }
-  50% { 
-    opacity: 1; 
-    transform: scale(1.05);
-  }
-  70% { 
-    transform: scale(0.98);
-  }
-  100% { 
-    opacity: 1; 
-    transform: scale(1);
-  }
-}
-
-@keyframes pulse-select {
-  0%, 100% { 
-    transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
-  }
-  50% { 
-    transform: scale(1.02);
-    box-shadow: 0 0 0 8px rgba(59, 130, 246, 0);
-  }
-}
-
-@keyframes stagger-fade {
-  from { 
-    opacity: 0; 
-    transform: translateY(8px) scale(0.98);
-  }
-  to { 
-    opacity: 1; 
-    transform: translateY(0) scale(1);
-  }
-}
-
-/* Novas animações para ferramentas */
-@keyframes tool-activate {
-  0% { 
-    transform: scale(0.95);
-    opacity: 0.8;
-  }
-  50% { 
-    transform: scale(1.05);
+  to {
     opacity: 1;
-  }
-  100% { 
-    transform: scale(1);
-    opacity: 1;
+    transform: translateX(0) translateY(-50%);
   }
 }
 
-@keyframes tool-return {
-  0% { 
-    transform: scale(1.05);
-    opacity: 0.9;
-  }
-  100% { 
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-
-/* Animation Classes */
 .animate-fade-in {
-  animation: fade-in 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.animate-fade-out {
-  animation: fade-out 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.animate-scale-in {
-  animation: scale-in 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.animate-scale-out {
-  animation: scale-out 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.animate-slide-up {
-  animation: slide-up 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.animate-slide-down {
-  animation: slide-down 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.animate-slide-left {
-  animation: slide-left 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.animate-slide-right {
-  animation: slide-right 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.animate-bounce-in {
-  animation: bounce-in 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.animate-pulse-select {
-  animation: pulse-select 1.5s infinite;
-}
-
-.animate-stagger-fade {
-  animation: stagger-fade 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.animate-tool-activate {
-  animation: tool-activate 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.animate-tool-return {
-  animation: tool-return 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-/* Staggered animation delays */
-.animate-stagger-1 { animation-delay: 0.05s; }
-.animate-stagger-2 { animation-delay: 0.1s; }
-.animate-stagger-3 { animation-delay: 0.15s; }
-.animate-stagger-4 { animation-delay: 0.2s; }
-.animate-stagger-5 { animation-delay: 0.25s; }
-.animate-stagger-6 { animation-delay: 0.3s; }
-.animate-stagger-7 { animation-delay: 0.35s; }
-
-/* Smooth transitions */
-.smooth-transition {
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.smooth-transform {
-  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.smooth-colors {
-  transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+  animation: fade-in 0.3s ease-out forwards;
 }

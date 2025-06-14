@@ -1,5 +1,4 @@
-
-import React, { useRef, useCallback } from 'react';
+import React, { useRef, useCallback, useState } from 'react';
 import { Canvas } from './Canvas';
 import { MainToolbar } from './MainToolbar';
 import { FloatingPropertiesPanel } from './FloatingPropertiesPanel';
@@ -44,6 +43,9 @@ export const BrandifyStudio = () => {
 
   const canvasRef = useRef<HTMLDivElement>(null);
   const debouncedUpdateElement = useDebounce(updateElement, 100);
+
+  // Estado temporário para controlar o painel
+  const [showTextPanel, setShowTextPanel] = useState(false);
 
   // Log para debug
   React.useEffect(() => {
@@ -116,6 +118,14 @@ export const BrandifyStudio = () => {
       <div className="h-screen bg-slate-900 overflow-hidden relative">
         <ZoomIndicator zoom={toolState.zoom} />
         
+        {/* Botão temporário para testar o painel */}
+        <button
+          onClick={() => setShowTextPanel(!showTextPanel)}
+          className="fixed top-4 left-4 z-[999] bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
+        >
+          {showTextPanel ? 'Fechar' : 'Abrir'} Painel de Texto
+        </button>
+        
         <div ref={canvasRef}>
           <Canvas
             elements={elements}
@@ -142,8 +152,8 @@ export const BrandifyStudio = () => {
         <ArtboardsButton onClick={() => updateUIState({ showArtboardsPanel: !uiState.showArtboardsPanel })} />
         
         <TextPropertiesPanel
-          isOpen={uiState.showTextPropertiesPanel}
-          onClose={handleCloseTextPanel}
+          isOpen={showTextPanel}
+          onClose={() => setShowTextPanel(false)}
         />
         
         {uiState.showLayersPanel && (
