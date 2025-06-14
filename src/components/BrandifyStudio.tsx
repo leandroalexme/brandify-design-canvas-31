@@ -1,4 +1,6 @@
+
 import React, { useRef, useCallback, useState } from 'react';
+import { Type } from 'lucide-react';
 import { Canvas } from './Canvas';
 import { MainToolbar } from './MainToolbar';
 import { FloatingPropertiesPanel } from './FloatingPropertiesPanel';
