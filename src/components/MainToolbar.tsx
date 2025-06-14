@@ -5,6 +5,7 @@ import { ShapesMenu } from './ShapesMenu';
 import { useToolState } from '../hooks/useToolState';
 import { ToolType, MainTool } from '../types/tools';
 import { TOOL_ICONS, TOOL_LABELS, SUB_TOOL_OPTIONS } from '../utils/toolConfig';
+import { Circle, Square, Triangle, Hexagon, Star, PieChart, Diamond } from 'lucide-react';
 
 interface MainToolbarProps {
   selectedTool: ToolType;
@@ -20,6 +21,17 @@ interface ToolDefinition {
   label: string;
   hasSubmenu: boolean;
 }
+
+// Mapeamento de shapes para ícones
+const SHAPE_ICONS = {
+  circle: Circle,
+  square: Square,
+  triangle: Triangle,
+  hexagon: Hexagon,
+  star: Star,
+  pie: PieChart,
+  diamond: Diamond,
+};
 
 export const MainToolbar = ({ selectedTool, onToolSelect }: MainToolbarProps) => {
   const {
@@ -89,8 +101,8 @@ export const MainToolbar = ({ selectedTool, onToolSelect }: MainToolbarProps) =>
     },
     {
       id: 'shapes',
-      icon: TOOL_ICONS.shapes,
-      label: TOOL_LABELS.shapes,
+      icon: selectedShape ? SHAPE_ICONS[selectedShape as keyof typeof SHAPE_ICONS] : TOOL_ICONS.shapes,
+      label: selectedShape ? `Forma: ${selectedShape}` : TOOL_LABELS.shapes,
       hasSubmenu: true
     },
     {
@@ -99,7 +111,7 @@ export const MainToolbar = ({ selectedTool, onToolSelect }: MainToolbarProps) =>
       label: TOOL_LABELS.text,
       hasSubmenu: false
     }
-  ], [activeSubTools]);
+  ], [activeSubTools, selectedShape]);
 
   // Handlers otimizados
   const handleToolClick = useCallback((toolId: MainTool) => {
