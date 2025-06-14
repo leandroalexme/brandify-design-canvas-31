@@ -75,6 +75,19 @@
     animation: slide-up 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   }
   
+  /* Submenu Design System - Global Standardization */
+  .submenu-container {
+    @apply fixed z-[450] floating-module p-2 flex flex-col gap-1;
+    /* Espaçamento padrão de 24px da toolbar */
+    --submenu-toolbar-spacing: 24px;
+  }
+  
+  .submenu-option {
+    @apply w-16 h-12 flex items-center justify-center rounded-xl bg-transparent 
+           hover:bg-slate-700/50 text-slate-300 hover:text-white 
+           transition-all duration-200 smooth-transform hover:scale-105 active:scale-95;
+  }
+  
   /* Panel Design System - Global Standardization */
   .panel-container {
     @apply fixed z-50 floating-module w-72 max-h-[calc(100vh-200px)] flex flex-col;
