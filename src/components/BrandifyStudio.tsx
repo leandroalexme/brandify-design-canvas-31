@@ -27,7 +27,7 @@ export interface DesignElement {
   selected: boolean;
 }
 
-export type ToolType = 'select' | 'node' | 'move' | 'comment' | 'pen' | 'vector-brush' | 'pencil' | 'shapes' | 'text';
+export type ToolType = 'select' | 'node' | 'move' | 'comment' | 'pen' | 'brush' | 'pencil' | 'shapes' | 'text';
 
 export const BrandifyStudio = () => {
   const [elements, setElements] = useState<DesignElement[]>([]);
@@ -41,7 +41,6 @@ export const BrandifyStudio = () => {
   const [showAlignmentPanel, setShowAlignmentPanel] = useState(false);
   const [showArtboardsPanel, setShowArtboardsPanel] = useState(false);
 
-  // Referência correta do canvas para detecção de cliques externos
   const canvasRef = useRef<HTMLDivElement>(null);
 
   const addElement = (element: Omit<DesignElement, 'id' | 'selected'>) => {
@@ -73,14 +72,14 @@ export const BrandifyStudio = () => {
     }
   };
 
-  // Map expanded ToolType to Canvas compatible tool type
+  // Mapear ferramentas para o Canvas
   const getCanvasToolType = (tool: ToolType): 'select' | 'pen' | 'shapes' | 'text' => {
     switch (tool) {
       case 'node':
       case 'move':
       case 'comment':
         return 'select';
-      case 'vector-brush':
+      case 'brush':
       case 'pencil':
         return 'pen';
       case 'shapes':
@@ -93,11 +92,9 @@ export const BrandifyStudio = () => {
   };
 
   return (
-    <div className="h-screen bg-slate-900 overflow-hidden relative grid-background">
-      {/* Zoom Indicator */}
+    <div className="h-screen bg-slate-900 overflow-hidden relative">
       <ZoomIndicator zoom={zoom} />
       
-      {/* Canvas com referência correta */}
       <div ref={canvasRef}>
         <Canvas
           elements={elements}
@@ -109,7 +106,6 @@ export const BrandifyStudio = () => {
         />
       </div>
       
-      {/* Main Toolbar - Bottom Center */}
       <MainToolbar 
         selectedTool={selectedTool}
         onToolSelect={setSelectedTool}
@@ -118,12 +114,10 @@ export const BrandifyStudio = () => {
         canvasRef={canvasRef}
       />
       
-      {/* Corner Controls */}
       <LayersButton onClick={() => setShowLayersPanel(!showLayersPanel)} />
       <GridButton onClick={() => setShowAlignmentPanel(!showAlignmentPanel)} />
       <ArtboardsButton onClick={() => setShowArtboardsPanel(!showArtboardsPanel)} />
       
-      {/* Panels */}
       {showLayersPanel && (
         <LayersPanel
           elements={elements}
@@ -142,7 +136,6 @@ export const BrandifyStudio = () => {
         <ArtboardsPanel onClose={() => setShowArtboardsPanel(false)} />
       )}
       
-      {/* Properties Panel */}
       {selectedElement && (
         <FloatingPropertiesPanel
           selectedElement={elements.find(el => el.id === selectedElement) || null}

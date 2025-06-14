@@ -1,15 +1,9 @@
 
-import React, { useEffect, useMemo } from 'react';
-import { ShapesMenu } from './ShapesMenu';
-import { SelectSubmenu } from './SelectSubmenu';
-import { PenSubmenu } from './PenSubmenu';
-import { ToolbarButton } from './ToolbarButton';
-import { useSubmenuState } from '../hooks/useSubmenuState';
-import { useToolAutoReturn } from '../hooks/useToolAutoReturn';
-import { useToolHandlers } from './ToolHandlers';
-import { getToolDefinitions } from './ToolDefinitions';
-import { getActiveToolGroup } from '../utils/toolIcons';
-import { ToolType } from './BrandifyStudio';
+import React, { useState, useRef } from 'react';
+import { SimpleSubmenu } from './SimpleSubmenu';
+import { useSimpleToolState } from '../hooks/useSimpleToolState';
+import { ToolType } from '../types/tools';
+import { TOOL_ICONS, TOOL_LABELS, SUB_TOOL_OPTIONS } from '../utils/toolConfig';
 
 interface MainToolbarProps {
   selectedTool: ToolType;
@@ -19,149 +13,133 @@ interface MainToolbarProps {
   canvasRef: React.RefObject<HTMLDivElement>;
 }
 
-export const MainToolbar = ({ selectedTool, onToolSelect, canvasRef }: MainToolbarProps) => {
+export const MainToolbar = ({ selectedTool, onToolSelect }: MainToolbarProps) => {
   const {
-    showShapesMenu, setShowShapesMenu,
-    showSelectMenu, setShowSelectMenu,
-    showPenMenu, setShowPenMenu,
-    shapesMenuPosition, setShapesMenuPosition,
-    selectMenuPosition, setSelectMenuPosition,
-    penMenuPosition, setPenMenuPosition,
-    selectedShape, setSelectedShape,
-    selectedSelectTool, setSelectedSelectTool,
-    selectedPenTool, setSelectedPenTool,
-    shapesButtonRef,
-    selectButtonRef,
-    penButtonRef,
-    shapesTimeoutRef,
-    selectTimeoutRef,
-    penTimeoutRef,
-    closeAllMenus,
-  } = useSubmenuState();
+    currentTool,
+    activeSubTools,
+    selectMainTool,
+    selectSubTool,
+    returnToMainTool,
+    getCurrentMainTool
+  } = useSimpleToolState(selectedTool);
 
-  // Usar o hook de auto-retorno com referência correta do canvas
-  useToolAutoReturn(selectedTool, onToolSelect, canvasRef);
+  const [showSubmenu, setShowSubmenu] = useState<string | null>(null);
+  const [submenuPosition, setSubmenuPosition] = useState({ x: 0, y: 0 });
+  
+  const buttonRefs = useRef<Record<string, HTMLButtonElement | null>>({});
 
-  // Forçar re-renderização dos ícones quando selectedTool muda
-  const tools = useMemo(() => {
-    console.log('Regenerating tool definitions for selectedTool:', selectedTool);
-    return getToolDefinitions(selectedTool);
-  }, [selectedTool]);
-
-  // Sincronizar estado local com estado global
-  useEffect(() => {
-    console.log('MainToolbar: selectedTool changed to:', selectedTool);
-    
-    // Sincronizar estado local dos submenus com o selectedTool global
-    if (selectedTool === 'node' || selectedTool === 'move' || selectedTool === 'comment') {
-      setSelectedSelectTool(selectedTool);
-    } else if (selectedTool === 'vector-brush' || selectedTool === 'pencil') {
-      setSelectedPenTool(selectedTool);
+  // Ferramentas principais com seus ícones dinâmicos
+  const mainTools = [
+    {
+      id: 'select',
+      icon: activeSubTools.select ? TOOL_ICONS[activeSubTools.select] : TOOL_ICONS.select,
+      label: activeSubTools.select ? TOOL_LABELS[activeSubTools.select] : TOOL_LABELS.select,
+      hasSubmenu: true
+    },
+    {
+      id: 'pen',
+      icon: activeSubTools.pen ? TOOL_ICONS[activeSubTools.pen] : TOOL_ICONS.pen,
+      label: activeSubTools.pen ? TOOL_LABELS[activeSubTools.pen] : TOOL_LABELS.pen,
+      hasSubmenu: true
+    },
+    {
+      id: 'shapes',
+      icon: TOOL_ICONS.shapes,
+      label: TOOL_LABELS.shapes,
+      hasSubmenu: false
+    },
+    {
+      id: 'text',
+      icon: TOOL_ICONS.text,
+      label: TOOL_LABELS.text,
+      hasSubmenu: false
     }
-    
-    // Fechar menus quando uma sub-ferramenta for selecionada
-    if (['node', 'move', 'comment', 'vector-brush', 'pencil'].includes(selectedTool)) {
-      closeAllMenus();
+  ];
+
+  const handleToolClick = (toolId: string) => {
+    const tool = mainTools.find(t => t.id === toolId);
+    if (!tool) return;
+
+    if (tool.hasSubmenu) {
+      selectMainTool(toolId as any);
+      onToolSelect(currentTool);
+    } else {
+      onToolSelect(toolId as ToolType);
     }
-  }, [selectedTool, setSelectedSelectTool, setSelectedPenTool, closeAllMenus]);
-
-  // Get tool handlers
-  const { getToolHandler } = useToolHandlers(
-    shapesButtonRef, selectButtonRef, penButtonRef,
-    setShowShapesMenu, setShowSelectMenu, setShowPenMenu,
-    setShapesMenuPosition, setSelectMenuPosition, setPenMenuPosition,
-    shapesTimeoutRef, selectTimeoutRef, penTimeoutRef,
-    onToolSelect
-  );
-
-  // Handle clicks outside to close menus
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const isClickInAnyButton = [shapesButtonRef, selectButtonRef, penButtonRef].some(
-        ref => ref.current && ref.current.contains(event.target as Node)
-      );
-      
-      if (!isClickInAnyButton) {
-        closeAllMenus();
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [closeAllMenus]);
-
-  // Handlers para seleções de submenu
-  const handleShapeSelect = (shape: string) => {
-    console.log('Shape selected:', shape);
-    setSelectedShape(shape);
-    onToolSelect('shapes');
-    closeAllMenus();
   };
 
-  const handleSelectToolSelect = (tool: string) => {
-    console.log('Select tool selected:', tool);
-    setSelectedSelectTool(tool);
-    onToolSelect(tool as ToolType);
-    closeAllMenus();
+  const handleToolRightClick = (e: React.MouseEvent, toolId: string) => {
+    e.preventDefault();
+    const tool = mainTools.find(t => t.id === toolId);
+    if (!tool || !tool.hasSubmenu) return;
+
+    const button = buttonRefs.current[toolId];
+    if (button) {
+      const rect = button.getBoundingClientRect();
+      setSubmenuPosition({
+        x: rect.left + rect.width / 2,
+        y: rect.top
+      });
+      setShowSubmenu(toolId);
+    }
   };
 
-  const handlePenToolSelect = (tool: string) => {
-    console.log('Pen tool selected:', tool);
-    setSelectedPenTool(tool);
-    onToolSelect(tool as ToolType);
-    closeAllMenus();
+  const handleSubToolSelect = (subToolId: string) => {
+    selectSubTool(subToolId as any);
+    onToolSelect(subToolId as ToolType);
+    setShowSubmenu(null);
+  };
+
+  const handleToolDoubleClick = (toolId: string) => {
+    const activeSub = activeSubTools[toolId as keyof typeof activeSubTools];
+    if (activeSub) {
+      returnToMainTool(toolId as any);
+      onToolSelect(toolId as ToolType);
+    }
   };
 
   return (
     <>
-      <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-[500]" data-toolbar>
-        <div className="floating-module p-3 flex items-center space-x-2 animate-slide-up">
-          {tools.map((tool) => {
-            const handlers = getToolHandler(tool.id);
-            const isActive = getActiveToolGroup(tool.id, selectedTool);
+      <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-[400]">
+        <div className="bg-slate-800/95 backdrop-blur-sm border border-slate-700/50 rounded-2xl shadow-2xl p-3 flex items-center space-x-2">
+          {mainTools.map((tool) => {
+            const Icon = tool.icon;
+            const isActive = getCurrentMainTool() === tool.id;
+            const hasActiveSub = activeSubTools[tool.id as keyof typeof activeSubTools];
             
             return (
-              <ToolbarButton
-                key={`${tool.id}-${selectedTool}`} // Força re-render quando selectedTool muda
-                id={tool.id}
-                icon={tool.icon}
-                label={tool.label}
-                isActive={isActive}
-                buttonRef={handlers.ref}
-                onClick={handlers.onClick}
-                onMouseDown={handlers.onMouseDown}
-                onMouseUp={handlers.onMouseUp}
-                onContextMenu={handlers.onContextMenu}
-              />
+              <button
+                key={tool.id}
+                ref={el => buttonRefs.current[tool.id] = el}
+                className={`relative w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-200 ${
+                  isActive 
+                    ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/25' 
+                    : 'bg-transparent text-slate-300 hover:bg-slate-700/50 hover:text-white'
+                }`}
+                onClick={() => handleToolClick(tool.id)}
+                onContextMenu={(e) => handleToolRightClick(e, tool.id)}
+                onDoubleClick={() => handleToolDoubleClick(tool.id)}
+                title={`${tool.label}${tool.hasSubmenu ? ' (clique direito para submenu)' : ''}`}
+              >
+                <Icon className="w-5 h-5" />
+                {hasActiveSub && (
+                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-orange-500 rounded-full border-2 border-slate-800" />
+                )}
+              </button>
             );
           })}
         </div>
       </div>
 
-      {/* Submenus */}
-      <ShapesMenu
-        isOpen={showShapesMenu}
-        onClose={() => setShowShapesMenu(false)}
-        onShapeSelect={handleShapeSelect}
-        position={shapesMenuPosition}
-        selectedShape={selectedShape}
-      />
-
-      <SelectSubmenu
-        isOpen={showSelectMenu}
-        onClose={() => setShowSelectMenu(false)}
-        onToolSelect={handleSelectToolSelect}
-        position={selectMenuPosition}
-        selectedTool={selectedSelectTool}
-      />
-
-      <PenSubmenu
-        isOpen={showPenMenu}
-        onClose={() => setShowPenMenu(false)}
-        onToolSelect={handlePenToolSelect}
-        position={penMenuPosition}
-        selectedTool={selectedPenTool}
-      />
+      {showSubmenu && SUB_TOOL_OPTIONS[showSubmenu as keyof typeof SUB_TOOL_OPTIONS] && (
+        <SimpleSubmenu
+          isOpen={!!showSubmenu}
+          onClose={() => setShowSubmenu(null)}
+          onSelect={handleSubToolSelect}
+          position={submenuPosition}
+          options={SUB_TOOL_OPTIONS[showSubmenu as keyof typeof SUB_TOOL_OPTIONS]}
+        />
+      )}
     </>
   );
 };
