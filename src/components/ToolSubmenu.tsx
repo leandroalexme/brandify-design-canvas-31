@@ -1,34 +1,40 @@
 
 import React, { useRef, useEffect, useState } from 'react';
-import { Circle, Square, Triangle, Hexagon, Star, PieChart, Diamond } from 'lucide-react';
+import { LucideIcon } from 'lucide-react';
 
-interface ShapesMenuProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onShapeSelect: (shape: string) => void;
-  position: { x: number; y: number };
-  selectedShape?: string;
+interface ToolOption {
+  id: string;
+  icon: LucideIcon;
+  label: string;
 }
 
-export const ShapesMenu = ({ isOpen, onClose, onShapeSelect, position, selectedShape }: ShapesMenuProps) => {
+interface ToolSubmenuProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onToolSelect: (toolId: string) => void;
+  position: { x: number; y: number };
+  selectedTool?: string;
+  tools: ToolOption[];
+  title?: string;
+}
+
+export const ToolSubmenu = ({ 
+  isOpen, 
+  onClose, 
+  onToolSelect, 
+  position, 
+  selectedTool, 
+  tools,
+  title 
+}: ToolSubmenuProps) => {
   const menuRef = useRef<HTMLDivElement>(null);
   const [finalPosition, setFinalPosition] = useState(position);
   const [animationDirection, setAnimationDirection] = useState<'up' | 'down' | 'left' | 'right'>('up');
 
-  const shapes = [
-    { id: 'circle', icon: Circle, label: 'Círculo' },
-    { id: 'square', icon: Square, label: 'Quadrado' },
-    { id: 'triangle', icon: Triangle, label: 'Triângulo' },
-    { id: 'hexagon', icon: Hexagon, label: 'Hexágono' },
-    { id: 'star', icon: Star, label: 'Estrela' },
-    { id: 'pie', icon: PieChart, label: 'Pizza' },
-    { id: 'diamond', icon: Diamond, label: 'Diamante' },
-  ];
-
   // Intelligent positioning system that respects toolbar
   const calculateOptimalPosition = (): { position: { x: number; y: number }; direction: 'up' | 'down' | 'left' | 'right' } => {
     const menuWidth = 72;
-    const menuHeight = shapes.length * 52 + 16;
+    const menuHeight = tools.length * 52 + 16;
     const margin = 16;
     const toolbarHeight = 80;
     const toolbarZoneHeight = 120; // Protected zone around toolbar
@@ -83,8 +89,8 @@ export const ShapesMenu = ({ isOpen, onClose, onShapeSelect, position, selectedS
     }
   }, [isOpen, position]);
 
-  const handleShapeClick = (shapeId: string) => {
-    onShapeSelect(shapeId);
+  const handleToolClick = (toolId: string) => {
+    onToolSelect(toolId);
     onClose();
   };
 
@@ -127,20 +133,20 @@ export const ShapesMenu = ({ isOpen, onClose, onShapeSelect, position, selectedS
         width: '72px'
       }}
     >
-      {shapes.map((shape, index) => {
-        const Icon = shape.icon;
-        const isSelected = selectedShape === shape.id;
+      {tools.map((tool, index) => {
+        const Icon = tool.icon;
+        const isSelected = selectedTool === tool.id;
         
         return (
           <button
-            key={shape.id}
+            key={tool.id}
             className={`action-button animate-stagger-fade ${isSelected ? 'selected animate-pulse-select' : ''}`}
             style={{ 
               animationDelay: `${index * 0.05}s`,
               animationFillMode: 'both'
             }}
-            onClick={() => handleShapeClick(shape.id)}
-            title={shape.label}
+            onClick={() => handleToolClick(tool.id)}
+            title={tool.label}
           >
             <Icon className="w-5 h-5" />
           </button>
