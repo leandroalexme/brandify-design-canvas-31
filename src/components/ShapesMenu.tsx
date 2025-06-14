@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Circle, Square, Triangle, Polygon, Star, PieChart, Diamond } from 'lucide-react';
+import { Circle, Square, Triangle, Hexagon, Star, PieChart, Diamond } from 'lucide-react';
 
 interface ShapesMenuProps {
   isOpen: boolean;
@@ -16,7 +16,7 @@ export const ShapesMenu = ({ isOpen, onClose, onShapeSelect, position }: ShapesM
     { id: 'circle', icon: Circle, label: 'Círculo' },
     { id: 'square', icon: Square, label: 'Quadrado' },
     { id: 'triangle', icon: Triangle, label: 'Triângulo' },
-    { id: 'polygon', icon: Polygon, label: 'Polígono' },
+    { id: 'hexagon', icon: Hexagon, label: 'Hexágono' },
     { id: 'star', icon: Star, label: 'Estrela' },
     { id: 'pie', icon: PieChart, label: 'Pizza' },
     { id: 'diamond', icon: Diamond, label: 'Diamante' },
