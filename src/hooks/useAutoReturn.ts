@@ -16,7 +16,7 @@ export const useAutoReturn = (selectedTool: ToolType, onToolSelect: (tool: ToolT
           }
         };
 
-        const inactivityTimer = setTimeout(handleOutsideActivity, 10000);
+        const inactivityTimer = setTimeout(handleOutsideActivity, 8000);
         return () => clearTimeout(inactivityTimer);
       }
     };
