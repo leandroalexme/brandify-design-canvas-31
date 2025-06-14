@@ -1,7 +1,8 @@
 
 import React, { useState, useRef } from 'react';
 import { Canvas } from './Canvas';
-import { MainToolbar } from './MainToolbar';
+import { SimpleToolbar } from './SimpleToolbar';
+import { useToolState } from '../hooks/useToolState';
 import { FloatingPropertiesPanel } from './FloatingPropertiesPanel';
 import { LayersButton } from './LayersButton';
 import { GridButton } from './GridButton';
@@ -31,7 +32,6 @@ export type ToolType = 'select' | 'node' | 'move' | 'comment' | 'pen' | 'vector-
 
 export const BrandifyStudio = () => {
   const [elements, setElements] = useState<DesignElement[]>([]);
-  const [selectedTool, setSelectedTool] = useState<ToolType>('select');
   const [selectedColor, setSelectedColor] = useState('#4285F4');
   const [selectedElement, setSelectedElement] = useState<string | null>(null);
   const [zoom, setZoom] = useState(100);
@@ -41,8 +41,11 @@ export const BrandifyStudio = () => {
   const [showAlignmentPanel, setShowAlignmentPanel] = useState(false);
   const [showArtboardsPanel, setShowArtboardsPanel] = useState(false);
 
-  // Referência correta do canvas para detecção de cliques externos
+  // Referência do canvas
   const canvasRef = useRef<HTMLDivElement>(null);
+  
+  // Estado unificado das ferramentas
+  const { selectedTool, selectTool, returnToMainTool } = useToolState();
 
   const addElement = (element: Omit<DesignElement, 'id' | 'selected'>) => {
     const newElement: DesignElement = {
@@ -97,7 +100,7 @@ export const BrandifyStudio = () => {
       {/* Zoom Indicator */}
       <ZoomIndicator zoom={zoom} />
       
-      {/* Canvas com referência correta */}
+      {/* Canvas */}
       <div ref={canvasRef}>
         <Canvas
           elements={elements}
@@ -109,13 +112,11 @@ export const BrandifyStudio = () => {
         />
       </div>
       
-      {/* Main Toolbar - Bottom Center */}
-      <MainToolbar 
+      {/* Toolbar Simplificada */}
+      <SimpleToolbar 
         selectedTool={selectedTool}
-        onToolSelect={setSelectedTool}
-        selectedColor={selectedColor}
-        onColorSelect={setSelectedColor}
-        canvasRef={canvasRef}
+        onToolSelect={selectTool}
+        onClickOutside={returnToMainTool}
       />
       
       {/* Corner Controls */}
