@@ -1,5 +1,5 @@
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { ToolType, MainTool, SubTool } from '../types/tools';
 import { SUB_TOOL_TO_MAIN } from '../utils/toolConfig';
 
@@ -12,13 +12,46 @@ export const useSimpleToolState = (initialTool: ToolType = 'select') => {
     text: null
   });
 
-  // Selecionar ferramenta principal
+  // Auto-retorno para ferramenta principal
+  useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+    
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element;
+      const isToolbarClick = target.closest('[data-toolbar]');
+      const isSubmenuClick = target.closest('[data-submenu]');
+      
+      if (!isToolbarClick && !isSubmenuClick && isSubTool(currentTool)) {
+        const mainTool = SUB_TOOL_TO_MAIN[currentTool];
+        returnToMainTool(mainTool);
+      }
+    };
+
+    const isSubTool = (tool: ToolType): tool is SubTool => {
+      return tool in SUB_TOOL_TO_MAIN;
+    };
+
+    if (isSubTool(currentTool)) {
+      // Auto-retorno após 3 segundos de inatividade
+      timeoutId = setTimeout(() => {
+        const mainTool = SUB_TOOL_TO_MAIN[currentTool];
+        returnToMainTool(mainTool);
+      }, 3000);
+
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [currentTool]);
+
   const selectMainTool = useCallback((tool: MainTool) => {
     const activeSub = activeSubTools[tool];
     setCurrentTool(activeSub || tool);
   }, [activeSubTools]);
 
-  // Selecionar sub-ferramenta
   const selectSubTool = useCallback((subTool: SubTool) => {
     const mainTool = SUB_TOOL_TO_MAIN[subTool];
     setActiveSubTools(prev => ({
@@ -28,7 +61,6 @@ export const useSimpleToolState = (initialTool: ToolType = 'select') => {
     setCurrentTool(subTool);
   }, []);
 
-  // Voltar para ferramenta principal (remove sub-ferramenta ativa)
   const returnToMainTool = useCallback((mainTool: MainTool) => {
     setActiveSubTools(prev => ({
       ...prev,
@@ -37,12 +69,10 @@ export const useSimpleToolState = (initialTool: ToolType = 'select') => {
     setCurrentTool(mainTool);
   }, []);
 
-  // Verificar se é sub-ferramenta
   const isSubTool = (tool: ToolType): tool is SubTool => {
     return tool in SUB_TOOL_TO_MAIN;
   };
 
-  // Obter ferramenta principal atual
   const getCurrentMainTool = (): MainTool => {
     if (isSubTool(currentTool)) {
       return SUB_TOOL_TO_MAIN[currentTool];

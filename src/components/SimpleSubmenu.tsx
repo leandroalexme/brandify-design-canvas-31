@@ -40,7 +40,8 @@ export const SimpleSubmenu = ({ isOpen, onClose, onSelect, position, options }: 
   return (
     <div 
       ref={menuRef}
-      className="fixed z-[450] bg-slate-800/95 backdrop-blur-sm border border-slate-700/50 rounded-xl shadow-2xl p-2 flex flex-col gap-1 animate-fade-in"
+      data-submenu
+      className="fixed z-[450] floating-module p-2 flex flex-col gap-1 animate-fade-in"
       style={{
         left: position.x - 36,
         top: position.y - (options.length * 48 + 16)
@@ -51,7 +52,7 @@ export const SimpleSubmenu = ({ isOpen, onClose, onSelect, position, options }: 
         return (
           <button
             key={option.id}
-            className="w-16 h-12 flex items-center justify-center rounded-lg bg-transparent hover:bg-slate-700/50 text-slate-300 hover:text-white transition-all duration-200"
+            className="w-16 h-12 flex items-center justify-center rounded-xl bg-transparent hover:bg-slate-700/50 text-slate-300 hover:text-white transition-all duration-200 transform hover:scale-105 active:scale-95"
             onClick={() => onSelect(option.id)}
             title={option.label}
           >

@@ -1,11 +1,14 @@
 
-import { ToolType } from '../components/BrandifyStudio';
-import { getActiveIcon, getToolGroupForSubTool } from './activeIcons';
+import { MousePointer, PenTool, Square, Type, Move, MessageCircle, Brush, Pencil } from 'lucide-react';
 
-// Export the main function from activeIcons for backward compatibility
-export const getToolIcon = getActiveIcon;
-
-export const getActiveToolGroup = (toolId: string, selectedTool: ToolType): boolean => {
-  const toolGroup = getToolGroupForSubTool(selectedTool);
-  return toolGroup === toolId || selectedTool === toolId;
+export const TOOL_ICONS = {
+  select: MousePointer,
+  pen: PenTool,
+  shapes: Square,
+  text: Type,
+  node: MousePointer,
+  move: Move,
+  comment: MessageCircle,
+  brush: Brush,
+  pencil: Pencil
 };

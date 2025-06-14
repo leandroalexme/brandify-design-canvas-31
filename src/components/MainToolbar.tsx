@@ -66,6 +66,7 @@ export const MainToolbar = ({ selectedTool, onToolSelect }: MainToolbarProps) =>
     } else {
       onToolSelect(toolId as ToolType);
     }
+    setShowSubmenu(null);
   };
 
   const handleToolRightClick = (e: React.MouseEvent, toolId: string) => {
@@ -100,8 +101,8 @@ export const MainToolbar = ({ selectedTool, onToolSelect }: MainToolbarProps) =>
 
   return (
     <>
-      <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-[400]">
-        <div className="bg-slate-800/95 backdrop-blur-sm border border-slate-700/50 rounded-2xl shadow-2xl p-3 flex items-center space-x-2">
+      <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-[400]" data-toolbar>
+        <div className="floating-module rounded-2xl p-3 flex items-center space-x-2">
           {mainTools.map((tool) => {
             const Icon = tool.icon;
             const isActive = getCurrentMainTool() === tool.id;
