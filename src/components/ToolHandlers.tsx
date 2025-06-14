@@ -1,7 +1,6 @@
-
 import React from 'react';
 import { createSubmenuHandlers } from '../utils/submenuHandlers';
-import { ToolType } from './BrandifyStudio';
+import { ToolType } from '../types/tools';
 
 export const useToolHandlers = (
   shapesButtonRef: React.RefObject<HTMLButtonElement>,
