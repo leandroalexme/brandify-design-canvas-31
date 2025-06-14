@@ -27,7 +27,7 @@ export const SimpleSubmenu = ({ isOpen, onClose, onSelect, position, options }: 
     BUTTON_GAP: 8,
     MENU_PADDING: 12,
     VIEWPORT_MARGIN: 16,
-    TOOLBAR_SPACING: 60, // Espaçamento maior da toolbar
+    TOOLBAR_SPACING: 80, // Espaçamento maior da toolbar
     ANIMATION_STAGGER_DELAY: 0.08,
   };
 

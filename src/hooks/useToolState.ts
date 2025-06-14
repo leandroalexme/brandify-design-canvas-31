@@ -39,16 +39,16 @@ export const useToolState = (initialTool: ToolType = 'select') => {
   // Selecionar ferramenta principal
   const selectMainTool = useCallback((tool: MainTool) => {
     setState(prev => {
-      // Limpar sub-ferramentas de outras ferramentas principais
-      const newActiveSubTools = { ...prev.activeSubTools };
-      const currentMainTool = getCurrentMainTool();
-      
-      if (currentMainTool !== tool) {
-        newActiveSubTools[currentMainTool] = null;
-      }
+      // Limpar TODAS as sub-ferramentas ativas quando selecionar uma nova ferramenta principal
+      const newActiveSubTools: Record<MainTool, SubTool | null> = {
+        select: null,
+        pen: null,
+        shapes: null,
+        text: null
+      };
 
-      // Se há uma sub-ferramenta ativa para esta ferramenta, usar ela
-      const activeSub = newActiveSubTools[tool];
+      // Se há uma sub-ferramenta ativa para esta ferramenta específica, usar ela
+      const activeSub = prev.activeSubTools[tool];
       
       return {
         ...prev,
@@ -57,33 +57,50 @@ export const useToolState = (initialTool: ToolType = 'select') => {
         showSubmenu: null
       };
     });
-  }, [getCurrentMainTool]);
+  }, []);
 
   // Selecionar sub-ferramenta
   const selectSubTool = useCallback((subTool: SubTool) => {
     const mainTool = SUB_TOOL_TO_MAIN[subTool];
-    setState(prev => ({
-      ...prev,
-      currentTool: subTool,
-      activeSubTools: {
-        ...prev.activeSubTools,
-        [mainTool]: subTool
-      },
-      showSubmenu: null
-    }));
+    setState(prev => {
+      // Limpar TODAS as outras sub-ferramentas ativas
+      const newActiveSubTools: Record<MainTool, SubTool | null> = {
+        select: null,
+        pen: null,
+        shapes: null,
+        text: null
+      };
+      
+      // Ativar apenas a sub-ferramenta selecionada
+      newActiveSubTools[mainTool] = subTool;
+
+      return {
+        ...prev,
+        currentTool: subTool,
+        activeSubTools: newActiveSubTools,
+        showSubmenu: null
+      };
+    });
   }, []);
 
   // Retornar para ferramenta principal
   const returnToMainTool = useCallback((mainTool: MainTool) => {
-    setState(prev => ({
-      ...prev,
-      currentTool: mainTool,
-      activeSubTools: {
-        ...prev.activeSubTools,
-        [mainTool]: null
-      },
-      showSubmenu: null
-    }));
+    setState(prev => {
+      // Limpar TODAS as sub-ferramentas ativas
+      const newActiveSubTools: Record<MainTool, SubTool | null> = {
+        select: null,
+        pen: null,
+        shapes: null,
+        text: null
+      };
+
+      return {
+        ...prev,
+        currentTool: mainTool,
+        activeSubTools: newActiveSubTools,
+        showSubmenu: null
+      };
+    });
   }, []);
 
   // Mostrar/esconder submenu
