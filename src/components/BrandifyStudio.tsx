@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from 'react';
 import { Canvas } from './Canvas';
 import { MainToolbar } from './MainToolbar';

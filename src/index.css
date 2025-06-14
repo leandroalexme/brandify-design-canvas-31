@@ -78,8 +78,8 @@
   /* Submenu Design System - Global Standardization */
   .submenu-container {
     @apply fixed z-[450] floating-module p-2 flex flex-col gap-1;
-    /* Espaçamento padrão de 24px da toolbar */
-    --submenu-toolbar-spacing: 24px;
+    /* Espaçamento padrão de 32px da toolbar */
+    --submenu-toolbar-spacing: 32px;
   }
   
   .submenu-option {
@@ -161,21 +161,25 @@
     box-shadow: 0px 4px 16px -4px rgba(59, 130, 246, 0.4);
   }
   
-  /* Tool buttons */
+  /* Tool buttons - Sistema unificado para toolbar principal */
   .tool-button {
-    @apply w-12 h-12 rounded-2xl transition-all duration-200 flex items-center justify-center
+    @apply relative w-12 h-12 rounded-xl flex items-center justify-center 
+           transition-all duration-200 smooth-transform
            border border-slate-700/40 hover:border-slate-600/60;
   }
   
   .tool-button.active {
-    @apply bg-gradient-to-br from-blue-500 to-blue-600 text-white border-blue-400/60;
-    box-shadow: 
-      0px 4px 16px -4px rgba(59, 130, 246, 0.4),
-      0px 2px 8px -2px rgba(59, 130, 246, 0.2);
+    @apply bg-gradient-to-br from-blue-500 to-blue-600 text-white border-blue-400/60
+           shadow-lg shadow-blue-500/25 transform hover:scale-105;
   }
   
   .tool-button:not(.active) {
-    @apply bg-slate-800/60 text-slate-400 hover:bg-slate-700/80 hover:text-slate-200;
+    @apply bg-transparent text-slate-300 hover:bg-slate-700/50 
+           hover:text-white hover:scale-105;
+  }
+  
+  .tool-button:active {
+    @apply scale-95;
   }
   
   /* Artboard with blue selection border */

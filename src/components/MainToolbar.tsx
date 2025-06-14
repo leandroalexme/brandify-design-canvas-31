@@ -1,8 +1,8 @@
 
-import React, { useState, useRef } from 'react';
+import React, { useRef, useMemo, useCallback } from 'react';
 import { SimpleSubmenu } from './SimpleSubmenu';
-import { useSimpleToolState } from '../hooks/useSimpleToolState';
-import { ToolType, MainTool, SubTool } from '../types/tools';
+import { useToolState } from '../hooks/useToolState';
+import { ToolType, MainTool } from '../types/tools';
 import { TOOL_ICONS, TOOL_LABELS, SUB_TOOL_OPTIONS } from '../utils/toolConfig';
 
 interface MainToolbarProps {
@@ -13,40 +13,45 @@ interface MainToolbarProps {
   canvasRef: React.RefObject<HTMLDivElement>;
 }
 
+interface ToolDefinition {
+  id: MainTool;
+  icon: any;
+  label: string;
+  hasSubmenu: boolean;
+}
+
 export const MainToolbar = ({ selectedTool, onToolSelect }: MainToolbarProps) => {
   const {
     currentTool,
     activeSubTools,
+    showSubmenu,
+    submenuPosition,
     selectMainTool,
     selectSubTool,
     returnToMainTool,
+    toggleSubmenu,
     getCurrentMainTool
-  } = useSimpleToolState(selectedTool);
+  } = useToolState(selectedTool);
 
-  const [showSubmenu, setShowSubmenu] = useState<string | null>(null);
-  const [submenuPosition, setSubmenuPosition] = useState({ x: 0, y: 0 });
-  
   const buttonRefs = useRef<Record<string, HTMLButtonElement | null>>({});
 
-  // Sincronizar com o estado externo quando currentTool muda
+  // Sincronizar com estado externo
   React.useEffect(() => {
     if (currentTool !== selectedTool) {
       onToolSelect(currentTool);
     }
   }, [currentTool, selectedTool, onToolSelect]);
 
-  // Ferramentas principais com ícones dinâmicos
-  const mainTools = [
+  // Definição das ferramentas principais
+  const mainTools: ToolDefinition[] = useMemo(() => [
     {
       id: 'select',
-      // Mostrar ícone da sub-ferramenta apenas se ela estiver ativa
       icon: activeSubTools.select ? TOOL_ICONS[activeSubTools.select] : TOOL_ICONS.select,
       label: activeSubTools.select ? TOOL_LABELS[activeSubTools.select] : TOOL_LABELS.select,
       hasSubmenu: true
     },
     {
       id: 'pen',
-      // Mostrar ícone da sub-ferramenta apenas se ela estiver ativa
       icon: activeSubTools.pen ? TOOL_ICONS[activeSubTools.pen] : TOOL_ICONS.pen,
       label: activeSubTools.pen ? TOOL_LABELS[activeSubTools.pen] : TOOL_LABELS.pen,
       hasSubmenu: true
@@ -63,48 +68,50 @@ export const MainToolbar = ({ selectedTool, onToolSelect }: MainToolbarProps) =>
       label: TOOL_LABELS.text,
       hasSubmenu: false
     }
-  ];
+  ], [activeSubTools]);
 
-  const handleToolClick = (toolId: string) => {
+  // Handlers otimizados
+  const handleToolClick = useCallback((toolId: MainTool) => {
     const tool = mainTools.find(t => t.id === toolId);
     if (!tool) return;
 
-    setShowSubmenu(null);
-
     if (tool.hasSubmenu) {
-      selectMainTool(toolId as MainTool);
+      selectMainTool(toolId);
     } else {
-      onToolSelect(toolId as ToolType);
+      onToolSelect(toolId);
     }
-  };
+  }, [mainTools, selectMainTool, onToolSelect]);
 
-  const handleToolRightClick = (e: React.MouseEvent, toolId: string) => {
+  const handleToolRightClick = useCallback((e: React.MouseEvent, toolId: MainTool) => {
     e.preventDefault();
     const tool = mainTools.find(t => t.id === toolId);
-    if (!tool || !tool.hasSubmenu) return;
+    if (!tool?.hasSubmenu) return;
 
     const button = buttonRefs.current[toolId];
     if (button) {
       const rect = button.getBoundingClientRect();
-      setSubmenuPosition({
+      const position = {
         x: rect.left + rect.width / 2,
         y: rect.top
-      });
-      setShowSubmenu(toolId);
+      };
+      toggleSubmenu(toolId, position);
     }
-  };
+  }, [mainTools, toggleSubmenu]);
 
-  const handleSubToolSelect = (subToolId: string) => {
-    selectSubTool(subToolId as SubTool);
-    setShowSubmenu(null);
-  };
-
-  const handleToolDoubleClick = (toolId: string) => {
-    const activeSub = activeSubTools[toolId as keyof typeof activeSubTools];
+  const handleToolDoubleClick = useCallback((toolId: MainTool) => {
+    const activeSub = activeSubTools[toolId];
     if (activeSub) {
-      returnToMainTool(toolId as MainTool);
+      returnToMainTool(toolId);
     }
-  };
+  }, [activeSubTools, returnToMainTool]);
+
+  const handleSubToolSelect = useCallback((subToolId: string) => {
+    selectSubTool(subToolId as any);
+  }, [selectSubTool]);
+
+  const handleSubmenuClose = useCallback(() => {
+    toggleSubmenu(null);
+  }, [toggleSubmenu]);
 
   return (
     <>
@@ -113,17 +120,13 @@ export const MainToolbar = ({ selectedTool, onToolSelect }: MainToolbarProps) =>
           {mainTools.map((tool) => {
             const Icon = tool.icon;
             const isActive = getCurrentMainTool() === tool.id;
-            const hasActiveSub = activeSubTools[tool.id as keyof typeof activeSubTools];
+            const hasActiveSub = activeSubTools[tool.id];
             
             return (
               <button
                 key={tool.id}
                 ref={el => buttonRefs.current[tool.id] = el}
-                className={`relative w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-200 smooth-transform ${
-                  isActive 
-                    ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/25 transform hover:scale-105' 
-                    : 'bg-transparent text-slate-300 hover:bg-slate-700/50 hover:text-white hover:scale-105'
-                } active:scale-95`}
+                className={`tool-button ${isActive ? 'active' : ''}`}
                 onClick={() => handleToolClick(tool.id)}
                 onContextMenu={(e) => handleToolRightClick(e, tool.id)}
                 onDoubleClick={() => handleToolDoubleClick(tool.id)}
@@ -142,7 +145,7 @@ export const MainToolbar = ({ selectedTool, onToolSelect }: MainToolbarProps) =>
       {showSubmenu && SUB_TOOL_OPTIONS[showSubmenu as keyof typeof SUB_TOOL_OPTIONS] && (
         <SimpleSubmenu
           isOpen={!!showSubmenu}
-          onClose={() => setShowSubmenu(null)}
+          onClose={handleSubmenuClose}
           onSelect={handleSubToolSelect}
           position={submenuPosition}
           options={SUB_TOOL_OPTIONS[showSubmenu as keyof typeof SUB_TOOL_OPTIONS]}
