@@ -39,6 +39,32 @@ export const MainToolbar = ({ selectedTool, onToolSelect }: MainToolbarProps) =>
   // Estados locais para menus específicos
   const [showShapesMenu, setShowShapesMenu] = React.useState(false);
   const [shapesMenuPosition, setShapesMenuPosition] = React.useState({ x: 0, y: 0 });
+  const [selectedShape, setSelectedShape] = React.useState<string | null>(null);
+
+  // Auto-retorno para shapes quando clica fora
+  React.useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element;
+      const isToolbarClick = target.closest('[data-toolbar]');
+      const isSubmenuClick = target.closest('[data-submenu]');
+      
+      if (!isToolbarClick && !isSubmenuClick) {
+        // Fechar shapes menu e resetar shape selecionada
+        if (showShapesMenu) {
+          setShowShapesMenu(false);
+          setSelectedShape(null);
+        }
+      }
+    };
+
+    if (showShapesMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showShapesMenu]);
 
   // Sincronizar com estado externo
   React.useEffect(() => {
@@ -65,7 +91,7 @@ export const MainToolbar = ({ selectedTool, onToolSelect }: MainToolbarProps) =>
       id: 'shapes',
       icon: TOOL_ICONS.shapes,
       label: TOOL_LABELS.shapes,
-      hasSubmenu: true // Shapes também tem submenu
+      hasSubmenu: true
     },
     {
       id: 'text',
@@ -81,7 +107,6 @@ export const MainToolbar = ({ selectedTool, onToolSelect }: MainToolbarProps) =>
     if (!tool) return;
 
     if (toolId === 'shapes') {
-      // Para shapes, mostrar menu específico
       selectMainTool(toolId);
     } else if (tool.hasSubmenu) {
       selectMainTool(toolId);
@@ -117,6 +142,11 @@ export const MainToolbar = ({ selectedTool, onToolSelect }: MainToolbarProps) =>
     if (activeSub) {
       returnToMainTool(toolId);
     }
+    
+    // Para shapes, resetar shape selecionada
+    if (toolId === 'shapes') {
+      setSelectedShape(null);
+    }
   }, [activeSubTools, returnToMainTool]);
 
   const handleSubToolSelect = useCallback((subToolId: string) => {
@@ -128,13 +158,14 @@ export const MainToolbar = ({ selectedTool, onToolSelect }: MainToolbarProps) =>
   }, [toggleSubmenu]);
 
   const handleShapeSelect = useCallback((shapeId: string) => {
-    // Lógica para seleção de forma
+    setSelectedShape(shapeId);
     console.log('Shape selected:', shapeId);
     setShowShapesMenu(false);
   }, []);
 
   const handleShapesMenuClose = useCallback(() => {
     setShowShapesMenu(false);
+    setSelectedShape(null);
   }, []);
 
   return (
@@ -145,6 +176,7 @@ export const MainToolbar = ({ selectedTool, onToolSelect }: MainToolbarProps) =>
             const Icon = tool.icon;
             const isActive = getCurrentMainTool() === tool.id;
             const hasActiveSub = activeSubTools[tool.id];
+            const hasSelectedShape = tool.id === 'shapes' && selectedShape;
             
             return (
               <button
@@ -157,7 +189,7 @@ export const MainToolbar = ({ selectedTool, onToolSelect }: MainToolbarProps) =>
                 title={`${tool.label}${tool.hasSubmenu ? ' (clique direito para submenu)' : ''}`}
               >
                 <Icon className="w-5 h-5" />
-                {hasActiveSub && (
+                {(hasActiveSub || hasSelectedShape) && (
                   <div className="absolute -top-1 -right-1 w-3 h-3 bg-orange-500 rounded-full border-2 border-slate-800" />
                 )}
               </button>
@@ -183,6 +215,7 @@ export const MainToolbar = ({ selectedTool, onToolSelect }: MainToolbarProps) =>
         onClose={handleShapesMenuClose}
         onShapeSelect={handleShapeSelect}
         position={shapesMenuPosition}
+        selectedShape={selectedShape}
       />
     </>
   );
