@@ -1,4 +1,3 @@
-
 import React, { useRef, useEffect, useState } from 'react';
 import { Circle, Square, Triangle, Hexagon, Star, PieChart, Diamond } from 'lucide-react';
 
@@ -26,9 +25,7 @@ export const ShapesMenu = ({ isOpen, onClose, onShapeSelect, position, selectedS
   ];
 
   // Intelligent positioning system
-  const calculateOptimalPosition = () => {
-    if (!menuRef.current) return position;
-
+  const calculateOptimalPosition = (): { position: { x: number; y: number }; direction: 'up' | 'down' | 'left' | 'right' } => {
     const menuWidth = 72; // 60px + padding
     const menuHeight = shapes.length * 52 + 16; // buttons + padding
     const margin = 20;
