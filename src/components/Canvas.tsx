@@ -1,3 +1,4 @@
+
 import React, { useRef, useState, useCallback } from 'react';
 import { Copy, Plus } from 'lucide-react';
 import { DesignElement } from '../types/design';
@@ -37,18 +38,23 @@ export const Canvas = ({
 
   const handleArtboardClick = useCallback((e: React.MouseEvent) => {
     try {
-      console.log('Artboard clicked with tool:', selectedTool);
+      console.log('🎯 Artboard clicked with tool:', selectedTool);
+      console.log('📊 Current elements count:', elements.length);
       
-      if (!artboardRef.current) return;
+      if (!artboardRef.current) {
+        console.error('❌ Artboard ref is null');
+        return;
+      }
       
       const rect = artboardRef.current.getBoundingClientRect();
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
 
-      console.log('Click coordinates:', { x, y });
+      console.log('📍 Click coordinates:', { x, y });
+      console.log('📏 Artboard rect:', rect);
 
       if (!isValidPosition({ x, y })) {
-        logger.error('Invalid click position', { x, y });
+        console.error('❌ Invalid click position', { x, y });
         return;
       }
 
@@ -56,11 +62,16 @@ export const Canvas = ({
       onSelectElement(null);
 
       if (selectedTool === 'text') {
-        console.log('Creating text at:', { x, y });
+        console.log('📝 Creating text at:', { x, y });
         onCreateText(x, y);
-        logger.debug('Text creation triggered', { x, y });
+        
+        // Log para verificar se o texto foi adicionado
+        setTimeout(() => {
+          console.log('📊 Elements after text creation:', elements.length);
+        }, 100);
+        
       } else if (selectedTool === 'shapes') {
-        console.log('Creating shape at:', { x, y });
+        console.log('🔷 Creating shape at:', { x, y });
         onAddElement({
           type: 'shape',
           x,
@@ -69,20 +80,20 @@ export const Canvas = ({
           width: 100,
           height: 100,
         });
-        logger.debug('Shape created', { x, y, color: selectedColor });
       }
     } catch (error) {
+      console.error('❌ Error handling artboard click:', error);
       logger.error('Error handling artboard click', error);
     }
-  }, [artboardRef, onSelectElement, selectedTool, onCreateText, onAddElement, selectedColor]);
+  }, [artboardRef, onSelectElement, selectedTool, onCreateText, onAddElement, selectedColor, elements.length]);
 
   const handleElementClick = useCallback((e: React.MouseEvent, elementId: string) => {
     try {
       e.stopPropagation();
+      console.log('🎯 Element clicked:', elementId);
       onSelectElement(elementId);
-      logger.debug('Element selected', elementId);
     } catch (error) {
-      logger.error('Error selecting element', error);
+      console.error('❌ Error selecting element:', error);
     }
   }, [onSelectElement]);
 
@@ -90,11 +101,16 @@ export const Canvas = ({
     try {
       setArtboardColor(color);
       setShowColorPicker(false);
-      logger.debug('Artboard color changed', color);
+      console.log('🎨 Artboard color changed to:', color);
     } catch (error) {
-      logger.error('Error changing artboard color', error);
+      console.error('❌ Error changing artboard color:', error);
     }
   }, []);
+
+  // Debug: Log elements whenever they change
+  React.useEffect(() => {
+    console.log('📊 Canvas elements updated:', elements.length, elements);
+  }, [elements]);
 
   return (
     <div className="h-screen flex items-center justify-center relative">
@@ -156,6 +172,11 @@ export const Canvas = ({
           className="w-full h-full relative cursor-crosshair rounded-2xl overflow-hidden"
           onClick={handleArtboardClick}
         >
+          {/* Debug: Mostrar contador de elementos */}
+          <div className="absolute top-2 left-2 text-xs text-slate-400 bg-slate-800/50 px-2 py-1 rounded">
+            Elementos: {elements.length}
+          </div>
+          
           {elements.map((element) => (
             <div
               key={element.id}
@@ -171,7 +192,7 @@ export const Canvas = ({
             >
               {element.type === 'text' && (
                 <div
-                  className="select-none"
+                  className="select-none min-w-[20px] min-h-[20px] bg-transparent"
                   style={{
                     color: element.color,
                     fontSize: `${element.fontSize}px`,
