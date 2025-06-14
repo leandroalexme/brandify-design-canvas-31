@@ -12,10 +12,8 @@ export const useSimpleToolState = (initialTool: ToolType = 'select') => {
     text: null
   });
 
-  // Auto-retorno para ferramenta principal
+  // Auto-retorno apenas por clique fora
   useEffect(() => {
-    let timeoutId: NodeJS.Timeout;
-    
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Element;
       const isToolbarClick = target.closest('[data-toolbar]');
@@ -27,27 +25,17 @@ export const useSimpleToolState = (initialTool: ToolType = 'select') => {
       }
     };
 
-    const isSubTool = (tool: ToolType): tool is SubTool => {
-      return tool in SUB_TOOL_TO_MAIN;
-    };
-
     if (isSubTool(currentTool)) {
-      // Auto-retorno após 3 segundos de inatividade
-      timeoutId = setTimeout(() => {
-        const mainTool = SUB_TOOL_TO_MAIN[currentTool];
-        returnToMainTool(mainTool);
-      }, 3000);
-
       document.addEventListener('mousedown', handleClickOutside);
     }
 
     return () => {
-      if (timeoutId) clearTimeout(timeoutId);
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [currentTool]);
 
   const selectMainTool = useCallback((tool: MainTool) => {
+    // Se já há uma sub-ferramenta ativa para esta ferramenta, seleciona ela
     const activeSub = activeSubTools[tool];
     setCurrentTool(activeSub || tool);
   }, [activeSubTools]);

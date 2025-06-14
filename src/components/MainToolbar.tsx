@@ -28,7 +28,14 @@ export const MainToolbar = ({ selectedTool, onToolSelect }: MainToolbarProps) =>
   
   const buttonRefs = useRef<Record<string, HTMLButtonElement | null>>({});
 
-  // Ferramentas principais com seus ícones dinâmicos
+  // Sincronizar com o estado externo quando currentTool muda
+  React.useEffect(() => {
+    if (currentTool !== selectedTool) {
+      onToolSelect(currentTool);
+    }
+  }, [currentTool, selectedTool, onToolSelect]);
+
+  // Ferramentas principais com ícones dinâmicos
   const mainTools = [
     {
       id: 'select',
@@ -60,13 +67,14 @@ export const MainToolbar = ({ selectedTool, onToolSelect }: MainToolbarProps) =>
     const tool = mainTools.find(t => t.id === toolId);
     if (!tool) return;
 
+    // Fechar submenu se estiver aberto
+    setShowSubmenu(null);
+
     if (tool.hasSubmenu) {
-      selectMainTool(toolId as any);
-      onToolSelect(currentTool);
+      selectMainTool(toolId as MainTool);
     } else {
       onToolSelect(toolId as ToolType);
     }
-    setShowSubmenu(null);
   };
 
   const handleToolRightClick = (e: React.MouseEvent, toolId: string) => {
@@ -86,16 +94,14 @@ export const MainToolbar = ({ selectedTool, onToolSelect }: MainToolbarProps) =>
   };
 
   const handleSubToolSelect = (subToolId: string) => {
-    selectSubTool(subToolId as any);
-    onToolSelect(subToolId as ToolType);
+    selectSubTool(subToolId as SubTool);
     setShowSubmenu(null);
   };
 
   const handleToolDoubleClick = (toolId: string) => {
     const activeSub = activeSubTools[toolId as keyof typeof activeSubTools];
     if (activeSub) {
-      returnToMainTool(toolId as any);
-      onToolSelect(toolId as ToolType);
+      returnToMainTool(toolId as MainTool);
     }
   };
 
@@ -112,11 +118,11 @@ export const MainToolbar = ({ selectedTool, onToolSelect }: MainToolbarProps) =>
               <button
                 key={tool.id}
                 ref={el => buttonRefs.current[tool.id] = el}
-                className={`relative w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-200 ${
+                className={`relative w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-200 smooth-transform ${
                   isActive 
-                    ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/25' 
-                    : 'bg-transparent text-slate-300 hover:bg-slate-700/50 hover:text-white'
-                }`}
+                    ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/25 transform hover:scale-105' 
+                    : 'bg-transparent text-slate-300 hover:bg-slate-700/50 hover:text-white hover:scale-105'
+                } active:scale-95`}
                 onClick={() => handleToolClick(tool.id)}
                 onContextMenu={(e) => handleToolRightClick(e, tool.id)}
                 onDoubleClick={() => handleToolDoubleClick(tool.id)}
@@ -124,7 +130,7 @@ export const MainToolbar = ({ selectedTool, onToolSelect }: MainToolbarProps) =>
               >
                 <Icon className="w-5 h-5" />
                 {hasActiveSub && (
-                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-orange-500 rounded-full border-2 border-slate-800" />
+                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-orange-500 rounded-full border-2 border-slate-800 animate-pulse" />
                 )}
               </button>
             );
