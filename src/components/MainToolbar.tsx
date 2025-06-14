@@ -1,6 +1,5 @@
-
 import React, { useEffect } from 'react';
-import { MousePointer, PenTool, Square, Type } from 'lucide-react';
+import { MousePointer, PenTool, Square, Type, Move, MessageCircle, Brush, Pencil } from 'lucide-react';
 import { ShapesMenu } from './ShapesMenu';
 import { SelectSubmenu } from './SelectSubmenu';
 import { PenSubmenu } from './PenSubmenu';
@@ -33,11 +32,32 @@ export const MainToolbar = ({ selectedTool, onToolSelect }: MainToolbarProps) =>
     shapesTimeoutRef,
     selectTimeoutRef,
     penTimeoutRef,
+    closeAllMenus,
   } = useSubmenuState();
 
+  // Get dynamic icon based on selected tool
+  const getToolIcon = (baseToolId: string) => {
+    switch (baseToolId) {
+      case 'select':
+        if (selectedTool === 'move') return Move;
+        if (selectedTool === 'comment') return MessageCircle;
+        return MousePointer;
+      case 'pen':
+        if (selectedTool === 'vector-brush') return Brush;
+        if (selectedTool === 'pencil') return Pencil;
+        return PenTool;
+      case 'shapes':
+        return Square;
+      case 'text':
+        return Type;
+      default:
+        return MousePointer;
+    }
+  };
+
   const tools = [
-    { id: 'select', icon: MousePointer, label: 'Selecionar', hasSubmenu: true },
-    { id: 'pen', icon: PenTool, label: 'Caneta', hasSubmenu: true },
+    { id: 'select', icon: getToolIcon('select'), label: 'Selecionar', hasSubmenu: true },
+    { id: 'pen', icon: getToolIcon('pen'), label: 'Caneta', hasSubmenu: true },
     { id: 'shapes', icon: Square, label: 'Formas', hasSubmenu: true },
     { id: 'text', icon: Type, label: 'Texto', hasSubmenu: false },
   ];
@@ -63,15 +83,30 @@ export const MainToolbar = ({ selectedTool, onToolSelect }: MainToolbarProps) =>
       );
       
       if (!isClickInAnyButton) {
-        setShowShapesMenu(false);
-        setShowSelectMenu(false);
-        setShowPenMenu(false);
+        closeAllMenus();
       }
     };
 
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+  }, [closeAllMenus]);
+
+  // Auto-return to primary tools when not in use
+  useEffect(() => {
+    const handleToolDeactivation = () => {
+      // Auto-return logic: if a sub-tool is selected and user clicks elsewhere, return to primary tool
+      const isSubTool = ['node', 'move', 'comment', 'vector-brush', 'pencil'].includes(selectedTool);
+      if (isSubTool) {
+        const timer = setTimeout(() => {
+          // This would be triggered by external events, but for now we keep the sub-tool active
+          // The return to primary tool will happen when user selects another tool
+        }, 100);
+        return () => clearTimeout(timer);
+      }
+    };
+
+    handleToolDeactivation();
+  }, [selectedTool]);
 
   // Handlers for submenu selections
   const handleShapeSelect = (shape: string) => {

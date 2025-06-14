@@ -22,11 +22,43 @@ export const useSubmenuState = () => {
   const selectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const penTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Close all menus function
+  const closeAllMenus = () => {
+    setShowShapesMenu(false);
+    setShowSelectMenu(false);
+    setShowPenMenu(false);
+  };
+
+  // Exclusive menu opening functions
+  const setShowShapesMenuExclusive = (show: boolean) => {
+    if (show) {
+      setShowSelectMenu(false);
+      setShowPenMenu(false);
+    }
+    setShowShapesMenu(show);
+  };
+
+  const setShowSelectMenuExclusive = (show: boolean) => {
+    if (show) {
+      setShowShapesMenu(false);
+      setShowPenMenu(false);
+    }
+    setShowSelectMenu(show);
+  };
+
+  const setShowPenMenuExclusive = (show: boolean) => {
+    if (show) {
+      setShowShapesMenu(false);
+      setShowSelectMenu(false);
+    }
+    setShowPenMenu(show);
+  };
+
   return {
     // States
-    showShapesMenu, setShowShapesMenu,
-    showSelectMenu, setShowSelectMenu,
-    showPenMenu, setShowPenMenu,
+    showShapesMenu, setShowShapesMenu: setShowShapesMenuExclusive,
+    showSelectMenu, setShowSelectMenu: setShowSelectMenuExclusive,
+    showPenMenu, setShowPenMenu: setShowPenMenuExclusive,
     
     // Positions
     shapesMenuPosition, setShapesMenuPosition,
@@ -47,5 +79,8 @@ export const useSubmenuState = () => {
     shapesTimeoutRef,
     selectTimeoutRef,
     penTimeoutRef,
+
+    // Close all function
+    closeAllMenus,
   };
 };

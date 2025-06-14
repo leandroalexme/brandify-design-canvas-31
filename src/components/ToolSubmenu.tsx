@@ -31,13 +31,12 @@ export const ToolSubmenu = ({
   const [finalPosition, setFinalPosition] = useState(position);
   const [animationDirection, setAnimationDirection] = useState<'up' | 'down' | 'left' | 'right'>('up');
 
-  // Intelligent positioning system that respects toolbar
+  // Standardized positioning to match ShapesMenu exactly
   const calculateOptimalPosition = (): { position: { x: number; y: number }; direction: 'up' | 'down' | 'left' | 'right' } => {
     const menuWidth = 72;
-    const menuHeight = tools.length * 52 + 16;
+    const menuHeight = tools.length * 52 + 16; // Same calculation as ShapesMenu
     const margin = 16;
-    const toolbarHeight = 80;
-    const toolbarZoneHeight = 120; // Protected zone around toolbar
+    const toolbarZoneHeight = 120; // Same as ShapesMenu
     
     const viewport = {
       width: window.innerWidth,
@@ -47,35 +46,31 @@ export const ToolSubmenu = ({
     let optimalPosition = { ...position };
     let direction: 'up' | 'down' | 'left' | 'right' = 'up';
 
-    // Calculate safe space above toolbar (protected zone)
+    // Calculate safe space above toolbar - exactly like ShapesMenu
     const safeSpaceAbove = viewport.height - toolbarZoneHeight - menuHeight - margin;
     
-    // Try to position above the button (preferred and safe)
+    // Same positioning logic as ShapesMenu
     if (position.y - menuHeight - margin >= margin && safeSpaceAbove >= 0) {
-      optimalPosition.x = position.x - menuWidth / 2; // Center on button
+      optimalPosition.x = position.x - menuWidth / 2;
       optimalPosition.y = Math.min(position.y - menuHeight - margin, safeSpaceAbove);
       direction = 'up';
     }
-    // Try left of the button
     else if (position.x - menuWidth - margin >= 0) {
       optimalPosition.x = position.x - menuWidth - margin;
       optimalPosition.y = Math.max(margin, Math.min(position.y - menuHeight/2, safeSpaceAbove));
       direction = 'left';
     }
-    // Try right of the button
     else if (position.x + menuWidth + margin <= viewport.width) {
       optimalPosition.x = position.x + margin;
       optimalPosition.y = Math.max(margin, Math.min(position.y - menuHeight/2, safeSpaceAbove));
       direction = 'right';
     }
-    // Fallback: position safely above with horizontal centering
     else {
       optimalPosition.x = Math.max(margin, Math.min(position.x - menuWidth/2, viewport.width - menuWidth - margin));
       optimalPosition.y = Math.max(margin, safeSpaceAbove - 10);
       direction = 'up';
     }
 
-    // Ensure the menu stays within horizontal bounds
     optimalPosition.x = Math.max(margin, Math.min(optimalPosition.x, viewport.width - menuWidth - margin));
     
     return { position: optimalPosition, direction };

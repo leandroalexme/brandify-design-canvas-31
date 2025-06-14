@@ -14,7 +14,7 @@ interface SelectSubmenuProps {
 export const SelectSubmenu = (props: SelectSubmenuProps) => {
   const selectTools = [
     { id: 'select', icon: MousePointer, label: 'Seletor' },
-    { id: 'node', icon: MousePointer, label: 'Ferramenta de Nó' }, // Using MousePointer as node tool
+    { id: 'node', icon: MousePointer, label: 'Ferramenta de Nó' },
     { id: 'move', icon: Move, label: 'Mover' },
     { id: 'comment', icon: MessageCircle, label: 'Comentário' },
   ];
