@@ -51,6 +51,8 @@ export const BrandifyStudio = () => {
   // Detectar mudança de ferramenta - melhorado para abrir painel automaticamente
   React.useEffect(() => {
     try {
+      console.log('Tool changed to:', toolState.selectedTool);
+      
       if (toolState.selectedTool === 'text') {
         // Abrir o painel imediatamente quando a ferramenta texto for selecionada
         updateUIState({ 
@@ -73,10 +75,11 @@ export const BrandifyStudio = () => {
 
   // Mapear ferramentas para o Canvas com melhor tratamento de erros
   const getCanvasToolType = useCallback((tool: ToolType): 'select' | 'pen' | 'shapes' | 'text' => {
-    logger.debug('Mapping tool to canvas type', { tool });
+    console.log('Mapping tool to canvas type:', tool);
     
     // Mapeamento direto para ferramentas principais
     if (tool === 'select' || tool === 'pen' || tool === 'shapes' || tool === 'text') {
+      console.log('Direct mapping for tool:', tool);
       return tool;
     }
     
@@ -85,21 +88,21 @@ export const BrandifyStudio = () => {
       case 'node':
       case 'move':
       case 'comment':
-        logger.debug('Sub-tool mapped to select', { tool });
+        console.log('Sub-tool mapped to select:', tool);
         return 'select';
       case 'brush':
       case 'pencil':
-        logger.debug('Sub-tool mapped to pen', { tool });
+        console.log('Sub-tool mapped to pen:', tool);
         return 'pen';
       default:
-        logger.warn('Unknown tool type, defaulting to select', { tool });
+        console.warn('Unknown tool type, defaulting to select:', tool);
         return 'select';
     }
   }, []);
 
   // Otimizar handler de seleção de ferramenta
   const handleToolSelect = useCallback((tool: ToolType) => {
-    logger.debug('Tool selected', { tool });
+    console.log('Tool selected in BrandifyStudio:', tool);
     updateToolState({ selectedTool: tool });
   }, [updateToolState]);
 
@@ -115,6 +118,16 @@ export const BrandifyStudio = () => {
     updateUIState({ selectedShape: shape });
   }, [updateUIState]);
 
+  // Handler para criação de texto com logs
+  const handleCreateText = useCallback((x: number, y: number) => {
+    console.log('handleCreateText called with coordinates:', { x, y });
+    console.log('Current tool state:', toolState);
+    createTextElement(x, y);
+  }, [createTextElement, toolState]);
+
+  const mappedTool = getCanvasToolType(toolState.selectedTool);
+  console.log('Canvas will receive tool:', mappedTool, 'from original tool:', toolState.selectedTool);
+
   return (
     <ErrorBoundary>
       <div className="h-screen bg-slate-900 overflow-hidden relative">
@@ -123,12 +136,12 @@ export const BrandifyStudio = () => {
         <div ref={canvasRef}>
           <Canvas
             elements={elements}
-            selectedTool={getCanvasToolType(toolState.selectedTool)}
+            selectedTool={mappedTool}
             selectedColor={toolState.selectedColor}
             onAddElement={addElement}
             onSelectElement={selectElement}
             onUpdateElement={debouncedUpdateElement}
-            onCreateText={createTextElement}
+            onCreateText={handleCreateText}
           />
         </div>
         

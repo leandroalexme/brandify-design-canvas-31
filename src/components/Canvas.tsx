@@ -37,11 +37,15 @@ export const Canvas = ({
 
   const handleArtboardClick = useCallback((e: React.MouseEvent) => {
     try {
+      console.log('Artboard clicked with tool:', selectedTool);
+      
       if (!artboardRef.current) return;
       
       const rect = artboardRef.current.getBoundingClientRect();
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
+
+      console.log('Click coordinates:', { x, y });
 
       if (!isValidPosition({ x, y })) {
         logger.error('Invalid click position', { x, y });
@@ -52,9 +56,11 @@ export const Canvas = ({
       onSelectElement(null);
 
       if (selectedTool === 'text') {
+        console.log('Creating text at:', { x, y });
         onCreateText(x, y);
         logger.debug('Text creation triggered', { x, y });
       } else if (selectedTool === 'shapes') {
+        console.log('Creating shape at:', { x, y });
         onAddElement({
           type: 'shape',
           x,
