@@ -12,7 +12,8 @@ interface MainToolbarProps {
   onToolSelect: (tool: ToolType) => void;
   selectedColor: string;
   onColorSelect: (color: string) => void;
-  canvasRef: React.RefObject<HTMLDivElement>;
+  selectedShape: string | null;
+  onShapeSelect: (shape: string | null) => void;
 }
 
 interface ToolDefinition {
@@ -33,7 +34,12 @@ const SHAPE_ICONS = {
   diamond: Diamond,
 };
 
-export const MainToolbar = ({ selectedTool, onToolSelect }: MainToolbarProps) => {
+export const MainToolbar = ({ 
+  selectedTool, 
+  onToolSelect, 
+  selectedShape, 
+  onShapeSelect 
+}: MainToolbarProps) => {
   const {
     currentTool,
     activeSubTools,
@@ -48,10 +54,9 @@ export const MainToolbar = ({ selectedTool, onToolSelect }: MainToolbarProps) =>
 
   const buttonRefs = useRef<Record<string, HTMLButtonElement | null>>({});
 
-  // Estados locais para menus específicos
+  // Estados locais para shapes menu
   const [showShapesMenu, setShowShapesMenu] = React.useState(false);
   const [shapesMenuPosition, setShapesMenuPosition] = React.useState({ x: 0, y: 0 });
-  const [selectedShape, setSelectedShape] = React.useState<string | null>(null);
 
   // Auto-retorno para shapes quando clica fora
   React.useEffect(() => {
@@ -60,12 +65,9 @@ export const MainToolbar = ({ selectedTool, onToolSelect }: MainToolbarProps) =>
       const isToolbarClick = target.closest('[data-toolbar]');
       const isSubmenuClick = target.closest('[data-submenu]');
       
-      if (!isToolbarClick && !isSubmenuClick) {
-        // Fechar shapes menu e resetar shape selecionada
-        if (showShapesMenu) {
-          setShowShapesMenu(false);
-          setSelectedShape(null);
-        }
+      if (!isToolbarClick && !isSubmenuClick && showShapesMenu) {
+        setShowShapesMenu(false);
+        onShapeSelect(null);
       }
     };
 
@@ -76,7 +78,7 @@ export const MainToolbar = ({ selectedTool, onToolSelect }: MainToolbarProps) =>
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [showShapesMenu]);
+  }, [showShapesMenu, onShapeSelect]);
 
   // Sincronizar com estado externo
   React.useEffect(() => {
@@ -155,11 +157,10 @@ export const MainToolbar = ({ selectedTool, onToolSelect }: MainToolbarProps) =>
       returnToMainTool(toolId);
     }
     
-    // Para shapes, resetar shape selecionada
     if (toolId === 'shapes') {
-      setSelectedShape(null);
+      onShapeSelect(null);
     }
-  }, [activeSubTools, returnToMainTool]);
+  }, [activeSubTools, returnToMainTool, onShapeSelect]);
 
   const handleSubToolSelect = useCallback((subToolId: string) => {
     selectSubTool(subToolId as any);
@@ -170,15 +171,15 @@ export const MainToolbar = ({ selectedTool, onToolSelect }: MainToolbarProps) =>
   }, [toggleSubmenu]);
 
   const handleShapeSelect = useCallback((shapeId: string) => {
-    setSelectedShape(shapeId);
+    onShapeSelect(shapeId);
     console.log('Shape selected:', shapeId);
     setShowShapesMenu(false);
-  }, []);
+  }, [onShapeSelect]);
 
   const handleShapesMenuClose = useCallback(() => {
     setShowShapesMenu(false);
-    setSelectedShape(null);
-  }, []);
+    onShapeSelect(null);
+  }, [onShapeSelect]);
 
   return (
     <>

@@ -10,6 +10,7 @@ interface CanvasProps {
   onAddElement: (element: Omit<DesignElement, 'id' | 'selected'>) => void;
   onSelectElement: (id: string | null) => void;
   onUpdateElement: (id: string, updates: Partial<DesignElement>) => void;
+  onCreateText: (x: number, y: number) => void;
 }
 
 export const Canvas = ({ 
@@ -18,7 +19,8 @@ export const Canvas = ({
   selectedColor, 
   onAddElement, 
   onSelectElement,
-  onUpdateElement 
+  onUpdateElement,
+  onCreateText
 }: CanvasProps) => {
   const artboardRef = useRef<HTMLDivElement>(null);
   const [artboardColor, setArtboardColor] = useState('#ffffff');
@@ -31,17 +33,11 @@ export const Canvas = ({
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
+    // Limpar seleções primeiro
+    onSelectElement(null);
+
     if (selectedTool === 'text') {
-      onAddElement({
-        type: 'text',
-        x,
-        y,
-        content: 'Texto de exemplo',
-        color: selectedColor,
-        fontSize: 24,
-        fontFamily: 'Inter',
-        fontWeight: '600',
-      });
+      onCreateText(x, y);
     } else if (selectedTool === 'shapes') {
       onAddElement({
         type: 'shape',

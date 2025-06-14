@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from 'react';
 import { Canvas } from './Canvas';
 import { MainToolbar } from './MainToolbar';
@@ -10,6 +11,7 @@ import { LayersPanel } from './LayersPanel';
 import { AlignmentPanel } from './AlignmentPanel';
 import { ArtboardsPanel } from './ArtboardsPanel';
 import { TextPropertiesPanel } from './TextPropertiesPanel';
+import { ToolType, UIState, ToolState } from '../types/tools';
 
 export interface DesignElement {
   id: string;
@@ -27,20 +29,26 @@ export interface DesignElement {
   selected: boolean;
 }
 
-export type ToolType = 'select' | 'node' | 'move' | 'comment' | 'pen' | 'brush' | 'pencil' | 'shapes' | 'text';
-
 export const BrandifyStudio = () => {
   const [elements, setElements] = useState<DesignElement[]>([]);
-  const [selectedTool, setSelectedTool] = useState<ToolType>('select');
-  const [selectedColor, setSelectedColor] = useState('#4285F4');
   const [selectedElement, setSelectedElement] = useState<string | null>(null);
-  const [zoom, setZoom] = useState(100);
   
-  // Panel states
-  const [showLayersPanel, setShowLayersPanel] = useState(false);
-  const [showAlignmentPanel, setShowAlignmentPanel] = useState(false);
-  const [showArtboardsPanel, setShowArtboardsPanel] = useState(false);
-  const [showTextPropertiesPanel, setShowTextPropertiesPanel] = useState(false);
+  // Estado unificado de ferramentas
+  const [toolState, setToolState] = useState<ToolState>({
+    selectedTool: 'select',
+    selectedColor: '#4285F4',
+    zoom: 100
+  });
+  
+  // Estado unificado de UI
+  const [uiState, setUIState] = useState<UIState>({
+    showLayersPanel: false,
+    showAlignmentPanel: false,
+    showArtboardsPanel: false,
+    showTextPropertiesPanel: false,
+    selectedShape: null,
+    textCreated: false
+  });
 
   const canvasRef = useRef<HTMLDivElement>(null);
 
@@ -73,32 +81,43 @@ export const BrandifyStudio = () => {
     }
   };
 
-  // Função para criar texto automaticamente quando a ferramenta de texto é selecionada
-  const handleTextToolActivation = () => {
-    // Criar um novo elemento de texto no centro da tela
+  // Função para atualizar estado de ferramenta
+  const updateToolState = (updates: Partial<ToolState>) => {
+    setToolState(prev => ({ ...prev, ...updates }));
+  };
+
+  // Função para atualizar estado de UI
+  const updateUIState = (updates: Partial<UIState>) => {
+    setUIState(prev => ({ ...prev, ...updates }));
+  };
+
+  // Função corrigida para criar texto (SEM criação automática)
+  const createTextElement = (x: number, y: number) => {
+    if (toolState.selectedTool !== 'text') return;
+    
     const newTextElement: Omit<DesignElement, 'id' | 'selected'> = {
       type: 'text',
-      x: 400, // Centro aproximado
-      y: 300, // Centro aproximado
+      x,
+      y,
       content: 'Digite seu texto',
-      color: selectedColor,
+      color: toolState.selectedColor,
       fontSize: 24,
       fontFamily: 'Inter',
       fontWeight: 'normal'
     };
     
     addElement(newTextElement);
-    setShowTextPropertiesPanel(true);
+    updateUIState({ showTextPropertiesPanel: true, textCreated: true });
   };
 
-  // Detectar quando a ferramenta de texto é selecionada
+  // Detectar mudança de ferramenta (SEM criação automática)
   React.useEffect(() => {
-    if (selectedTool === 'text') {
-      handleTextToolActivation();
+    if (toolState.selectedTool === 'text') {
+      updateUIState({ textCreated: false });
     } else {
-      setShowTextPropertiesPanel(false);
+      updateUIState({ showTextPropertiesPanel: false, textCreated: false });
     }
-  }, [selectedTool]);
+  }, [toolState.selectedTool]);
 
   // Mapear ferramentas para o Canvas
   const getCanvasToolType = (tool: ToolType): 'select' | 'pen' | 'shapes' | 'text' => {
@@ -121,55 +140,56 @@ export const BrandifyStudio = () => {
 
   return (
     <div className="h-screen bg-slate-900 overflow-hidden relative">
-      <ZoomIndicator zoom={zoom} />
+      <ZoomIndicator zoom={toolState.zoom} />
       
       <div ref={canvasRef}>
         <Canvas
           elements={elements}
-          selectedTool={getCanvasToolType(selectedTool)}
-          selectedColor={selectedColor}
+          selectedTool={getCanvasToolType(toolState.selectedTool)}
+          selectedColor={toolState.selectedColor}
           onAddElement={addElement}
           onSelectElement={selectElement}
           onUpdateElement={updateElement}
+          onCreateText={createTextElement}
         />
       </div>
       
       <MainToolbar 
-        selectedTool={selectedTool}
-        onToolSelect={setSelectedTool}
-        selectedColor={selectedColor}
-        onColorSelect={setSelectedColor}
-        canvasRef={canvasRef}
+        selectedTool={toolState.selectedTool}
+        onToolSelect={(tool) => updateToolState({ selectedTool: tool })}
+        selectedColor={toolState.selectedColor}
+        onColorSelect={(color) => updateToolState({ selectedColor: color })}
+        selectedShape={uiState.selectedShape}
+        onShapeSelect={(shape) => updateUIState({ selectedShape: shape })}
       />
       
-      <LayersButton onClick={() => setShowLayersPanel(!showLayersPanel)} />
-      <GridButton onClick={() => setShowAlignmentPanel(!showAlignmentPanel)} />
-      <ArtboardsButton onClick={() => setShowArtboardsPanel(!showArtboardsPanel)} />
+      <LayersButton onClick={() => updateUIState({ showLayersPanel: !uiState.showLayersPanel })} />
+      <GridButton onClick={() => updateUIState({ showAlignmentPanel: !uiState.showAlignmentPanel })} />
+      <ArtboardsButton onClick={() => updateUIState({ showArtboardsPanel: !uiState.showArtboardsPanel })} />
       
-      {showLayersPanel && (
+      {uiState.showLayersPanel && (
         <LayersPanel
           elements={elements}
           onSelectElement={selectElement}
           onUpdateElement={updateElement}
           onDeleteElement={deleteElement}
-          onClose={() => setShowLayersPanel(false)}
+          onClose={() => updateUIState({ showLayersPanel: false })}
         />
       )}
       
-      {showAlignmentPanel && (
-        <AlignmentPanel onClose={() => setShowAlignmentPanel(false)} />
+      {uiState.showAlignmentPanel && (
+        <AlignmentPanel onClose={() => updateUIState({ showAlignmentPanel: false })} />
       )}
       
-      {showArtboardsPanel && (
-        <ArtboardsPanel onClose={() => setShowArtboardsPanel(false)} />
+      {uiState.showArtboardsPanel && (
+        <ArtboardsPanel onClose={() => updateUIState({ showArtboardsPanel: false })} />
       )}
       
-      {/* Painel de Propriedades de Texto */}
       <TextPropertiesPanel
-        isOpen={showTextPropertiesPanel}
+        isOpen={uiState.showTextPropertiesPanel}
         onClose={() => {
-          setShowTextPropertiesPanel(false);
-          setSelectedTool('select');
+          updateUIState({ showTextPropertiesPanel: false });
+          updateToolState({ selectedTool: 'select' });
         }}
       />
       

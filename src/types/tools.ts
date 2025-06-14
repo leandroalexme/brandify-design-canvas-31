@@ -10,3 +10,20 @@ export interface ToolDefinition {
   hasSubmenu: boolean;
   subTools?: SubTool[];
 }
+
+// Estados de interface
+export interface UIState {
+  showLayersPanel: boolean;
+  showAlignmentPanel: boolean;
+  showArtboardsPanel: boolean;
+  showTextPropertiesPanel: boolean;
+  selectedShape: string | null;
+  textCreated: boolean; // Flag para controlar criação de texto
+}
+
+// Estado de ferramentas
+export interface ToolState {
+  selectedTool: ToolType;
+  selectedColor: string;
+  zoom: number;
+}
