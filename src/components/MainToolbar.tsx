@@ -1,42 +1,39 @@
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { MousePointer, PenTool, Square, Type } from 'lucide-react';
 import { ShapesMenu } from './ShapesMenu';
 import { SelectSubmenu } from './SelectSubmenu';
 import { PenSubmenu } from './PenSubmenu';
+import { ToolbarButton } from './ToolbarButton';
+import { useSubmenuState } from '../hooks/useSubmenuState';
+import { createSubmenuHandlers } from '../utils/submenuHandlers';
+import { ToolType } from './BrandifyStudio';
 
 interface MainToolbarProps {
-  selectedTool: 'select' | 'pen' | 'shapes' | 'text' | 'node' | 'move' | 'comment' | 'vector-brush' | 'pencil';
-  onToolSelect: (tool: 'select' | 'pen' | 'shapes' | 'text' | 'node' | 'move' | 'comment' | 'vector-brush' | 'pencil') => void;
+  selectedTool: ToolType;
+  onToolSelect: (tool: ToolType) => void;
   selectedColor: string;
   onColorSelect: (color: string) => void;
 }
 
 export const MainToolbar = ({ selectedTool, onToolSelect }: MainToolbarProps) => {
-  // States for each submenu
-  const [showShapesMenu, setShowShapesMenu] = useState(false);
-  const [showSelectMenu, setShowSelectMenu] = useState(false);
-  const [showPenMenu, setShowPenMenu] = useState(false);
-  
-  // Position states
-  const [shapesMenuPosition, setShapesMenuPosition] = useState({ x: 0, y: 0 });
-  const [selectMenuPosition, setSelectMenuPosition] = useState({ x: 0, y: 0 });
-  const [penMenuPosition, setPenMenuPosition] = useState({ x: 0, y: 0 });
-  
-  // Selected items for each submenu
-  const [selectedShape, setSelectedShape] = useState<string>('');
-  const [selectedSelectTool, setSelectedSelectTool] = useState<string>('select');
-  const [selectedPenTool, setSelectedPenTool] = useState<string>('pen');
-  
-  // Refs for buttons
-  const shapesButtonRef = useRef<HTMLButtonElement>(null);
-  const selectButtonRef = useRef<HTMLButtonElement>(null);
-  const penButtonRef = useRef<HTMLButtonElement>(null);
-  
-  // Timeout refs
-  const shapesTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const selectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const penTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const {
+    showShapesMenu, setShowShapesMenu,
+    showSelectMenu, setShowSelectMenu,
+    showPenMenu, setShowPenMenu,
+    shapesMenuPosition, setShapesMenuPosition,
+    selectMenuPosition, setSelectMenuPosition,
+    penMenuPosition, setPenMenuPosition,
+    selectedShape, setSelectedShape,
+    selectedSelectTool, setSelectedSelectTool,
+    selectedPenTool, setSelectedPenTool,
+    shapesButtonRef,
+    selectButtonRef,
+    penButtonRef,
+    shapesTimeoutRef,
+    selectTimeoutRef,
+    penTimeoutRef,
+  } = useSubmenuState();
 
   const tools = [
     { id: 'select', icon: MousePointer, label: 'Selecionar', hasSubmenu: true },
@@ -45,77 +42,17 @@ export const MainToolbar = ({ selectedTool, onToolSelect }: MainToolbarProps) =>
     { id: 'text', icon: Type, label: 'Texto', hasSubmenu: false },
   ];
 
-  // Generic handlers for submenus
-  const createSubmenuHandlers = (
-    menuType: 'shapes' | 'select' | 'pen',
-    buttonRef: React.RefObject<HTMLButtonElement>,
-    setShowMenu: (show: boolean) => void,
-    setMenuPosition: (pos: { x: number; y: number }) => void,
-    timeoutRef: React.MutableRefObject<NodeJS.Timeout | null>,
-    defaultTool: string
-  ) => {
-    const handleMouseDown = (e: React.MouseEvent) => {
-      if (e.button === 2) { // Right click
-        e.preventDefault();
-        showMenuAtPosition(e, buttonRef, setMenuPosition, setShowMenu);
-        return;
-      }
-
-      // Left click and hold
-      timeoutRef.current = setTimeout(() => {
-        showMenuAtPosition(e, buttonRef, setMenuPosition, setShowMenu);
-      }, 500);
-    };
-
-    const handleMouseUp = () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-        timeoutRef.current = null;
-      }
-    };
-
-    const handleClick = (e: React.MouseEvent) => {
-      e.preventDefault();
-      if (!eval(`show${menuType.charAt(0).toUpperCase() + menuType.slice(1)}Menu`)) {
-        onToolSelect(defaultTool as any);
-      }
-    };
-
-    const handleContextMenu = (e: React.MouseEvent) => {
-      e.preventDefault();
-      showMenuAtPosition(e, buttonRef, setMenuPosition, setShowMenu);
-    };
-
-    return { handleMouseDown, handleMouseUp, handleClick, handleContextMenu };
-  };
-
-  const showMenuAtPosition = (
-    e: React.MouseEvent,
-    buttonRef: React.RefObject<HTMLButtonElement>,
-    setMenuPosition: (pos: { x: number; y: number }) => void,
-    setShowMenu: (show: boolean) => void
-  ) => {
-    if (buttonRef.current) {
-      const rect = buttonRef.current.getBoundingClientRect();
-      setMenuPosition({
-        x: rect.left + rect.width / 2,
-        y: rect.top
-      });
-      setShowMenu(true);
-    }
-  };
-
   // Create handlers for each submenu
   const shapesHandlers = createSubmenuHandlers(
-    'shapes', shapesButtonRef, setShowShapesMenu, setShapesMenuPosition, shapesTimeoutRef, 'shapes'
+    'shapes', shapesButtonRef, setShowShapesMenu, setShapesMenuPosition, shapesTimeoutRef, 'shapes', onToolSelect
   );
   
   const selectHandlers = createSubmenuHandlers(
-    'select', selectButtonRef, setShowSelectMenu, setSelectMenuPosition, selectTimeoutRef, 'select'
+    'select', selectButtonRef, setShowSelectMenu, setSelectMenuPosition, selectTimeoutRef, 'select', onToolSelect
   );
   
   const penHandlers = createSubmenuHandlers(
-    'pen', penButtonRef, setShowPenMenu, setPenMenuPosition, penTimeoutRef, 'pen'
+    'pen', penButtonRef, setShowPenMenu, setPenMenuPosition, penTimeoutRef, 'pen', onToolSelect
   );
 
   // Handle clicks outside to close menus
@@ -146,13 +83,13 @@ export const MainToolbar = ({ selectedTool, onToolSelect }: MainToolbarProps) =>
   const handleSelectToolSelect = (tool: string) => {
     console.log('Select tool selected:', tool);
     setSelectedSelectTool(tool);
-    onToolSelect(tool as any);
+    onToolSelect(tool as ToolType);
   };
 
   const handlePenToolSelect = (tool: string) => {
     console.log('Pen tool selected:', tool);
     setSelectedPenTool(tool);
-    onToolSelect(tool as any);
+    onToolSelect(tool as ToolType);
   };
 
   const getToolHandler = (tool: any) => {
@@ -183,7 +120,7 @@ export const MainToolbar = ({ selectedTool, onToolSelect }: MainToolbarProps) =>
         };
       default:
         return {
-          onClick: () => onToolSelect(tool.id as any),
+          onClick: () => onToolSelect(tool.id as ToolType),
         };
     }
   };
@@ -199,18 +136,18 @@ export const MainToolbar = ({ selectedTool, onToolSelect }: MainToolbarProps) =>
               (tool.id === 'pen' && ['vector-brush', 'pencil'].includes(selectedTool));
             
             return (
-              <button
+              <ToolbarButton
                 key={tool.id}
-                ref={handlers.ref}
-                className={`tool-button smooth-transition ${isActive ? 'active' : ''}`}
+                id={tool.id}
+                icon={tool.icon}
+                label={tool.label}
+                isActive={isActive}
+                buttonRef={handlers.ref}
                 onClick={handlers.onClick}
                 onMouseDown={handlers.onMouseDown}
                 onMouseUp={handlers.onMouseUp}
                 onContextMenu={handlers.onContextMenu}
-                title={tool.label}
-              >
-                <tool.icon className="w-5 h-5" />
-              </button>
+              />
             );
           })}
         </div>
