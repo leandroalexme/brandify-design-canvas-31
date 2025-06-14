@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { MousePointer, PenTool, Square, Type, Move, MessageCircle, Brush, Pencil } from 'lucide-react';
 import { ShapesMenu } from './ShapesMenu';
@@ -35,14 +36,17 @@ export const MainToolbar = ({ selectedTool, onToolSelect }: MainToolbarProps) =>
     closeAllMenus,
   } = useSubmenuState();
 
-  // Get dynamic icon based on selected tool
+  // IMPLEMENTAÇÃO DA TROCA DINÂMICA DE ÍCONES
   const getToolIcon = (baseToolId: string) => {
     switch (baseToolId) {
       case 'select':
+        // Mostra ícone da sub-ferramenta ativa ou volta ao padrão
         if (selectedTool === 'move') return Move;
         if (selectedTool === 'comment') return MessageCircle;
+        if (selectedTool === 'node') return MousePointer; // Ícone diferenciado para node
         return MousePointer;
       case 'pen':
+        // Mostra ícone da sub-ferramenta ativa ou volta ao padrão
         if (selectedTool === 'vector-brush') return Brush;
         if (selectedTool === 'pencil') return Pencil;
         return PenTool;
@@ -53,6 +57,19 @@ export const MainToolbar = ({ selectedTool, onToolSelect }: MainToolbarProps) =>
       default:
         return MousePointer;
     }
+  };
+
+  // Determina qual ferramenta está ativa para mostrar o estado correto
+  const getActiveToolGroup = (tool: any) => {
+    const subToolMap: { [key: string]: string } = {
+      'node': 'select',
+      'move': 'select', 
+      'comment': 'select',
+      'vector-brush': 'pen',
+      'pencil': 'pen',
+    };
+    
+    return subToolMap[selectedTool] === tool.id || selectedTool === tool.id;
   };
 
   const tools = [
@@ -91,40 +108,53 @@ export const MainToolbar = ({ selectedTool, onToolSelect }: MainToolbarProps) =>
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [closeAllMenus]);
 
-  // Auto-return to primary tools when not in use
+  // IMPLEMENTAÇÃO DO AUTO-RETORNO ÀS FERRAMENTAS PRINCIPAIS
   useEffect(() => {
-    const handleToolDeactivation = () => {
-      // Auto-return logic: if a sub-tool is selected and user clicks elsewhere, return to primary tool
-      const isSubTool = ['node', 'move', 'comment', 'vector-brush', 'pencil'].includes(selectedTool);
-      if (isSubTool) {
-        const timer = setTimeout(() => {
-          // This would be triggered by external events, but for now we keep the sub-tool active
-          // The return to primary tool will happen when user selects another tool
-        }, 100);
-        return () => clearTimeout(timer);
+    const handleAutoReturn = () => {
+      const subTools = ['node', 'move', 'comment', 'vector-brush', 'pencil'];
+      const primaryTools = ['select', 'pen', 'shapes', 'text'];
+      
+      if (subTools.includes(selectedTool)) {
+        // Detecta quando usuário clica fora da área de trabalho ou muda contexto
+        const handleOutsideActivity = () => {
+          // Retorna à ferramenta principal correspondente
+          if (['node', 'move', 'comment'].includes(selectedTool)) {
+            onToolSelect('select');
+          } else if (['vector-brush', 'pencil'].includes(selectedTool)) {
+            onToolSelect('pen');
+          }
+        };
+
+        // Timer para auto-retorno após período de inatividade
+        const inactivityTimer = setTimeout(handleOutsideActivity, 10000); // 10 segundos
+        
+        return () => clearTimeout(inactivityTimer);
       }
     };
 
-    handleToolDeactivation();
-  }, [selectedTool]);
+    handleAutoReturn();
+  }, [selectedTool, onToolSelect]);
 
   // Handlers for submenu selections
   const handleShapeSelect = (shape: string) => {
     console.log('Shape selected:', shape);
     setSelectedShape(shape);
     onToolSelect('shapes');
+    closeAllMenus();
   };
 
   const handleSelectToolSelect = (tool: string) => {
     console.log('Select tool selected:', tool);
     setSelectedSelectTool(tool);
     onToolSelect(tool as ToolType);
+    closeAllMenus();
   };
 
   const handlePenToolSelect = (tool: string) => {
     console.log('Pen tool selected:', tool);
     setSelectedPenTool(tool);
     onToolSelect(tool as ToolType);
+    closeAllMenus();
   };
 
   const getToolHandler = (tool: any) => {
@@ -166,9 +196,7 @@ export const MainToolbar = ({ selectedTool, onToolSelect }: MainToolbarProps) =>
         <div className="floating-module p-3 flex items-center space-x-2 animate-slide-up">
           {tools.map((tool) => {
             const handlers = getToolHandler(tool);
-            const isActive = selectedTool === tool.id || 
-              (tool.id === 'select' && ['node', 'move', 'comment'].includes(selectedTool)) ||
-              (tool.id === 'pen' && ['vector-brush', 'pencil'].includes(selectedTool));
+            const isActive = getActiveToolGroup(tool);
             
             return (
               <ToolbarButton

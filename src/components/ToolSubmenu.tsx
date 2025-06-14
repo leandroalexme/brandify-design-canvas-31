@@ -31,12 +31,12 @@ export const ToolSubmenu = ({
   const [finalPosition, setFinalPosition] = useState(position);
   const [animationDirection, setAnimationDirection] = useState<'up' | 'down' | 'left' | 'right'>('up');
 
-  // Standardized positioning to match ShapesMenu exactly
+  // ESPAÇAMENTO IGUAL AO ShapesMenu - Copiado exatamente do ShapesMenu.tsx
   const calculateOptimalPosition = (): { position: { x: number; y: number }; direction: 'up' | 'down' | 'left' | 'right' } => {
     const menuWidth = 72;
-    const menuHeight = tools.length * 52 + 16; // Same calculation as ShapesMenu
+    const menuHeight = tools.length * 52 + 16; // MESMO CÁLCULO do ShapesMenu
     const margin = 16;
-    const toolbarZoneHeight = 120; // Same as ShapesMenu
+    const toolbarZoneHeight = 120; // MESMA proteção da toolbar
     
     const viewport = {
       width: window.innerWidth,
@@ -46,10 +46,10 @@ export const ToolSubmenu = ({
     let optimalPosition = { ...position };
     let direction: 'up' | 'down' | 'left' | 'right' = 'up';
 
-    // Calculate safe space above toolbar - exactly like ShapesMenu
+    // MESMO cálculo de espaço seguro do ShapesMenu
     const safeSpaceAbove = viewport.height - toolbarZoneHeight - menuHeight - margin;
     
-    // Same positioning logic as ShapesMenu
+    // MESMA lógica de posicionamento do ShapesMenu
     if (position.y - menuHeight - margin >= margin && safeSpaceAbove >= 0) {
       optimalPosition.x = position.x - menuWidth / 2;
       optimalPosition.y = Math.min(position.y - menuHeight - margin, safeSpaceAbove);
@@ -125,7 +125,7 @@ export const ToolSubmenu = ({
       style={{
         left: finalPosition.x,
         top: finalPosition.y,
-        width: '72px'
+        width: '72px' // MESMA largura do ShapesMenu
       }}
     >
       {tools.map((tool, index) => {
@@ -137,7 +137,7 @@ export const ToolSubmenu = ({
             key={tool.id}
             className={`action-button animate-stagger-fade ${isSelected ? 'selected animate-pulse-select' : ''}`}
             style={{ 
-              animationDelay: `${index * 0.05}s`,
+              animationDelay: `${index * 0.05}s`, // MESMA animação
               animationFillMode: 'both'
             }}
             onClick={() => handleToolClick(tool.id)}

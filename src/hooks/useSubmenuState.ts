@@ -29,28 +29,19 @@ export const useSubmenuState = () => {
     setShowPenMenu(false);
   };
 
-  // Exclusive menu opening functions
+  // Exclusive menu opening functions - CORRIGIDO para garantir exclusividade
   const setShowShapesMenuExclusive = (show: boolean) => {
-    if (show) {
-      setShowSelectMenu(false);
-      setShowPenMenu(false);
-    }
+    closeAllMenus(); // Fecha todos primeiro
     setShowShapesMenu(show);
   };
 
   const setShowSelectMenuExclusive = (show: boolean) => {
-    if (show) {
-      setShowShapesMenu(false);
-      setShowPenMenu(false);
-    }
+    closeAllMenus(); // Fecha todos primeiro
     setShowSelectMenu(show);
   };
 
   const setShowPenMenuExclusive = (show: boolean) => {
-    if (show) {
-      setShowShapesMenu(false);
-      setShowSelectMenu(false);
-    }
+    closeAllMenus(); // Fecha todos primeiro
     setShowPenMenu(show);
   };
 
