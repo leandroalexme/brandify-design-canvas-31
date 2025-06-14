@@ -1,7 +1,9 @@
 
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useCallback } from 'react';
 import { Copy, Plus } from 'lucide-react';
 import { DesignElement } from './BrandifyStudio';
+import { useEventListener } from '../hooks/useEventListener';
+import { logger, isValidPosition } from '../utils/validation';
 
 interface CanvasProps {
   elements: DesignElement[];
@@ -26,34 +28,68 @@ export const Canvas = ({
   const [artboardColor, setArtboardColor] = useState('#ffffff');
   const [showColorPicker, setShowColorPicker] = useState(false);
 
-  const handleArtboardClick = (e: React.MouseEvent) => {
-    if (!artboardRef.current) return;
-    
-    const rect = artboardRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-
-    // Limpar seleções primeiro
-    onSelectElement(null);
-
-    if (selectedTool === 'text') {
-      onCreateText(x, y);
-    } else if (selectedTool === 'shapes') {
-      onAddElement({
-        type: 'shape',
-        x,
-        y,
-        color: selectedColor,
-        width: 100,
-        height: 100,
-      });
+  // Event listener otimizado para fechar color picker
+  useEventListener('mousedown', useCallback((event: MouseEvent) => {
+    const target = event.target as Element;
+    if (showColorPicker && !target.closest('.color-picker-container')) {
+      setShowColorPicker(false);
     }
-  };
+  }, [showColorPicker]));
 
-  const handleElementClick = (e: React.MouseEvent, elementId: string) => {
-    e.stopPropagation();
-    onSelectElement(elementId);
-  };
+  const handleArtboardClick = useCallback((e: React.MouseEvent) => {
+    try {
+      if (!artboardRef.current) return;
+      
+      const rect = artboardRef.current.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      if (!isValidPosition({ x, y })) {
+        logger.error('Invalid click position', { x, y });
+        return;
+      }
+
+      // Limpar seleções primeiro
+      onSelectElement(null);
+
+      if (selectedTool === 'text') {
+        onCreateText(x, y);
+        logger.debug('Text creation triggered', { x, y });
+      } else if (selectedTool === 'shapes') {
+        onAddElement({
+          type: 'shape',
+          x,
+          y,
+          color: selectedColor,
+          width: 100,
+          height: 100,
+        });
+        logger.debug('Shape created', { x, y, color: selectedColor });
+      }
+    } catch (error) {
+      logger.error('Error handling artboard click', error);
+    }
+  }, [artboardRef, onSelectElement, selectedTool, onCreateText, onAddElement, selectedColor]);
+
+  const handleElementClick = useCallback((e: React.MouseEvent, elementId: string) => {
+    try {
+      e.stopPropagation();
+      onSelectElement(elementId);
+      logger.debug('Element selected', elementId);
+    } catch (error) {
+      logger.error('Error selecting element', error);
+    }
+  }, [onSelectElement]);
+
+  const handleColorChange = useCallback((color: string) => {
+    try {
+      setArtboardColor(color);
+      setShowColorPicker(false);
+      logger.debug('Artboard color changed', color);
+    } catch (error) {
+      logger.error('Error changing artboard color', error);
+    }
+  }, []);
 
   return (
     <div className="h-screen flex items-center justify-center relative">
@@ -63,7 +99,7 @@ export const Canvas = ({
           <h2 className="text-lg font-medium text-slate-300">Design sem título</h2>
           
           {/* Color Picker */}
-          <div className="relative">
+          <div className="relative color-picker-container">
             <button
               className="w-6 h-6 rounded-lg border-2 border-slate-600/60 shadow-sm transition-all duration-200 hover:scale-105"
               style={{ backgroundColor: artboardColor }}
@@ -79,10 +115,7 @@ export const Canvas = ({
                       key={color}
                       className="w-8 h-8 rounded-lg border-2 border-slate-600/60 hover:scale-110 transition-transform"
                       style={{ backgroundColor: color }}
-                      onClick={() => {
-                        setArtboardColor(color);
-                        setShowColorPicker(false);
-                      }}
+                      onClick={() => handleColorChange(color)}
                     />
                   ))}
                 </div>
