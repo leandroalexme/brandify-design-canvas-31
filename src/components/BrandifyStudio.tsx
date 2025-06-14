@@ -70,6 +70,25 @@ export const BrandifyStudio = () => {
     }
   };
 
+  // Map expanded ToolType to Canvas compatible tool type
+  const getCanvasToolType = (tool: ToolType): 'select' | 'pen' | 'shapes' | 'text' => {
+    switch (tool) {
+      case 'node':
+      case 'move':
+      case 'comment':
+        return 'select';
+      case 'vector-brush':
+      case 'pencil':
+        return 'pen';
+      case 'shapes':
+        return 'shapes';
+      case 'text':
+        return 'text';
+      default:
+        return 'select';
+    }
+  };
+
   return (
     <div className="h-screen bg-slate-900 overflow-hidden relative grid-background">
       {/* Zoom Indicator */}
@@ -78,7 +97,7 @@ export const BrandifyStudio = () => {
       {/* Canvas */}
       <Canvas
         elements={elements}
-        selectedTool={selectedTool}
+        selectedTool={getCanvasToolType(selectedTool)}
         selectedColor={selectedColor}
         onAddElement={addElement}
         onSelectElement={selectElement}
