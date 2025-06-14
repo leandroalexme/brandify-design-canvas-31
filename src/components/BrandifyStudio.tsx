@@ -9,6 +9,7 @@ import { ZoomIndicator } from './ZoomIndicator';
 import { LayersPanel } from './LayersPanel';
 import { AlignmentPanel } from './AlignmentPanel';
 import { ArtboardsPanel } from './ArtboardsPanel';
+import { TextPropertiesPanel } from './TextPropertiesPanel';
 
 export interface DesignElement {
   id: string;
@@ -39,6 +40,7 @@ export const BrandifyStudio = () => {
   const [showLayersPanel, setShowLayersPanel] = useState(false);
   const [showAlignmentPanel, setShowAlignmentPanel] = useState(false);
   const [showArtboardsPanel, setShowArtboardsPanel] = useState(false);
+  const [showTextPropertiesPanel, setShowTextPropertiesPanel] = useState(false);
 
   const canvasRef = useRef<HTMLDivElement>(null);
 
@@ -70,6 +72,33 @@ export const BrandifyStudio = () => {
       setSelectedElement(null);
     }
   };
+
+  // Função para criar texto automaticamente quando a ferramenta de texto é selecionada
+  const handleTextToolActivation = () => {
+    // Criar um novo elemento de texto no centro da tela
+    const newTextElement: Omit<DesignElement, 'id' | 'selected'> = {
+      type: 'text',
+      x: 400, // Centro aproximado
+      y: 300, // Centro aproximado
+      content: 'Digite seu texto',
+      color: selectedColor,
+      fontSize: 24,
+      fontFamily: 'Inter',
+      fontWeight: 'normal'
+    };
+    
+    addElement(newTextElement);
+    setShowTextPropertiesPanel(true);
+  };
+
+  // Detectar quando a ferramenta de texto é selecionada
+  React.useEffect(() => {
+    if (selectedTool === 'text') {
+      handleTextToolActivation();
+    } else {
+      setShowTextPropertiesPanel(false);
+    }
+  }, [selectedTool]);
 
   // Mapear ferramentas para o Canvas
   const getCanvasToolType = (tool: ToolType): 'select' | 'pen' | 'shapes' | 'text' => {
@@ -134,6 +163,15 @@ export const BrandifyStudio = () => {
       {showArtboardsPanel && (
         <ArtboardsPanel onClose={() => setShowArtboardsPanel(false)} />
       )}
+      
+      {/* Painel de Propriedades de Texto */}
+      <TextPropertiesPanel
+        isOpen={showTextPropertiesPanel}
+        onClose={() => {
+          setShowTextPropertiesPanel(false);
+          setSelectedTool('select');
+        }}
+      />
       
       {selectedElement && (
         <FloatingPropertiesPanel
