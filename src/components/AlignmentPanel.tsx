@@ -1,9 +1,8 @@
 
-import React, { useState, useRef, useCallback } from 'react';
-import { X, Grid3X3, MoreHorizontal } from 'lucide-react';
+import React, { useState } from 'react';
+import { X, MoreHorizontal } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
 import { MarginGuides } from './MarginGuides';
-import { ColumnGuides } from './ColumnGuides';
 
 interface AlignmentPanelProps {
   onClose: () => void;
@@ -14,21 +13,9 @@ export const AlignmentPanel = ({ onClose }: AlignmentPanelProps) => {
   const [marginTop, setMarginTop] = useState('10');
   const [marginRight, setMarginRight] = useState('10');
   const [marginBottom, setMarginBottom] = useState('10');
-  const [marginLeft, setMarginLeft] = useState('10');
+  const [marginLeft, setMarginLeft] = useState('30');
   const [centerSpacing, setCenterSpacing] = useState('30');
   const [presetEnabled, setPresetEnabled] = useState(false);
-
-  // Column states
-  const [columnCount, setColumnCount] = useState('3');
-  const [columnSpacing, setColumnSpacing] = useState('2');
-  const [columnWidth, setColumnWidth] = useState('10');
-  const [filledMode, setFilledMode] = useState(false);
-
-  // Line states
-  const [lineCount, setLineCount] = useState('5');
-  const [lineSpacing, setLineSpacing] = useState('2');
-  const [lineWidth, setLineWidth] = useState('10');
-  const [lineFilledMode, setLineFilledMode] = useState(false);
 
   const handleMarginChange = (margin: 'top' | 'right' | 'bottom' | 'left' | 'center', value: string) => {
     switch (margin) {
@@ -82,45 +69,17 @@ export const AlignmentPanel = ({ onClose }: AlignmentPanelProps) => {
           </div>
         </div>
 
-        <div className="space-y-6">
-          {/* Margin Guides */}
-          <MarginGuides
-            marginTop={marginTop}
-            marginRight={marginRight}
-            marginBottom={marginBottom}
-            marginLeft={marginLeft}
-            centerSpacing={centerSpacing}
-            presetEnabled={presetEnabled}
-            onMarginChange={handleMarginChange}
-            onPresetToggle={() => setPresetEnabled(!presetEnabled)}
-          />
-
-          {/* Column Guides */}
-          <ColumnGuides
-            type="columns"
-            columnCount={columnCount}
-            spacing={columnSpacing}
-            width={columnWidth}
-            filledMode={filledMode}
-            onColumnCountChange={setColumnCount}
-            onSpacingChange={setColumnSpacing}
-            onWidthChange={setColumnWidth}
-            onFilledModeToggle={() => setFilledMode(!filledMode)}
-          />
-
-          {/* Line Guides */}
-          <ColumnGuides
-            type="lines"
-            columnCount={lineCount}
-            spacing={lineSpacing}
-            width={lineWidth}
-            filledMode={lineFilledMode}
-            onColumnCountChange={setLineCount}
-            onSpacingChange={setLineSpacing}
-            onWidthChange={setLineWidth}
-            onFilledModeToggle={() => setLineFilledMode(!lineFilledMode)}
-          />
-        </div>
+        {/* Only Margin Guides */}
+        <MarginGuides
+          marginTop={marginTop}
+          marginRight={marginRight}
+          marginBottom={marginBottom}
+          marginLeft={marginLeft}
+          centerSpacing={centerSpacing}
+          presetEnabled={presetEnabled}
+          onMarginChange={handleMarginChange}
+          onPresetToggle={() => setPresetEnabled(!presetEnabled)}
+        />
       </div>
     </TooltipProvider>
   );

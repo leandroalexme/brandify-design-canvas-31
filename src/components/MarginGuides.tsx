@@ -1,7 +1,6 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Percent } from 'lucide-react';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Switch } from '@/components/ui/switch';
 
 interface MarginGuidesProps {
@@ -26,83 +25,93 @@ export const MarginGuides = ({
   onPresetToggle,
 }: MarginGuidesProps) => {
   return (
-    <div className="bg-slate-800/30 rounded-lg p-4 space-y-4">
-      <div className="flex items-center justify-between">
-        <h4 className="text-sm font-medium text-slate-200">Margem Guias</h4>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <button className="w-6 h-6 flex items-center justify-center text-slate-400 hover:text-slate-200 transition-colors">
-              <Percent className="w-4 h-4" />
-            </button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Proporção não travada</p>
-          </TooltipContent>
-        </Tooltip>
-      </div>
+    <div className="bg-slate-800/30 rounded-lg p-6 space-y-6">
+      <h4 className="text-lg font-medium text-slate-200 text-center">Margem Guias</h4>
 
-      {/* Visual Margin Diagram */}
-      <div className="relative">
-        <div className="w-full h-32 bg-slate-700/30 rounded-lg border border-slate-600/40 relative flex items-center justify-center">
-          {/* Top Margin */}
+      {/* Visual Margin Layout - Exactly like reference */}
+      <div className="relative bg-slate-700/40 rounded-xl p-8 border border-slate-600/30">
+        {/* Top Margin Input */}
+        <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
           <input
             type="text"
             value={marginTop}
             onChange={(e) => onMarginChange('top', e.target.value)}
-            className="absolute -top-8 left-1/2 transform -translate-x-1/2 w-12 px-1 py-0.5 text-xs bg-blue-500 text-white rounded text-center focus:outline-none focus:ring-1 focus:ring-blue-400"
+            className="w-16 px-2 py-1 text-sm bg-slate-600 text-slate-200 rounded-lg text-center border border-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             placeholder="10px"
             disabled={presetEnabled}
           />
-          
-          {/* Left Margin */}
+        </div>
+        
+        {/* Left Margin Input */}
+        <div className="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-4">
           <input
             type="text"
             value={marginLeft}
             onChange={(e) => onMarginChange('left', e.target.value)}
-            className="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-full -ml-2 w-12 px-1 py-0.5 text-xs bg-blue-500 text-white rounded text-center focus:outline-none focus:ring-1 focus:ring-blue-400"
-            placeholder="10px"
-            disabled={presetEnabled}
-          />
-          
-          {/* Right Margin */}
-          <input
-            type="text"
-            value={marginRight}
-            onChange={(e) => onMarginChange('right', e.target.value)}
-            className="absolute right-0 top-1/2 transform -translate-y-1/2 translate-x-full ml-2 w-12 px-1 py-0.5 text-xs bg-blue-500 text-white rounded text-center focus:outline-none focus:ring-1 focus:ring-blue-400"
-            placeholder="10px"
-            disabled={presetEnabled}
-          />
-          
-          {/* Bottom Margin */}
-          <input
-            type="text"
-            value={marginBottom}
-            onChange={(e) => onMarginChange('bottom', e.target.value)}
-            className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 w-12 px-1 py-0.5 text-xs bg-blue-500 text-white rounded text-center focus:outline-none focus:ring-1 focus:ring-blue-400"
-            placeholder="10px"
-            disabled={presetEnabled}
-          />
-          
-          {/* Center Spacing */}
-          <input
-            type="text"
-            value={centerSpacing}
-            onChange={(e) => onMarginChange('center', e.target.value)}
-            className="w-16 px-2 py-1 text-sm bg-blue-500 text-white rounded text-center focus:outline-none focus:ring-1 focus:ring-blue-400"
+            className="w-16 px-2 py-1 text-sm bg-blue-500 text-white rounded-lg text-center focus:outline-none focus:ring-2 focus:ring-blue-400"
             placeholder="30px"
             disabled={presetEnabled}
           />
         </div>
+        
+        {/* Right Margin Input */}
+        <div className="absolute right-0 top-1/2 transform -translate-y-1/2 translate-x-4">
+          <input
+            type="text"
+            value={marginRight}
+            onChange={(e) => onMarginChange('right', e.target.value)}
+            className="w-16 px-2 py-1 text-sm bg-slate-600 text-slate-200 rounded-lg text-center border border-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            placeholder="10px"
+            disabled={presetEnabled}
+          />
+        </div>
+        
+        {/* Bottom Margin Input */}
+        <div className="absolute -bottom-4 left-1/2 transform -translate-x-1/2">
+          <input
+            type="text"
+            value={marginBottom}
+            onChange={(e) => onMarginChange('bottom', e.target.value)}
+            className="w-16 px-2 py-1 text-sm bg-slate-600 text-slate-200 rounded-lg text-center border border-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            placeholder="10px"
+            disabled={presetEnabled}
+          />
+        </div>
+
+        {/* Visual Border Lines - Blue outline like in reference */}
+        <div className="w-full h-24 border-2 border-blue-500 rounded-lg relative flex items-center justify-center">
+          {/* Center Spacing Input - Highlighted in blue like reference */}
+          <input
+            type="text"
+            value={centerSpacing}
+            onChange={(e) => onMarginChange('center', e.target.value)}
+            className="w-20 px-3 py-2 text-base font-medium bg-blue-500 text-white rounded-lg text-center focus:outline-none focus:ring-2 focus:ring-blue-400"
+            placeholder="30px"
+            disabled={presetEnabled}
+          />
+        </div>
+
+        {/* Proportion Icon - Top right like in reference */}
+        <div className="absolute -top-2 -right-2">
+          <div className="w-8 h-8 bg-slate-600 rounded-lg flex items-center justify-center border border-slate-500">
+            <Percent className="w-4 h-4 text-slate-300" />
+          </div>
+        </div>
       </div>
 
-      {/* Preset Toggle */}
+      {/* Preset Toggle - Bottom section like reference */}
       <div className="flex items-center justify-between">
-        <span className="text-sm text-slate-300">Preset</span>
-        <Switch
-          checked={presetEnabled}
-          onCheckedChange={onPresetToggle}
-        />
+        <div className="flex items-center gap-3">
+          <div className="w-6 h-6 bg-blue-500 rounded-full"></div>
+          <div className="w-6 h-6 bg-slate-600 rounded-full border-2 border-slate-500"></div>
+        </div>
+        <div className="flex items-center gap-3">
+          <span className="text-base text-slate-200">Preset</span>
+          <Switch
+            checked={presetEnabled}
+            onCheckedChange={onPresetToggle}
+          />
+        </div>
       </div>
     </div>
   );
