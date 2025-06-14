@@ -8,17 +8,15 @@ interface TextPropertiesPanelProps {
 }
 
 export const TextPropertiesPanel = ({ isOpen, onClose }: TextPropertiesPanelProps) => {
-  // Debug: Log quando o painel é renderizado
   React.useEffect(() => {
-    console.log('🎨 TextPropertiesPanel render - isOpen:', isOpen);
+    console.log('🎨 [TEXT PANEL] Render state:', { isOpen });
   }, [isOpen]);
 
   if (!isOpen) {
-    console.log('🚫 TextPropertiesPanel not rendered - isOpen is false');
     return null;
   }
 
-  console.log('✅ TextPropertiesPanel rendering...');
+  console.log('✅ [TEXT PANEL] Rendering panel...');
 
   const tools = [
     { id: 'typography', icon: Type, label: 'Tipografia' },
@@ -31,19 +29,17 @@ export const TextPropertiesPanel = ({ isOpen, onClose }: TextPropertiesPanelProp
   ];
 
   const handleToolClick = (toolId: string) => {
-    console.log(`🔧 Text tool clicked: ${toolId}`);
-    // Aqui você pode adicionar a lógica específica para cada ferramenta
+    console.log(`🔧 [TEXT PANEL] Tool clicked: ${toolId}`);
   };
 
   const handleClose = () => {
-    console.log('🚪 Closing text properties panel');
+    console.log('🚪 [TEXT PANEL] Closing panel');
     onClose();
   };
 
   return (
     <div className="fixed left-6 top-1/2 transform -translate-y-1/2 z-[1000] animate-fade-in">
       <div className="bg-slate-800/95 backdrop-blur-sm border border-slate-700/60 rounded-2xl shadow-2xl flex flex-col w-16 p-3 gap-2">
-        {/* Cabeçalho com indicador e botão de fechar */}
         <div className="flex items-center justify-between mb-2">
           <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
           <button
@@ -54,7 +50,6 @@ export const TextPropertiesPanel = ({ isOpen, onClose }: TextPropertiesPanelProp
           </button>
         </div>
 
-        {/* Ferramentas */}
         <div className="flex flex-col gap-2">
           {tools.map((tool, index) => {
             const Icon = tool.icon;
