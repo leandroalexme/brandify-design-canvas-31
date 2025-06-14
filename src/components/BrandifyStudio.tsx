@@ -17,6 +17,7 @@ import { useDesignElements } from '../hooks/useDesignElements';
 import { useAppState } from '../hooks/useAppState';
 import { useTextCreation } from '../hooks/useTextCreation';
 import { useDebounce } from '../hooks/useDebounce';
+import { logger } from '../utils/validation';
 
 export const BrandifyStudio = () => {
   const {
@@ -56,29 +57,53 @@ export const BrandifyStudio = () => {
         updateUIState({ showTextPropertiesPanel: false, textCreated: false });
       }
     } catch (error) {
-      console.error('Error in tool change effect', error);
+      logger.error('Error in tool change effect', error);
     }
   }, [toolState.selectedTool, updateUIState]);
 
-  // Mapear ferramentas para o Canvas
+  // Mapear ferramentas para o Canvas com melhor tratamento de erros
   const getCanvasToolType = useCallback((tool: ToolType): 'select' | 'pen' | 'shapes' | 'text' => {
+    logger.debug('Mapping tool to canvas type', { tool });
+    
+    // Mapeamento direto para ferramentas principais
+    if (tool === 'select' || tool === 'pen' || tool === 'shapes' || tool === 'text') {
+      return tool;
+    }
+    
+    // Mapeamento para sub-ferramentas
     switch (tool) {
       case 'node':
       case 'move':
       case 'comment':
+        logger.debug('Sub-tool mapped to select', { tool });
         return 'select';
       case 'brush':
       case 'pencil':
+        logger.debug('Sub-tool mapped to pen', { tool });
         return 'pen';
-      case 'shapes':
-        return 'shapes';
-      case 'text':
-        return 'text';
       default:
-        console.warn('Unknown tool type, defaulting to select', tool);
+        logger.warn('Unknown tool type, defaulting to select', { tool });
         return 'select';
     }
   }, []);
+
+  // Otimizar handler de seleção de ferramenta
+  const handleToolSelect = useCallback((tool: ToolType) => {
+    logger.debug('Tool selected', { tool });
+    updateToolState({ selectedTool: tool });
+  }, [updateToolState]);
+
+  // Otimizar handler de seleção de cor
+  const handleColorSelect = useCallback((color: string) => {
+    logger.debug('Color selected', { color });
+    updateToolState({ selectedColor: color });
+  }, [updateToolState]);
+
+  // Otimizar handler de seleção de forma
+  const handleShapeSelect = useCallback((shape: string | null) => {
+    logger.debug('Shape selected', { shape });
+    updateUIState({ selectedShape: shape });
+  }, [updateUIState]);
 
   return (
     <ErrorBoundary>
@@ -99,11 +124,11 @@ export const BrandifyStudio = () => {
         
         <MainToolbar 
           selectedTool={toolState.selectedTool}
-          onToolSelect={(tool) => updateToolState({ selectedTool: tool })}
+          onToolSelect={handleToolSelect}
           selectedColor={toolState.selectedColor}
-          onColorSelect={(color) => updateToolState({ selectedColor: color })}
+          onColorSelect={handleColorSelect}
           selectedShape={uiState.selectedShape}
-          onShapeSelect={(shape) => updateUIState({ selectedShape: shape })}
+          onShapeSelect={handleShapeSelect}
         />
         
         <LayersButton onClick={() => updateUIState({ showLayersPanel: !uiState.showLayersPanel })} />
