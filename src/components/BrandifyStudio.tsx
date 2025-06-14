@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from 'react';
 import { Canvas } from './Canvas';
 import { SimpleToolbar } from './SimpleToolbar';
@@ -28,7 +27,12 @@ export interface DesignElement {
   selected: boolean;
 }
 
-export type ToolType = 'select' | 'node' | 'move' | 'comment' | 'pen' | 'vector-brush' | 'pencil' | 'shapes' | 'text';
+export type ToolType = 
+  | 'select' | 'node' | 'move' | 'comment' 
+  | 'pen' | 'vector-brush' | 'pencil' 
+  | 'shapes' | 'rectangle' | 'circle' | 'line'
+  | 'text' | 'zoom-in' | 'zoom-out' | 'hand' 
+  | 'pipette' | 'ruler' | 'align';
 
 export const BrandifyStudio = () => {
   const [elements, setElements] = useState<DesignElement[]>([]);
@@ -82,11 +86,16 @@ export const BrandifyStudio = () => {
       case 'node':
       case 'move':
       case 'comment':
+      case 'hand':
+      case 'zoom-in':
+      case 'zoom-out':
         return 'select';
       case 'vector-brush':
       case 'pencil':
         return 'pen';
-      case 'shapes':
+      case 'rectangle':
+      case 'circle':
+      case 'line':
         return 'shapes';
       case 'text':
         return 'text';
