@@ -47,7 +47,7 @@ export const MainToolbar = ({
           {mainTools.map((tool) => {
             const isActive = getCurrentMainTool() === tool.id;
             const hasActiveSub = activeSubTools[tool.id];
-            const hasSelectedShape = tool.id === 'shapes' && selectedShape;
+            const hasSelectedShape = tool.id === 'shapes' && !!selectedShape;
             
             return (
               <MainToolbarButton
