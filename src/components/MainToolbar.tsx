@@ -49,7 +49,7 @@ export const MainToolbar = ({ selectedTool, onToolSelect }: MainToolbarProps) =>
     // Left click and hold
     pressTimeoutRef.current = setTimeout(() => {
       showShapesMenuAtPosition(e);
-    }, 500); // 500ms para considerar "segurar"
+    }, 500);
   };
 
   const handleShapesMouseUp = () => {
@@ -74,9 +74,10 @@ export const MainToolbar = ({ selectedTool, onToolSelect }: MainToolbarProps) =>
   const showShapesMenuAtPosition = (e: React.MouseEvent) => {
     if (shapesButtonRef.current) {
       const rect = shapesButtonRef.current.getBoundingClientRect();
+      // Position the menu to the left of the toolbar to avoid overlapping panels
       setMenuPosition({
-        x: rect.left,
-        y: rect.top - 140 // Posicionar acima do botão
+        x: rect.left - 80, // Position to the left with margin
+        y: rect.top // Align with the button
       });
       setShowShapesMenu(true);
     }
@@ -85,7 +86,6 @@ export const MainToolbar = ({ selectedTool, onToolSelect }: MainToolbarProps) =>
   const handleShapeSelect = (shape: string) => {
     console.log('Shape selected:', shape);
     onToolSelect('shapes');
-    // Aqui você pode implementar lógica específica para cada forma
   };
 
   return (

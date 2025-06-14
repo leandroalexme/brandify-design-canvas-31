@@ -27,13 +27,19 @@ export const ShapesMenu = ({ isOpen, onClose, onShapeSelect, position }: ShapesM
     onClose();
   };
 
+  // Calculate safe position to avoid overlapping with toolbar and panels
+  const safePosition = {
+    x: Math.max(20, Math.min(position.x, window.innerWidth - 80)), // Keep within screen bounds
+    y: Math.max(20, position.y - 320) // Position above the toolbar with safe margin
+  };
+
   return (
     <div 
-      className="fixed z-[100] floating-module p-2 grid grid-cols-2 gap-1"
+      className="fixed z-[200] floating-module p-2 flex flex-col gap-1"
       style={{
-        left: position.x,
-        top: position.y,
-        minWidth: '140px'
+        left: safePosition.x,
+        top: safePosition.y,
+        width: '60px'
       }}
     >
       {shapes.map((shape) => (
