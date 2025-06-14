@@ -239,6 +239,8 @@ export const BrandifyStudio = () => {
         <MainToolbar 
           selectedTool={toolState.selectedTool}
           onToolSelect={(tool) => updateToolState({ selectedTool: tool })}
+          selectedColor={toolState.selectedColor}
+          onColorSelect={(color) => updateToolState({ selectedColor: color })}
           selectedShape={uiState.selectedShape}
           onShapeSelect={(shape) => updateUIState({ selectedShape: shape })}
         />
