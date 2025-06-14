@@ -38,8 +38,13 @@ export const useTextCreation = ({ toolState, addElement, updateUIState }: UseTex
       };
       
       addElement(newTextElement);
-      updateUIState({ showTextPropertiesPanel: true, textCreated: true });
-      logger.info('Text element created', { x, y });
+      // Forçar abertura do painel imediatamente após criar o texto
+      updateUIState({ 
+        showTextPropertiesPanel: true, 
+        textCreated: true 
+      });
+      
+      logger.info('Text element created and panel opened', { x, y });
     } catch (error) {
       logger.error('Error creating text element', error);
     }

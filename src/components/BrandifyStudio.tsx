@@ -48,13 +48,23 @@ export const BrandifyStudio = () => {
   // Debounced version para operações frequentes
   const debouncedUpdateElement = useDebounce(updateElement, 100);
 
-  // Detectar mudança de ferramenta
+  // Detectar mudança de ferramenta - melhorado para abrir painel automaticamente
   React.useEffect(() => {
     try {
       if (toolState.selectedTool === 'text') {
-        updateUIState({ textCreated: false });
+        // Abrir o painel imediatamente quando a ferramenta texto for selecionada
+        updateUIState({ 
+          showTextPropertiesPanel: true,
+          textCreated: false 
+        });
+        logger.debug('Text tool selected, opening properties panel');
       } else {
-        updateUIState({ showTextPropertiesPanel: false, textCreated: false });
+        // Fechar painel quando outra ferramenta for selecionada
+        updateUIState({ 
+          showTextPropertiesPanel: false, 
+          textCreated: false 
+        });
+        logger.debug('Non-text tool selected, closing properties panel');
       }
     } catch (error) {
       logger.error('Error in tool change effect', error);
@@ -135,6 +145,15 @@ export const BrandifyStudio = () => {
         <GridButton onClick={() => updateUIState({ showAlignmentPanel: !uiState.showAlignmentPanel })} />
         <ArtboardsButton onClick={() => updateUIState({ showArtboardsPanel: !uiState.showArtboardsPanel })} />
         
+        {/* Painel de propriedades de texto - sempre renderizado quando showTextPropertiesPanel for true */}
+        <TextPropertiesPanel
+          isOpen={uiState.showTextPropertiesPanel}
+          onClose={() => {
+            updateUIState({ showTextPropertiesPanel: false });
+            updateToolState({ selectedTool: 'select' });
+          }}
+        />
+        
         {uiState.showLayersPanel && (
           <LayersPanel
             elements={elements}
@@ -152,14 +171,6 @@ export const BrandifyStudio = () => {
         {uiState.showArtboardsPanel && (
           <ArtboardsPanel onClose={() => updateUIState({ showArtboardsPanel: false })} />
         )}
-        
-        <TextPropertiesPanel
-          isOpen={uiState.showTextPropertiesPanel}
-          onClose={() => {
-            updateUIState({ showTextPropertiesPanel: false });
-            updateToolState({ selectedTool: 'select' });
-          }}
-        />
         
         {selectedElement && (
           <FloatingPropertiesPanel
