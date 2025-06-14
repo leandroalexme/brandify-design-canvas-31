@@ -1,9 +1,8 @@
 
 import React, { useState } from 'react';
 import { Canvas } from './Canvas';
-import { Toolbar } from './Toolbar';
-import { PropertiesPanel } from './PropertiesPanel';
-import { TopBar } from './TopBar';
+import { FloatingToolbar } from './FloatingToolbar';
+import { FloatingPropertiesPanel } from './FloatingPropertiesPanel';
 
 export interface DesignElement {
   id: string;
@@ -57,34 +56,31 @@ export const BrandifyStudio = () => {
   };
 
   return (
-    <div className="h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex flex-col overflow-hidden">
-      <TopBar />
+    <div className="h-screen bg-slate-900 overflow-hidden relative">
+      <Canvas
+        elements={elements}
+        selectedTool={selectedTool}
+        selectedColor={selectedColor}
+        onAddElement={addElement}
+        onSelectElement={selectElement}
+        onUpdateElement={updateElement}
+      />
       
-      <div className="flex-1 flex overflow-hidden">
-        <Toolbar 
-          selectedTool={selectedTool}
-          onToolSelect={setSelectedTool}
-          selectedColor={selectedColor}
-          onColorSelect={setSelectedColor}
-        />
-        
-        <div className="flex-1 flex flex-col">
-          <Canvas
-            elements={elements}
-            selectedTool={selectedTool}
-            selectedColor={selectedColor}
-            onAddElement={addElement}
-            onSelectElement={selectElement}
-            onUpdateElement={updateElement}
-          />
-        </div>
-        
-        <PropertiesPanel
-          selectedElement={selectedElement ? elements.find(el => el.id === selectedElement) : null}
+      <FloatingToolbar 
+        selectedTool={selectedTool}
+        onToolSelect={setSelectedTool}
+        selectedColor={selectedColor}
+        onColorSelect={setSelectedColor}
+      />
+      
+      {selectedElement && (
+        <FloatingPropertiesPanel
+          selectedElement={elements.find(el => el.id === selectedElement) || null}
           onUpdateElement={updateElement}
           onDeleteElement={deleteElement}
+          onClose={() => setSelectedElement(null)}
         />
-      </div>
+      )}
     </div>
   );
 };
