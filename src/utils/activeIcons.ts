@@ -3,29 +3,51 @@ import { MousePointer, PenTool, Square, Type, Move, MessageCircle, Brush, Pencil
 import { ToolType } from '../components/BrandifyStudio';
 
 export const getActiveIcon = (baseToolId: string, selectedTool: ToolType) => {
+  console.log('getActiveIcon called:', { baseToolId, selectedTool });
+  
   switch (baseToolId) {
     case 'select':
-      // Show sub-tool icon when a select sub-tool is active
-      if (selectedTool === 'move') return Move;
-      if (selectedTool === 'comment') return MessageCircle;
-      if (selectedTool === 'node') return MousePointer;
-      // Default to main select icon
+      // Mostrar ícone da sub-ferramenta quando uma sub-ferramenta de seleção estiver ativa
+      if (selectedTool === 'move') {
+        console.log('Returning Move icon for select tool');
+        return Move;
+      }
+      if (selectedTool === 'comment') {
+        console.log('Returning MessageCircle icon for select tool');
+        return MessageCircle;
+      }
+      if (selectedTool === 'node') {
+        console.log('Returning MousePointer icon for node tool');
+        return MousePointer;
+      }
+      // Padrão para ícone principal de seleção
+      console.log('Returning default MousePointer icon for select tool');
       return MousePointer;
     
     case 'pen':
-      // Show sub-tool icon when a pen sub-tool is active
-      if (selectedTool === 'vector-brush') return Brush;
-      if (selectedTool === 'pencil') return Pencil;
-      // Default to main pen icon
+      // Mostrar ícone da sub-ferramenta quando uma sub-ferramenta de caneta estiver ativa
+      if (selectedTool === 'vector-brush') {
+        console.log('Returning Brush icon for pen tool');
+        return Brush;
+      }
+      if (selectedTool === 'pencil') {
+        console.log('Returning Pencil icon for pen tool');
+        return Pencil;
+      }
+      // Padrão para ícone principal de caneta
+      console.log('Returning default PenTool icon for pen tool');
       return PenTool;
     
     case 'shapes':
+      console.log('Returning Square icon for shapes tool');
       return Square;
     
     case 'text':
+      console.log('Returning Type icon for text tool');
       return Type;
     
     default:
+      console.log('Returning default MousePointer icon for unknown tool');
       return MousePointer;
   }
 };
@@ -39,12 +61,16 @@ export const getToolGroupForSubTool = (selectedTool: ToolType): string => {
     'pencil': 'pen',
   };
   
-  return subToolMap[selectedTool] || selectedTool;
+  const result = subToolMap[selectedTool] || selectedTool;
+  console.log('getToolGroupForSubTool:', { selectedTool, result });
+  return result;
 };
 
 export const isSubTool = (tool: ToolType): boolean => {
   const subTools = ['node', 'move', 'comment', 'vector-brush', 'pencil'];
-  return subTools.includes(tool);
+  const result = subTools.includes(tool);
+  console.log('isSubTool:', { tool, result });
+  return result;
 };
 
 export const getMainToolForSubTool = (subTool: ToolType): ToolType => {
@@ -56,5 +82,7 @@ export const getMainToolForSubTool = (subTool: ToolType): ToolType => {
     'pencil': 'pen',
   };
   
-  return subToolToMainTool[subTool] || subTool;
+  const result = subToolToMainTool[subTool] || subTool;
+  console.log('getMainToolForSubTool:', { subTool, result });
+  return result;
 };

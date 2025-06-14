@@ -40,10 +40,22 @@ export const MainToolbar = ({ selectedTool, onToolSelect }: MainToolbarProps) =>
     closeAllMenus,
   } = useSubmenuState();
 
-  // Use the auto-return hook
+  // Usar o hook de auto-retorno - INTEGRAÇÃO CORRIGIDA
   useToolAutoReturn(selectedTool, onToolSelect, canvasRef);
 
-  // Get tool definitions
+  // Sincronizar estado local com estado global - SINCRONIZAÇÃO CORRIGIDA
+  useEffect(() => {
+    console.log('MainToolbar: selectedTool changed to:', selectedTool);
+    
+    // Sincronizar estado local dos submenus com o selectedTool global
+    if (selectedTool === 'node' || selectedTool === 'move' || selectedTool === 'comment') {
+      setSelectedSelectTool(selectedTool);
+    } else if (selectedTool === 'vector-brush' || selectedTool === 'pencil') {
+      setSelectedPenTool(selectedTool);
+    }
+  }, [selectedTool, setSelectedSelectTool, setSelectedPenTool]);
+
+  // Get tool definitions - ATUALIZAÇÕES DINÂMICAS CORRIGIDAS
   const tools = getToolDefinitions(selectedTool);
 
   // Get tool handlers
@@ -71,32 +83,32 @@ export const MainToolbar = ({ selectedTool, onToolSelect }: MainToolbarProps) =>
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [closeAllMenus]);
 
-  // Handlers for submenu selections
+  // Handlers para seleções de submenu - SINCRONIZAÇÃO GLOBAL CORRIGIDA
   const handleShapeSelect = (shape: string) => {
     console.log('Shape selected:', shape);
     setSelectedShape(shape);
-    onToolSelect('shapes');
+    onToolSelect('shapes'); // Atualizar ferramenta global
     closeAllMenus();
   };
 
   const handleSelectToolSelect = (tool: string) => {
     console.log('Select tool selected:', tool);
     setSelectedSelectTool(tool);
-    onToolSelect(tool as ToolType);
+    onToolSelect(tool as ToolType); // Atualizar ferramenta global - SINCRONIZAÇÃO CORRIGIDA
     closeAllMenus();
   };
 
   const handlePenToolSelect = (tool: string) => {
     console.log('Pen tool selected:', tool);
     setSelectedPenTool(tool);
-    onToolSelect(tool as ToolType);
+    onToolSelect(tool as ToolType); // Atualizar ferramenta global - SINCRONIZAÇÃO CORRIGIDA
     closeAllMenus();
   };
 
   return (
     <>
       <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-[500]" data-toolbar>
-        <div className="floating-module p-3 flex items-center space-x-2 animate-slide-up">
+        <div className="floating-module p-3 flex items-center space-x-2 animate-slide-up" ref={canvasRef}>
           {tools.map((tool) => {
             const handlers = getToolHandler(tool.id);
             const isActive = getActiveToolGroup(tool.id, selectedTool);

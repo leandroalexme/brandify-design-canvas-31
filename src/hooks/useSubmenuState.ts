@@ -24,25 +24,44 @@ export const useSubmenuState = () => {
 
   // Close all menus function
   const closeAllMenus = () => {
+    console.log('Closing all menus');
     setShowShapesMenu(false);
     setShowSelectMenu(false);
     setShowPenMenu(false);
   };
 
-  // Exclusive menu opening functions - CORRIGIDO para garantir exclusividade
+  // Exclusive menu opening functions - MELHORADO para garantir exclusividade
   const setShowShapesMenuExclusive = (show: boolean) => {
-    closeAllMenus(); // Fecha todos primeiro
-    setShowShapesMenu(show);
+    if (show) {
+      console.log('Opening shapes menu exclusively');
+      closeAllMenus();
+      setShowShapesMenu(true);
+    } else {
+      console.log('Closing shapes menu');
+      setShowShapesMenu(false);
+    }
   };
 
   const setShowSelectMenuExclusive = (show: boolean) => {
-    closeAllMenus(); // Fecha todos primeiro
-    setShowSelectMenu(show);
+    if (show) {
+      console.log('Opening select menu exclusively');
+      closeAllMenus();
+      setShowSelectMenu(true);
+    } else {
+      console.log('Closing select menu');
+      setShowSelectMenu(false);
+    }
   };
 
   const setShowPenMenuExclusive = (show: boolean) => {
-    closeAllMenus(); // Fecha todos primeiro
-    setShowPenMenu(show);
+    if (show) {
+      console.log('Opening pen menu exclusively');
+      closeAllMenus();
+      setShowPenMenu(true);
+    } else {
+      console.log('Closing pen menu');
+      setShowPenMenu(false);
+    }
   };
 
   return {
@@ -56,7 +75,7 @@ export const useSubmenuState = () => {
     selectMenuPosition, setSelectMenuPosition,
     penMenuPosition, setPenMenuPosition,
     
-    // Selected items
+    // Selected items - ESTADO SINCRONIZADO
     selectedShape, setSelectedShape,
     selectedSelectTool, setSelectedSelectTool,
     selectedPenTool, setSelectedPenTool,
