@@ -1,11 +1,11 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { ShapesMenu } from './ShapesMenu';
 import { SelectSubmenu } from './SelectSubmenu';
 import { PenSubmenu } from './PenSubmenu';
 import { ToolbarButton } from './ToolbarButton';
 import { useSubmenuState } from '../hooks/useSubmenuState';
-import { useAutoReturn } from '../hooks/useAutoReturn';
+import { useToolAutoReturn } from '../hooks/useToolAutoReturn';
 import { useToolHandlers } from './ToolHandlers';
 import { getToolDefinitions } from './ToolDefinitions';
 import { getActiveToolGroup } from '../utils/toolIcons';
@@ -19,6 +19,8 @@ interface MainToolbarProps {
 }
 
 export const MainToolbar = ({ selectedTool, onToolSelect }: MainToolbarProps) => {
+  const canvasRef = useRef<HTMLElement>(null);
+  
   const {
     showShapesMenu, setShowShapesMenu,
     showSelectMenu, setShowSelectMenu,
@@ -39,7 +41,7 @@ export const MainToolbar = ({ selectedTool, onToolSelect }: MainToolbarProps) =>
   } = useSubmenuState();
 
   // Use the auto-return hook
-  useAutoReturn(selectedTool, onToolSelect);
+  useToolAutoReturn(selectedTool, onToolSelect, canvasRef);
 
   // Get tool definitions
   const tools = getToolDefinitions(selectedTool);
@@ -93,7 +95,7 @@ export const MainToolbar = ({ selectedTool, onToolSelect }: MainToolbarProps) =>
 
   return (
     <>
-      <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-[500]">
+      <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-[500]" data-toolbar>
         <div className="floating-module p-3 flex items-center space-x-2 animate-slide-up">
           {tools.map((tool) => {
             const handlers = getToolHandler(tool.id);

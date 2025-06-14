@@ -41,3 +41,20 @@ export const getToolGroupForSubTool = (selectedTool: ToolType): string => {
   
   return subToolMap[selectedTool] || selectedTool;
 };
+
+export const isSubTool = (tool: ToolType): boolean => {
+  const subTools = ['node', 'move', 'comment', 'vector-brush', 'pencil'];
+  return subTools.includes(tool);
+};
+
+export const getMainToolForSubTool = (subTool: ToolType): ToolType => {
+  const subToolToMainTool: { [key: string]: ToolType } = {
+    'node': 'select',
+    'move': 'select',
+    'comment': 'select',
+    'vector-brush': 'pen',
+    'pencil': 'pen',
+  };
+  
+  return subToolToMainTool[subTool] || subTool;
+};

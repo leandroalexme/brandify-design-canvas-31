@@ -1,4 +1,3 @@
-
 import React, { useRef, useEffect, useState } from 'react';
 import { Circle, Square, Triangle, Hexagon, Star, PieChart, Diamond } from 'lucide-react';
 
@@ -138,6 +137,7 @@ export const ShapesMenu = ({ isOpen, onClose, onShapeSelect, position, selectedS
         padding: `${DESIGN_SYSTEM.MENU_PADDING}px`,
         gap: `${DESIGN_SYSTEM.BUTTON_GAP}px`
       }}
+      data-submenu
     >
       {shapes.map((shape, index) => {
         const Icon = shape.icon;

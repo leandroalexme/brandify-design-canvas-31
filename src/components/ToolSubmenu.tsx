@@ -144,6 +144,7 @@ export const ToolSubmenu = ({
         padding: `${DESIGN_SYSTEM.MENU_PADDING}px`,
         gap: `${DESIGN_SYSTEM.BUTTON_GAP}px`
       }}
+      data-submenu
     >
       {tools.map((tool, index) => {
         const Icon = tool.icon;
