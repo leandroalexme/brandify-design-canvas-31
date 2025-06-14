@@ -31,12 +31,23 @@ export const ToolSubmenu = ({
   const [finalPosition, setFinalPosition] = useState(position);
   const [animationDirection, setAnimationDirection] = useState<'up' | 'down' | 'left' | 'right'>('up');
 
-  // ESPAÇAMENTO IGUAL AO ShapesMenu - Copiado exatamente do ShapesMenu.tsx
+  // SISTEMA DE ESPAÇAMENTO PADRONIZADO - Design System Global
+  const DESIGN_SYSTEM = {
+    MENU_WIDTH: 72,
+    BUTTON_HEIGHT: 48, // Altura padrão do botão
+    BUTTON_GAP: 8, // Espaçamento entre botões
+    MENU_PADDING: 12, // Padding interno do menu
+    VIEWPORT_MARGIN: 16, // Margem das bordas da viewport
+    TOOLBAR_ZONE_HEIGHT: 120, // Zona protegida da toolbar
+    ANIMATION_STAGGER_DELAY: 0.05, // Delay de animação sequencial
+  };
+
   const calculateOptimalPosition = (): { position: { x: number; y: number }; direction: 'up' | 'down' | 'left' | 'right' } => {
-    const menuWidth = 72;
-    const menuHeight = tools.length * 52 + 16; // MESMO CÁLCULO do ShapesMenu
-    const margin = 16;
-    const toolbarZoneHeight = 120; // MESMA proteção da toolbar
+    const menuWidth = DESIGN_SYSTEM.MENU_WIDTH;
+    const menuHeight = tools.length * (DESIGN_SYSTEM.BUTTON_HEIGHT + DESIGN_SYSTEM.BUTTON_GAP) 
+                      - DESIGN_SYSTEM.BUTTON_GAP + (DESIGN_SYSTEM.MENU_PADDING * 2);
+    const margin = DESIGN_SYSTEM.VIEWPORT_MARGIN;
+    const toolbarZoneHeight = DESIGN_SYSTEM.TOOLBAR_ZONE_HEIGHT;
     
     const viewport = {
       width: window.innerWidth,
@@ -46,31 +57,35 @@ export const ToolSubmenu = ({
     let optimalPosition = { ...position };
     let direction: 'up' | 'down' | 'left' | 'right' = 'up';
 
-    // MESMO cálculo de espaço seguro do ShapesMenu
+    // Calcular espaço seguro acima da toolbar (zona protegida)
     const safeSpaceAbove = viewport.height - toolbarZoneHeight - menuHeight - margin;
     
-    // MESMA lógica de posicionamento do ShapesMenu
+    // Prioridade: posicionar acima do botão (preferido e seguro)
     if (position.y - menuHeight - margin >= margin && safeSpaceAbove >= 0) {
-      optimalPosition.x = position.x - menuWidth / 2;
+      optimalPosition.x = position.x - menuWidth / 2; // Centralizar no botão
       optimalPosition.y = Math.min(position.y - menuHeight - margin, safeSpaceAbove);
       direction = 'up';
     }
+    // Tentar à esquerda do botão
     else if (position.x - menuWidth - margin >= 0) {
       optimalPosition.x = position.x - menuWidth - margin;
       optimalPosition.y = Math.max(margin, Math.min(position.y - menuHeight/2, safeSpaceAbove));
       direction = 'left';
     }
+    // Tentar à direita do botão
     else if (position.x + menuWidth + margin <= viewport.width) {
       optimalPosition.x = position.x + margin;
       optimalPosition.y = Math.max(margin, Math.min(position.y - menuHeight/2, safeSpaceAbove));
       direction = 'right';
     }
+    // Fallback: posicionar seguramente acima com centralização horizontal
     else {
       optimalPosition.x = Math.max(margin, Math.min(position.x - menuWidth/2, viewport.width - menuWidth - margin));
       optimalPosition.y = Math.max(margin, safeSpaceAbove - 10);
       direction = 'up';
     }
 
+    // Garantir que o menu permaneça dentro dos limites horizontais
     optimalPosition.x = Math.max(margin, Math.min(optimalPosition.x, viewport.width - menuWidth - margin));
     
     return { position: optimalPosition, direction };
@@ -121,11 +136,13 @@ export const ToolSubmenu = ({
   return (
     <div 
       ref={menuRef}
-      className={`fixed z-[450] floating-menu p-3 flex flex-col gap-2 ${getAnimationClass()}`}
+      className={`fixed z-[450] floating-menu flex flex-col ${getAnimationClass()}`}
       style={{
         left: finalPosition.x,
         top: finalPosition.y,
-        width: '72px' // MESMA largura do ShapesMenu
+        width: `${DESIGN_SYSTEM.MENU_WIDTH}px`,
+        padding: `${DESIGN_SYSTEM.MENU_PADDING}px`,
+        gap: `${DESIGN_SYSTEM.BUTTON_GAP}px`
       }}
     >
       {tools.map((tool, index) => {
@@ -137,7 +154,8 @@ export const ToolSubmenu = ({
             key={tool.id}
             className={`action-button animate-stagger-fade ${isSelected ? 'selected animate-pulse-select' : ''}`}
             style={{ 
-              animationDelay: `${index * 0.05}s`, // MESMA animação
+              height: `${DESIGN_SYSTEM.BUTTON_HEIGHT}px`,
+              animationDelay: `${index * DESIGN_SYSTEM.ANIMATION_STAGGER_DELAY}s`,
               animationFillMode: 'both'
             }}
             onClick={() => handleToolClick(tool.id)}

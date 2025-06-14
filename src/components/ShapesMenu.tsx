@@ -25,13 +25,23 @@ export const ShapesMenu = ({ isOpen, onClose, onShapeSelect, position, selectedS
     { id: 'diamond', icon: Diamond, label: 'Diamante' },
   ];
 
-  // Intelligent positioning system that respects toolbar
+  // SISTEMA DE ESPAÇAMENTO PADRONIZADO - Design System Global
+  const DESIGN_SYSTEM = {
+    MENU_WIDTH: 72,
+    BUTTON_HEIGHT: 48, // Altura padrão do botão
+    BUTTON_GAP: 8, // Espaçamento entre botões
+    MENU_PADDING: 12, // Padding interno do menu
+    VIEWPORT_MARGIN: 16, // Margem das bordas da viewport
+    TOOLBAR_ZONE_HEIGHT: 120, // Zona protegida da toolbar
+    ANIMATION_STAGGER_DELAY: 0.05, // Delay de animação sequencial
+  };
+
   const calculateOptimalPosition = (): { position: { x: number; y: number }; direction: 'up' | 'down' | 'left' | 'right' } => {
-    const menuWidth = 72;
-    const menuHeight = shapes.length * 52 + 16;
-    const margin = 16;
-    const toolbarHeight = 80;
-    const toolbarZoneHeight = 120; // Protected zone around toolbar
+    const menuWidth = DESIGN_SYSTEM.MENU_WIDTH;
+    const menuHeight = shapes.length * (DESIGN_SYSTEM.BUTTON_HEIGHT + DESIGN_SYSTEM.BUTTON_GAP) 
+                      - DESIGN_SYSTEM.BUTTON_GAP + (DESIGN_SYSTEM.MENU_PADDING * 2);
+    const margin = DESIGN_SYSTEM.VIEWPORT_MARGIN;
+    const toolbarZoneHeight = DESIGN_SYSTEM.TOOLBAR_ZONE_HEIGHT;
     
     const viewport = {
       width: window.innerWidth,
@@ -41,35 +51,35 @@ export const ShapesMenu = ({ isOpen, onClose, onShapeSelect, position, selectedS
     let optimalPosition = { ...position };
     let direction: 'up' | 'down' | 'left' | 'right' = 'up';
 
-    // Calculate safe space above toolbar (protected zone)
+    // Calcular espaço seguro acima da toolbar (zona protegida)
     const safeSpaceAbove = viewport.height - toolbarZoneHeight - menuHeight - margin;
     
-    // Try to position above the button (preferred and safe)
+    // Prioridade: posicionar acima do botão (preferido e seguro)
     if (position.y - menuHeight - margin >= margin && safeSpaceAbove >= 0) {
-      optimalPosition.x = position.x - menuWidth / 2; // Center on button
+      optimalPosition.x = position.x - menuWidth / 2; // Centralizar no botão
       optimalPosition.y = Math.min(position.y - menuHeight - margin, safeSpaceAbove);
       direction = 'up';
     }
-    // Try left of the button
+    // Tentar à esquerda do botão
     else if (position.x - menuWidth - margin >= 0) {
       optimalPosition.x = position.x - menuWidth - margin;
       optimalPosition.y = Math.max(margin, Math.min(position.y - menuHeight/2, safeSpaceAbove));
       direction = 'left';
     }
-    // Try right of the button
+    // Tentar à direita do botão
     else if (position.x + menuWidth + margin <= viewport.width) {
       optimalPosition.x = position.x + margin;
       optimalPosition.y = Math.max(margin, Math.min(position.y - menuHeight/2, safeSpaceAbove));
       direction = 'right';
     }
-    // Fallback: position safely above with horizontal centering
+    // Fallback: posicionar seguramente acima com centralização horizontal
     else {
       optimalPosition.x = Math.max(margin, Math.min(position.x - menuWidth/2, viewport.width - menuWidth - margin));
       optimalPosition.y = Math.max(margin, safeSpaceAbove - 10);
       direction = 'up';
     }
 
-    // Ensure the menu stays within horizontal bounds
+    // Garantir que o menu permaneça dentro dos limites horizontais
     optimalPosition.x = Math.max(margin, Math.min(optimalPosition.x, viewport.width - menuWidth - margin));
     
     return { position: optimalPosition, direction };
@@ -120,11 +130,13 @@ export const ShapesMenu = ({ isOpen, onClose, onShapeSelect, position, selectedS
   return (
     <div 
       ref={menuRef}
-      className={`fixed z-[450] floating-menu p-3 flex flex-col gap-2 ${getAnimationClass()}`}
+      className={`fixed z-[450] floating-menu flex flex-col ${getAnimationClass()}`}
       style={{
         left: finalPosition.x,
         top: finalPosition.y,
-        width: '72px'
+        width: `${DESIGN_SYSTEM.MENU_WIDTH}px`,
+        padding: `${DESIGN_SYSTEM.MENU_PADDING}px`,
+        gap: `${DESIGN_SYSTEM.BUTTON_GAP}px`
       }}
     >
       {shapes.map((shape, index) => {
@@ -136,7 +148,8 @@ export const ShapesMenu = ({ isOpen, onClose, onShapeSelect, position, selectedS
             key={shape.id}
             className={`action-button animate-stagger-fade ${isSelected ? 'selected animate-pulse-select' : ''}`}
             style={{ 
-              animationDelay: `${index * 0.05}s`,
+              height: `${DESIGN_SYSTEM.BUTTON_HEIGHT}px`,
+              animationDelay: `${index * DESIGN_SYSTEM.ANIMATION_STAGGER_DELAY}s`,
               animationFillMode: 'both'
             }}
             onClick={() => handleShapeClick(shape.id)}
