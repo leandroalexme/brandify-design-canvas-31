@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from 'react';
 import { SimpleSubmenu } from './SimpleSubmenu';
 import { useSimpleToolState } from '../hooks/useSimpleToolState';
@@ -38,12 +39,14 @@ export const MainToolbar = ({ selectedTool, onToolSelect }: MainToolbarProps) =>
   const mainTools = [
     {
       id: 'select',
+      // Mostrar ícone da sub-ferramenta apenas se ela estiver ativa
       icon: activeSubTools.select ? TOOL_ICONS[activeSubTools.select] : TOOL_ICONS.select,
       label: activeSubTools.select ? TOOL_LABELS[activeSubTools.select] : TOOL_LABELS.select,
       hasSubmenu: true
     },
     {
       id: 'pen',
+      // Mostrar ícone da sub-ferramenta apenas se ela estiver ativa
       icon: activeSubTools.pen ? TOOL_ICONS[activeSubTools.pen] : TOOL_ICONS.pen,
       label: activeSubTools.pen ? TOOL_LABELS[activeSubTools.pen] : TOOL_LABELS.pen,
       hasSubmenu: true
@@ -66,7 +69,6 @@ export const MainToolbar = ({ selectedTool, onToolSelect }: MainToolbarProps) =>
     const tool = mainTools.find(t => t.id === toolId);
     if (!tool) return;
 
-    // Fechar submenu se estiver aberto
     setShowSubmenu(null);
 
     if (tool.hasSubmenu) {
@@ -129,7 +131,7 @@ export const MainToolbar = ({ selectedTool, onToolSelect }: MainToolbarProps) =>
               >
                 <Icon className="w-5 h-5" />
                 {hasActiveSub && (
-                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-orange-500 rounded-full border-2 border-slate-800 animate-pulse" />
+                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-orange-500 rounded-full border-2 border-slate-800" />
                 )}
               </button>
             );

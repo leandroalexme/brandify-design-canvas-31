@@ -12,7 +12,7 @@ export const useSimpleToolState = (initialTool: ToolType = 'select') => {
     text: null
   });
 
-  // Auto-retorno apenas por clique fora
+  // Auto-retorno quando clica fora da toolbar/submenu
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Element;
@@ -35,7 +35,16 @@ export const useSimpleToolState = (initialTool: ToolType = 'select') => {
   }, [currentTool]);
 
   const selectMainTool = useCallback((tool: MainTool) => {
-    // Se já há uma sub-ferramenta ativa para esta ferramenta, seleciona ela
+    // Limpar sub-ferramentas ativas de outras ferramentas quando uma nova ferramenta principal é selecionada
+    const currentMainTool = getCurrentMainTool();
+    if (currentMainTool !== tool) {
+      setActiveSubTools(prev => ({
+        ...prev,
+        [currentMainTool]: null
+      }));
+    }
+    
+    // Se há uma sub-ferramenta ativa para esta ferramenta, seleciona ela
     const activeSub = activeSubTools[tool];
     setCurrentTool(activeSub || tool);
   }, [activeSubTools]);
