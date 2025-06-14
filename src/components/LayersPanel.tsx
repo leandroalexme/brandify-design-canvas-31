@@ -19,19 +19,6 @@ export const LayersPanel = ({
   onDeleteElement, 
   onClose 
 }: LayersPanelProps) => {
-  const panelRef = useRef<HTMLDivElement>(null);
-
-  const getElementIcon = (element: DesignElement) => {
-    switch (element.type) {
-      case 'text':
-        return <Type className="w-5 h-5 text-slate-300" />;
-      case 'shape':
-        return <Square className="w-5 h-5 text-slate-300" />;
-      default:
-        return <Square className="w-5 h-5 text-slate-300" />;
-    }
-  };
-
   const getElementName = (element: DesignElement, index: number) => {
     if (element.type === 'text') {
       return element.content || 'Texto';
@@ -57,65 +44,38 @@ export const LayersPanel = ({
   };
 
   const toggleVisibility = (elementId: string, currentlyVisible: boolean = true) => {
-    // Implementação futura - por agora apenas visual
     console.log(`Toggle visibility for ${elementId}: ${!currentlyVisible}`);
   };
 
   const toggleLock = (elementId: string, currentlyLocked: boolean = false) => {
-    // Implementação futura - por agora apenas visual
     console.log(`Toggle lock for ${elementId}: ${!currentlyLocked}`);
   };
 
-  // Calculate dynamic height based on viewport
-  const maxHeight = Math.min(480, window.innerHeight - 200);
-
   return (
-    <div 
-      ref={panelRef}
-      className="fixed bottom-20 left-6 z-50 floating-module p-0 w-72"
-      style={{ maxHeight: `${maxHeight}px` }}
-      role="dialog"
-      aria-label="Painel de Camadas"
-    >
+    <div className="panel-container panel-bottom-left">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-slate-700/60 flex-shrink-0">
-        <h3 className="text-lg font-semibold text-slate-200">
-          Layers ({elements.length})
-        </h3>
+      <div className="panel-header">
+        <h3 className="panel-title">Layers ({elements.length})</h3>
         <div className="flex items-center gap-2">
-          <button 
-            className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-slate-200 transition-colors rounded-lg hover:bg-slate-700/50"
-            title="Mais opções"
-            aria-label="Mais opções"
-          >
+          <button className="panel-action-button" title="Mais opções">
             <MoreHorizontal className="w-4 h-4" />
           </button>
-          <button
-            onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-slate-200 transition-colors rounded-lg hover:bg-slate-700/50"
-            title="Fechar painel"
-            aria-label="Fechar painel de camadas"
-          >
+          <button onClick={onClose} className="panel-action-button" title="Fechar painel">
             <X className="w-4 h-4" />
           </button>
         </div>
       </div>
       
-      {/* Design Elements - Scrollable Area */}
-      <div className="flex-1 min-h-0">
-        <ScrollArea className="h-full max-h-80">
-          <div 
-            className="p-2 space-y-1"
-            role="listbox"
-            aria-label="Lista de camadas"
-          >
+      {/* Content */}
+      <div className="panel-content">
+        <ScrollArea className="h-full">
+          <div className="panel-section">
             {elements.length === 0 ? (
               <div className="p-8 text-center">
                 <p className="text-sm text-slate-500">Nenhuma camada criada</p>
               </div>
             ) : (
-              <>
-                {/* Design elements - reverse order to show last created on top */}
+              <div className="space-y-1">
                 {[...elements].reverse().map((element, reverseIndex) => {
                   const originalIndex = elements.length - 1 - reverseIndex;
                   return (
@@ -164,9 +124,8 @@ export const LayersPanel = ({
                       {/* Layer controls */}
                       <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity">
                         <button 
-                          className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-slate-200 transition-colors rounded-md hover:bg-slate-600/50"
+                          className="panel-action-button"
                           title="Alternar visibilidade (V)"
-                          aria-label="Alternar visibilidade"
                           onClick={(e) => {
                             e.stopPropagation();
                             toggleVisibility(element.id);
@@ -175,9 +134,8 @@ export const LayersPanel = ({
                           <Eye className="w-4 h-4" />
                         </button>
                         <button 
-                          className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-slate-200 transition-colors rounded-md hover:bg-slate-600/50"
+                          className="panel-action-button"
                           title="Alternar bloqueio (L)"
-                          aria-label="Alternar bloqueio"
                           onClick={(e) => {
                             e.stopPropagation();
                             toggleLock(element.id);
@@ -189,15 +147,15 @@ export const LayersPanel = ({
                     </div>
                   );
                 })}
-              </>
+              </div>
             )}
           </div>
         </ScrollArea>
       </div>
 
-      {/* Background Layer - Fixed at Bottom */}
-      <div className="border-t border-slate-700/60 p-2 flex-shrink-0">
-        <div className="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-700/30 transition-colors group">
+      {/* Background Layer - Footer */}
+      <div className="panel-footer border-t border-slate-700/60">
+        <div className="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-700/30 transition-colors group w-full">
           <div className="w-12 h-12 rounded-lg bg-slate-100 border-2 border-slate-600/60 flex items-center justify-center flex-shrink-0">
             <div className="w-8 h-8 bg-white rounded-sm" />
           </div>
@@ -206,18 +164,10 @@ export const LayersPanel = ({
             <p className="text-xs text-slate-400">Camada de fundo</p>
           </div>
           <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-            <button 
-              className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-slate-200 transition-colors rounded-md hover:bg-slate-600/50"
-              title="Alternar visibilidade"
-              aria-label="Alternar visibilidade do fundo"
-            >
+            <button className="panel-action-button" title="Alternar visibilidade">
               <Eye className="w-4 h-4" />
             </button>
-            <button 
-              className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-slate-200 transition-colors rounded-md hover:bg-slate-600/50"
-              title="Alternar bloqueio"
-              aria-label="Alternar bloqueio do fundo"
-            >
+            <button className="panel-action-button" title="Alternar bloqueio">
               <Unlock className="w-4 h-4" />
             </button>
           </div>

@@ -35,13 +35,14 @@ export const AlignmentPanel = ({ onClose }: AlignmentPanelProps) => {
 
   return (
     <TooltipProvider>
-      <div className="fixed bottom-20 right-6 z-50 floating-module p-4 w-80 max-h-[calc(100vh-200px)] overflow-y-auto">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-slate-200">Guides Grid</h3>
+      <div className="panel-container panel-bottom-right">
+        {/* Header */}
+        <div className="panel-header">
+          <h3 className="panel-title">Guides Grid</h3>
           <div className="flex items-center gap-2">
             <Tooltip>
               <TooltipTrigger asChild>
-                <button className="w-6 h-6 flex items-center justify-center text-slate-400 hover:text-slate-200 transition-colors">
+                <button className="panel-action-button">
                   <MoreHorizontal className="w-4 h-4" />
                 </button>
               </TooltipTrigger>
@@ -51,10 +52,7 @@ export const AlignmentPanel = ({ onClose }: AlignmentPanelProps) => {
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
-                <button
-                  onClick={onClose}
-                  className="w-6 h-6 flex items-center justify-center text-slate-400 hover:text-slate-200 transition-colors"
-                >
+                <button onClick={onClose} className="panel-action-button">
                   <X className="w-4 h-4" />
                 </button>
               </TooltipTrigger>
@@ -65,17 +63,21 @@ export const AlignmentPanel = ({ onClose }: AlignmentPanelProps) => {
           </div>
         </div>
 
-        {/* Margin Guides Only */}
-        <MarginGuides
-          marginTop={marginTop}
-          marginRight={marginRight}
-          marginBottom={marginBottom}
-          marginLeft={marginLeft}
-          centerSpacing=""
-          presetEnabled={presetEnabled}
-          onMarginChange={handleMarginChange}
-          onPresetToggle={() => setPresetEnabled(!presetEnabled)}
-        />
+        {/* Content */}
+        <div className="panel-content">
+          <div className="panel-section">
+            <MarginGuides
+              marginTop={marginTop}
+              marginRight={marginRight}
+              marginBottom={marginBottom}
+              marginLeft={marginLeft}
+              centerSpacing=""
+              presetEnabled={presetEnabled}
+              onMarginChange={handleMarginChange}
+              onPresetToggle={() => setPresetEnabled(!presetEnabled)}
+            />
+          </div>
+        </div>
       </div>
     </TooltipProvider>
   );
