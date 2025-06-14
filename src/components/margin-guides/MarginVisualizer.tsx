@@ -26,59 +26,57 @@ export const MarginVisualizer = ({
   onInputChange,
   onSpinner
 }: MarginVisualizerProps) => {
-  const getBorderStyle = () => {
-    if (!selectedMargin) return 'border-2 border-slate-600/30';
-    
-    const baseStyle = 'border-2';
-    switch (selectedMargin) {
-      case 'top':
-        return `${baseStyle} border-t-4 border-r-slate-600/30 border-b-slate-600/30 border-l-slate-600/30`;
-      case 'right':
-        return `${baseStyle} border-r-4 border-t-slate-600/30 border-b-slate-600/30 border-l-slate-600/30`;
-      case 'bottom':
-        return `${baseStyle} border-b-4 border-t-slate-600/30 border-r-slate-600/30 border-l-slate-600/30`;
-      case 'left':
-        return `${baseStyle} border-l-4 border-t-slate-600/30 border-r-slate-600/30 border-b-slate-600/30`;
-      default:
-        return `${baseStyle} border-slate-600/30`;
-    }
-  };
+  const getLineStyles = (side: MarginSide) => {
+    const isActive = selectedMargin === side;
+    const baseStyle = {
+      position: 'absolute' as const,
+      transition: 'all 0.3s ease',
+      borderRadius: '4px',
+    };
 
-  const getGradientStyle = () => {
-    if (!selectedMargin) return {};
-    
-    const gradientColor = `${guideColor}80`; // Adding transparency
-    
-    switch (selectedMargin) {
+    if (!isActive) {
+      return {
+        ...baseStyle,
+        backgroundColor: 'rgba(148, 163, 184, 0.3)',
+      };
+    }
+
+    // Active gradient styles
+    const gradientColor = guideColor || '#6366f1';
+    switch (side) {
       case 'top':
         return {
-          borderTopImage: `linear-gradient(90deg, transparent, ${gradientColor}, transparent)`,
-          borderImageSlice: '1 0 0 0',
+          ...baseStyle,
+          background: `linear-gradient(90deg, transparent 0%, ${gradientColor} 50%, transparent 100%)`,
+          boxShadow: `0 0 8px ${gradientColor}40`,
         };
       case 'right':
         return {
-          borderRightImage: `linear-gradient(180deg, transparent, ${gradientColor}, transparent)`,
-          borderImageSlice: '0 1 0 0',
+          ...baseStyle,
+          background: `linear-gradient(180deg, transparent 0%, ${gradientColor} 50%, transparent 100%)`,
+          boxShadow: `0 0 8px ${gradientColor}40`,
         };
       case 'bottom':
         return {
-          borderBottomImage: `linear-gradient(90deg, transparent, ${gradientColor}, transparent)`,
-          borderImageSlice: '0 0 1 0',
+          ...baseStyle,
+          background: `linear-gradient(90deg, transparent 0%, ${gradientColor} 50%, transparent 100%)`,
+          boxShadow: `0 0 8px ${gradientColor}40`,
         };
       case 'left':
         return {
-          borderLeftImage: `linear-gradient(180deg, transparent, ${gradientColor}, transparent)`,
-          borderImageSlice: '0 0 0 1',
+          ...baseStyle,
+          background: `linear-gradient(180deg, transparent 0%, ${gradientColor} 50%, transparent 100%)`,
+          boxShadow: `0 0 8px ${gradientColor}40`,
         };
       default:
-        return {};
+        return baseStyle;
     }
   };
 
   return (
-    <div className="relative bg-slate-700/30 p-16 flex items-center justify-center my-0 rounded-2xl px-[42px] py-[47px]">
+    <div className="relative bg-slate-700/30 rounded-2xl flex items-center justify-center" style={{ width: '280px', height: '280px', padding: '60px' }}>
       {/* Top Margin Input */}
-      <div className="absolute top-4 left-1/2 transform -translate-x-1/2">
+      <div className="absolute" style={{ top: '20px', left: '50%', transform: 'translateX(-50%)' }}>
         <SpinnerInput 
           value={marginTop} 
           onChange={value => onInputChange('top', value)} 
@@ -90,7 +88,7 @@ export const MarginVisualizer = ({
       </div>
       
       {/* Left Margin Input */}
-      <div className="absolute left-4 top-1/2 transform -translate-y-1/2">
+      <div className="absolute" style={{ left: '20px', top: '50%', transform: 'translateY(-50%)' }}>
         <SpinnerInput 
           value={marginLeft} 
           onChange={value => onInputChange('left', value)} 
@@ -102,7 +100,7 @@ export const MarginVisualizer = ({
       </div>
       
       {/* Right Margin Input */}
-      <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
+      <div className="absolute" style={{ right: '20px', top: '50%', transform: 'translateY(-50%)' }}>
         <SpinnerInput 
           value={marginRight} 
           onChange={value => onInputChange('right', value)} 
@@ -114,7 +112,7 @@ export const MarginVisualizer = ({
       </div>
       
       {/* Bottom Margin Input */}
-      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
+      <div className="absolute" style={{ bottom: '20px', left: '50%', transform: 'translateX(-50%)' }}>
         <SpinnerInput 
           value={marginBottom} 
           onChange={value => onInputChange('bottom', value)} 
@@ -125,10 +123,59 @@ export const MarginVisualizer = ({
         />
       </div>
 
-      {/* Central Square Canvas Area */}
+      {/* Connection Lines */}
+      {/* Top Line */}
       <div 
-        className={`w-40 h-40 rounded-2xl bg-slate-600/20 transition-all duration-300 ${getBorderStyle()}`} 
-        style={getGradientStyle()}
+        style={{
+          ...getLineStyles('top'),
+          top: '74px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          width: '80px',
+          height: selectedMargin === 'top' ? '3px' : '2px',
+        }}
+      />
+      
+      {/* Right Line */}
+      <div 
+        style={{
+          ...getLineStyles('right'),
+          right: '74px',
+          top: '50%',
+          transform: 'translateY(-50%)',
+          width: selectedMargin === 'right' ? '3px' : '2px',
+          height: '80px',
+        }}
+      />
+      
+      {/* Bottom Line */}
+      <div 
+        style={{
+          ...getLineStyles('bottom'),
+          bottom: '74px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          width: '80px',
+          height: selectedMargin === 'bottom' ? '3px' : '2px',
+        }}
+      />
+      
+      {/* Left Line */}
+      <div 
+        style={{
+          ...getLineStyles('left'),
+          left: '74px',
+          top: '50%',
+          transform: 'translateY(-50%)',
+          width: selectedMargin === 'left' ? '3px' : '2px',
+          height: '80px',
+        }}
+      />
+
+      {/* Central Square */}
+      <div 
+        className="rounded-2xl bg-slate-600/20 border-2 border-slate-600/30 transition-all duration-300"
+        style={{ width: '120px', height: '120px' }}
       />
     </div>
   );
