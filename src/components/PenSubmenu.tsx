@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { PenTool, Brush, Pencil } from 'lucide-react';
+import { Pen, Brush, Pencil } from 'lucide-react';
 import { ToolSubmenu } from './ToolSubmenu';
 
 interface PenSubmenuProps {
@@ -13,7 +13,7 @@ interface PenSubmenuProps {
 
 export const PenSubmenu = (props: PenSubmenuProps) => {
   const penTools = [
-    { id: 'pen', icon: PenTool, label: 'Caneta' },
+    { id: 'pen', icon: Pen, label: 'Caneta' },
     { id: 'vector-brush', icon: Brush, label: 'Pincel Vetorial' },
     { id: 'pencil', icon: Pencil, label: 'Lápis' },
   ];
