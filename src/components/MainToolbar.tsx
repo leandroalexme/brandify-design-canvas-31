@@ -1,8 +1,7 @@
-
 import React, { useState, useRef } from 'react';
 import { SimpleSubmenu } from './SimpleSubmenu';
 import { useSimpleToolState } from '../hooks/useSimpleToolState';
-import { ToolType } from '../types/tools';
+import { ToolType, MainTool, SubTool } from '../types/tools';
 import { TOOL_ICONS, TOOL_LABELS, SUB_TOOL_OPTIONS } from '../utils/toolConfig';
 
 interface MainToolbarProps {
