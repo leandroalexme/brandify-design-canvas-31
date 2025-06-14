@@ -1,7 +1,7 @@
 
 import React, { useRef, useEffect } from 'react';
 import { X, Eye, EyeOff, Lock, Unlock, Type, Square, MoreHorizontal } from 'lucide-react';
-import { DesignElement } from './BrandifyStudio';
+import { DesignElement } from '../types/design';
 import { ScrollArea } from './ui/scroll-area';
 
 interface LayersPanelProps {

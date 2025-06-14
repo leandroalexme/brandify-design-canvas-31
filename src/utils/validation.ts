@@ -1,6 +1,5 @@
-
 import { ToolType, MainTool, SubTool } from '../types/tools';
-import { DesignElement } from '../components/BrandifyStudio';
+import { DesignElement } from '../types/design';
 
 // Validação de tipos de ferramenta
 export const isMainTool = (tool: string): tool is MainTool => {

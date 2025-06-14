@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { DesignElement } from './BrandifyStudio';
+import { DesignElement } from '../types/design';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
