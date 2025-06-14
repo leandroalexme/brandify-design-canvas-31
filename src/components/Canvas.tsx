@@ -1,7 +1,6 @@
-
 import React, { useRef, useState, useCallback } from 'react';
 import { Copy, Plus } from 'lucide-react';
-import { DesignElement } from './BrandifyStudio';
+import { DesignElement } from '../types/design';
 import { useEventListener } from '../hooks/useEventListener';
 import { logger, isValidPosition } from '../utils/validation';
 

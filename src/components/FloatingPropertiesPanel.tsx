@@ -1,7 +1,6 @@
-
 import React from 'react';
 import { X, Trash2 } from 'lucide-react';
-import { DesignElement } from './BrandifyStudio';
+import { DesignElement } from '../types/design';
 
 interface FloatingPropertiesPanelProps {
   selectedElement: DesignElement | null;
