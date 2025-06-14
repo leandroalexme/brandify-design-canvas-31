@@ -1,7 +1,7 @@
 
 import { Square, Type } from 'lucide-react';
-import { getActiveIcon } from '../utils/activeIcons';
-import { ToolType } from './BrandifyStudio';
+import { TOOL_ICONS } from '../utils/toolConfig';
+import { ToolType } from '../types/tools';
 
 export interface ToolDefinition {
   id: string;
@@ -13,38 +13,32 @@ export interface ToolDefinition {
 export const getToolDefinitions = (selectedTool: ToolType): ToolDefinition[] => {
   console.log('getToolDefinitions called with selectedTool:', selectedTool);
   
-  // Sempre recalcular os ícones para garantir que reflitam o estado atual
   const definitions = [
     { 
       id: 'select', 
-      icon: getActiveIcon('select', selectedTool), 
+      icon: TOOL_ICONS.select, 
       label: 'Selecionar', 
       hasSubmenu: true 
     },
     { 
       id: 'pen', 
-      icon: getActiveIcon('pen', selectedTool), 
+      icon: TOOL_ICONS.pen, 
       label: 'Caneta', 
       hasSubmenu: true 
     },
     { 
       id: 'shapes', 
-      icon: getActiveIcon('shapes', selectedTool), 
+      icon: TOOL_ICONS.shapes, 
       label: 'Formas', 
-      hasSubmenu: true 
+      hasSubmenu: false 
     },
     { 
       id: 'text', 
-      icon: getActiveIcon('text', selectedTool), 
+      icon: TOOL_ICONS.text, 
       label: 'Texto', 
       hasSubmenu: false 
     },
   ];
-  
-  console.log('Tool definitions generated with icons:', definitions.map(d => ({ 
-    id: d.id, 
-    iconName: d.icon.name || d.icon.displayName 
-  })));
   
   return definitions;
 };
