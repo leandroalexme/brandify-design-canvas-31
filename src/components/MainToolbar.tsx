@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef } from 'react';
 import { ShapesMenu } from './ShapesMenu';
 import { SelectSubmenu } from './SelectSubmenu';
@@ -19,7 +18,7 @@ interface MainToolbarProps {
 }
 
 export const MainToolbar = ({ selectedTool, onToolSelect }: MainToolbarProps) => {
-  const canvasRef = useRef<HTMLElement>(null);
+  const canvasRef = useRef<HTMLDivElement>(null);
   
   const {
     showShapesMenu, setShowShapesMenu,

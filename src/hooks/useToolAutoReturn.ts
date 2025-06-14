@@ -6,7 +6,7 @@ import { isSubTool, getMainToolForSubTool } from '../utils/activeIcons';
 export const useToolAutoReturn = (
   selectedTool: ToolType,
   onToolSelect: (tool: ToolType) => void,
-  canvasRef?: React.RefObject<HTMLElement>
+  canvasRef?: React.RefObject<HTMLDivElement>
 ) => {
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const lastActivityRef = useRef<number>(Date.now());
