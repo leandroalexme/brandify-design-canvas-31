@@ -29,7 +29,7 @@ export interface DesignElement {
 
 export const BrandifyStudio = () => {
   const [elements, setElements] = useState<DesignElement[]>([]);
-  const [selectedTool, setSelectedTool] = useState<'select' | 'pen' | 'shapes' | 'text'>('select');
+  const [selectedTool, setSelectedTool] = useState<'select' | 'node' | 'move' | 'comment' | 'pen' | 'vector-brush' | 'pencil' | 'shapes' | 'text'>('select');
   const [selectedColor, setSelectedColor] = useState('#4285F4');
   const [selectedElement, setSelectedElement] = useState<string | null>(null);
   const [zoom, setZoom] = useState(100);

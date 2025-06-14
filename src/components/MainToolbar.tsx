@@ -115,7 +115,7 @@ export const MainToolbar = ({ selectedTool, onToolSelect }: MainToolbarProps) =>
   );
   
   const penHandlers = createSubmenuHandlers(
-    'pen', penButtonRef, setPenMenu, setPenMenuPosition, penTimeoutRef, 'pen'
+    'pen', penButtonRef, setShowPenMenu, setPenMenuPosition, penTimeoutRef, 'pen'
   );
 
   // Handle clicks outside to close menus
