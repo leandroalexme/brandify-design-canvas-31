@@ -27,7 +27,7 @@ export const SimpleSubmenu = ({ isOpen, onClose, onSelect, position, options }: 
     BUTTON_GAP: 8,
     MENU_PADDING: 12,
     VIEWPORT_MARGIN: 16,
-    TOOLBAR_SPACING: 80, // Espaçamento maior da toolbar
+    TOOLBAR_SPACING: 50, // Reduzido para 50px
     ANIMATION_STAGGER_DELAY: 0.08,
   };
 
@@ -47,7 +47,7 @@ export const SimpleSubmenu = ({ isOpen, onClose, onSelect, position, options }: 
 
     // Posicionar acima da toolbar com espaçamento adequado
     optimalPosition.x = position.x - menuWidth / 2; // Centralizar no botão
-    optimalPosition.y = position.y - menuHeight - toolbarSpacing; // Maior espaçamento
+    optimalPosition.y = position.y - menuHeight - toolbarSpacing; // Espaçamento reduzido
 
     // Garantir que não saia da viewport horizontalmente
     optimalPosition.x = Math.max(margin, Math.min(optimalPosition.x, viewport.width - menuWidth - margin));

@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -77,24 +78,31 @@
   /* Submenu Design System - Alinhamento Global Padronizado */
   .submenu-container {
     @apply fixed z-[450] floating-module flex flex-col;
-    /* Espaçamento padrão aumentado de 80px da toolbar */
-    --submenu-toolbar-spacing: 80px;
+    /* Espaçamento padrão reduzido para 50px da toolbar */
+    --submenu-toolbar-spacing: 50px;
   }
   
   .submenu-option {
-    @apply w-16 h-12 flex items-center justify-center rounded-xl bg-transparent 
+    @apply w-16 h-12 rounded-xl bg-transparent 
            hover:bg-slate-700/50 text-slate-300 hover:text-white 
            transition-all duration-200 smooth-transform hover:scale-105 active:scale-95;
-    /* Garantir alinhamento centralizado dos ícones */
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    /* Sistema global de alinhamento centralizado */
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0;
+    position: relative;
   }
   
   .submenu-option svg {
-    /* Forçar alinhamento central dos ícones SVG */
-    margin: 0 auto;
-    display: block;
+    /* Alinhamento global forçado para todos os ícones SVG */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
   }
   
   /* Panel Design System - Global Standardization */
@@ -170,16 +178,20 @@
     box-shadow: 0px 4px 16px -4px rgba(59, 130, 246, 0.4);
   }
   
-  /* Tool buttons - Sistema unificado para toolbar principal */
+  /* Tool buttons - Sistema unificado para toolbar principal com animação de volta */
   .tool-button {
     @apply relative w-12 h-12 rounded-xl flex items-center justify-center 
            transition-all duration-200 smooth-transform
            border border-slate-700/40 hover:border-slate-600/60;
+    /* Animação de volta quando retorna ao estado normal */
+    animation: tool-return 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   }
   
   .tool-button.active {
     @apply bg-gradient-to-br from-blue-500 to-blue-600 text-white border-blue-400/60
            shadow-lg shadow-blue-500/25 transform hover:scale-105;
+    /* Animação quando fica ativo */
+    animation: tool-activate 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   }
   
   .tool-button:not(.active) {
@@ -338,6 +350,33 @@
   }
 }
 
+/* Novas animações para ferramentas */
+@keyframes tool-activate {
+  0% { 
+    transform: scale(0.95);
+    opacity: 0.8;
+  }
+  50% { 
+    transform: scale(1.05);
+    opacity: 1;
+  }
+  100% { 
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes tool-return {
+  0% { 
+    transform: scale(1.05);
+    opacity: 0.9;
+  }
+  100% { 
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
 /* Animation Classes */
 .animate-fade-in {
   animation: fade-in 0.25s cubic-bezier(0.16, 1, 0.3, 1);
@@ -381,6 +420,14 @@
 
 .animate-stagger-fade {
   animation: stagger-fade 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.animate-tool-activate {
+  animation: tool-activate 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.animate-tool-return {
+  animation: tool-return 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* Staggered animation delays */

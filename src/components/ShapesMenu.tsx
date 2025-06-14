@@ -1,3 +1,4 @@
+
 import React, { useRef, useEffect, useState } from 'react';
 import { Circle, Square, Triangle, Hexagon, Star, PieChart, Diamond } from 'lucide-react';
 
@@ -27,12 +28,12 @@ export const ShapesMenu = ({ isOpen, onClose, onShapeSelect, position, selectedS
   // SISTEMA DE ESPAÇAMENTO PADRONIZADO - Design System Global
   const DESIGN_SYSTEM = {
     MENU_WIDTH: 72,
-    BUTTON_HEIGHT: 48, // Altura padrão do botão
-    BUTTON_GAP: 8, // Espaçamento entre botões
-    MENU_PADDING: 12, // Padding interno do menu
-    VIEWPORT_MARGIN: 16, // Margem das bordas da viewport
-    TOOLBAR_ZONE_HEIGHT: 120, // Zona protegida da toolbar
-    ANIMATION_STAGGER_DELAY: 0.05, // Delay de animação sequencial
+    BUTTON_HEIGHT: 48,
+    BUTTON_GAP: 8,
+    MENU_PADDING: 12,
+    VIEWPORT_MARGIN: 16,
+    TOOLBAR_SPACING: 50, // Reduzido para 50px
+    ANIMATION_STAGGER_DELAY: 0.05,
   };
 
   const calculateOptimalPosition = (): { position: { x: number; y: number }; direction: 'up' | 'down' | 'left' | 'right' } => {
@@ -40,7 +41,7 @@ export const ShapesMenu = ({ isOpen, onClose, onShapeSelect, position, selectedS
     const menuHeight = shapes.length * (DESIGN_SYSTEM.BUTTON_HEIGHT + DESIGN_SYSTEM.BUTTON_GAP) 
                       - DESIGN_SYSTEM.BUTTON_GAP + (DESIGN_SYSTEM.MENU_PADDING * 2);
     const margin = DESIGN_SYSTEM.VIEWPORT_MARGIN;
-    const toolbarZoneHeight = DESIGN_SYSTEM.TOOLBAR_ZONE_HEIGHT;
+    const toolbarSpacing = DESIGN_SYSTEM.TOOLBAR_SPACING;
     
     const viewport = {
       width: window.innerWidth,
@@ -51,12 +52,12 @@ export const ShapesMenu = ({ isOpen, onClose, onShapeSelect, position, selectedS
     let direction: 'up' | 'down' | 'left' | 'right' = 'up';
 
     // Calcular espaço seguro acima da toolbar (zona protegida)
-    const safeSpaceAbove = viewport.height - toolbarZoneHeight - menuHeight - margin;
+    const safeSpaceAbove = viewport.height - (toolbarSpacing + 60) - menuHeight - margin;
     
     // Prioridade: posicionar acima do botão (preferido e seguro)
     if (position.y - menuHeight - margin >= margin && safeSpaceAbove >= 0) {
       optimalPosition.x = position.x - menuWidth / 2; // Centralizar no botão
-      optimalPosition.y = Math.min(position.y - menuHeight - margin, safeSpaceAbove);
+      optimalPosition.y = Math.min(position.y - menuHeight - toolbarSpacing, safeSpaceAbove);
       direction = 'up';
     }
     // Tentar à esquerda do botão
@@ -129,7 +130,7 @@ export const ShapesMenu = ({ isOpen, onClose, onShapeSelect, position, selectedS
   return (
     <div 
       ref={menuRef}
-      className={`fixed z-[450] floating-menu flex flex-col ${getAnimationClass()}`}
+      className={`submenu-container ${getAnimationClass()}`}
       style={{
         left: finalPosition.x,
         top: finalPosition.y,
@@ -146,7 +147,7 @@ export const ShapesMenu = ({ isOpen, onClose, onShapeSelect, position, selectedS
         return (
           <button
             key={shape.id}
-            className={`action-button animate-stagger-fade ${isSelected ? 'selected animate-pulse-select' : ''}`}
+            className={`submenu-option animate-stagger-fade ${isSelected ? 'selected animate-pulse-select' : ''}`}
             style={{ 
               height: `${DESIGN_SYSTEM.BUTTON_HEIGHT}px`,
               animationDelay: `${index * DESIGN_SYSTEM.ANIMATION_STAGGER_DELAY}s`,
