@@ -1,7 +1,6 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { MousePointer, Edit3, Square, Type } from 'lucide-react';
-import { ColorPicker } from './ColorPicker';
 
 interface MainToolbarProps {
   selectedTool: 'select' | 'pen' | 'shapes' | 'text';
@@ -10,9 +9,7 @@ interface MainToolbarProps {
   onColorSelect: (color: string) => void;
 }
 
-export const MainToolbar = ({ selectedTool, onToolSelect, selectedColor, onColorSelect }: MainToolbarProps) => {
-  const [showColorPicker, setShowColorPicker] = useState(false);
-
+export const MainToolbar = ({ selectedTool, onToolSelect }: MainToolbarProps) => {
   const tools = [
     { id: 'select', icon: MousePointer, label: 'Selecionar' },
     { id: 'pen', icon: Edit3, label: 'Caneta' },
@@ -33,27 +30,6 @@ export const MainToolbar = ({ selectedTool, onToolSelect, selectedColor, onColor
             <tool.icon className="w-5 h-5" />
           </button>
         ))}
-        
-        <div className="w-px h-8 bg-slate-700/60 mx-2" />
-        
-        <div className="relative">
-          <button
-            className="w-8 h-8 rounded-xl border-2 border-slate-600/60 shadow-sm transition-all duration-200 hover:scale-105"
-            style={{ backgroundColor: selectedColor }}
-            onClick={() => setShowColorPicker(!showColorPicker)}
-            title="Cor"
-          />
-          
-          {showColorPicker && (
-            <div className="absolute bottom-full mb-3 left-1/2 transform -translate-x-1/2 z-50">
-              <ColorPicker
-                selectedColor={selectedColor}
-                onColorSelect={onColorSelect}
-                onClose={() => setShowColorPicker(false)}
-              />
-            </div>
-          )}
-        </div>
       </div>
     </div>
   );

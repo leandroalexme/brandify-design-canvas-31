@@ -7,6 +7,9 @@ import { LayersButton } from './LayersButton';
 import { GridButton } from './GridButton';
 import { ArtboardsButton } from './ArtboardsButton';
 import { ZoomIndicator } from './ZoomIndicator';
+import { LayersPanel } from './LayersPanel';
+import { AlignmentPanel } from './AlignmentPanel';
+import { ArtboardsPanel } from './ArtboardsPanel';
 
 export interface DesignElement {
   id: string;
@@ -30,6 +33,11 @@ export const BrandifyStudio = () => {
   const [selectedColor, setSelectedColor] = useState('#4285F4');
   const [selectedElement, setSelectedElement] = useState<string | null>(null);
   const [zoom, setZoom] = useState(100);
+  
+  // Panel states
+  const [showLayersPanel, setShowLayersPanel] = useState(false);
+  const [showAlignmentPanel, setShowAlignmentPanel] = useState(false);
+  const [showArtboardsPanel, setShowArtboardsPanel] = useState(false);
 
   const addElement = (element: Omit<DesignElement, 'id' | 'selected'>) => {
     const newElement: DesignElement = {
@@ -84,9 +92,28 @@ export const BrandifyStudio = () => {
       />
       
       {/* Corner Controls */}
-      <LayersButton />
-      <GridButton />
-      <ArtboardsButton />
+      <LayersButton onClick={() => setShowLayersPanel(!showLayersPanel)} />
+      <GridButton onClick={() => setShowAlignmentPanel(!showAlignmentPanel)} />
+      <ArtboardsButton onClick={() => setShowArtboardsPanel(!showArtboardsPanel)} />
+      
+      {/* Panels */}
+      {showLayersPanel && (
+        <LayersPanel
+          elements={elements}
+          onSelectElement={selectElement}
+          onUpdateElement={updateElement}
+          onDeleteElement={deleteElement}
+          onClose={() => setShowLayersPanel(false)}
+        />
+      )}
+      
+      {showAlignmentPanel && (
+        <AlignmentPanel onClose={() => setShowAlignmentPanel(false)} />
+      )}
+      
+      {showArtboardsPanel && (
+        <ArtboardsPanel onClose={() => setShowArtboardsPanel(false)} />
+      )}
       
       {/* Properties Panel */}
       {selectedElement && (
