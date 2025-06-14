@@ -1,18 +1,28 @@
 
-import React from 'react';
-import { X, Plus, Copy, Trash2 } from 'lucide-react';
+import React, { useState } from 'react';
+import { X, Plus, Copy, Trash2, ChevronDown } from 'lucide-react';
+import { ArtboardSearch } from './ArtboardSearch';
+import { ArtboardPresets } from './ArtboardPresets';
 
 interface ArtboardsPanelProps {
   onClose: () => void;
 }
 
 export const ArtboardsPanel = ({ onClose }: ArtboardsPanelProps) => {
+  const [searchValue, setSearchValue] = useState('');
+  const [showPresets, setShowPresets] = useState(true);
+  
   const artboards = [
     { id: '1', name: 'Design sem título', width: 800, height: 600, selected: true },
   ];
 
+  const handlePresetSelect = (preset: any) => {
+    console.log('Preset selecionado:', preset);
+    // Aqui você implementaria a lógica para criar uma nova prancheta com o preset selecionado
+  };
+
   return (
-    <div className="fixed top-20 right-6 z-50 floating-module p-4 w-64">
+    <div className="fixed top-20 right-6 z-50 floating-module p-4 w-72">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-sm font-medium text-slate-200">Pranchetas</h3>
         <button
@@ -22,8 +32,42 @@ export const ArtboardsPanel = ({ onClose }: ArtboardsPanelProps) => {
           <X className="w-4 h-4" />
         </button>
       </div>
-      
+
+      {/* Botão para nova prancheta */}
+      <button className="w-full mb-4 py-2 px-3 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-lg transition-colors flex items-center justify-center gap-2">
+        <Plus className="w-4 h-4" />
+        Nova Prancheta
+      </button>
+
+      {/* Campo de busca */}
+      <ArtboardSearch 
+        value={searchValue}
+        onChange={setSearchValue}
+        placeholder="Tamanho personalizado"
+      />
+
+      {/* Seção de presets */}
+      <div className="mb-4">
+        <button
+          onClick={() => setShowPresets(!showPresets)}
+          className="w-full flex items-center justify-between py-2 text-sm font-medium text-slate-300 hover:text-slate-200 transition-colors"
+        >
+          <span>Presets</span>
+          <ChevronDown className={`w-4 h-4 transition-transform ${showPresets ? 'rotate-180' : ''}`} />
+        </button>
+        
+        {showPresets && (
+          <div className="mt-2">
+            <ArtboardPresets onPresetSelect={handlePresetSelect} />
+          </div>
+        )}
+      </div>
+
+      {/* Lista de pranchetas existentes */}
       <div className="space-y-3">
+        <div className="text-xs font-medium text-slate-400 uppercase tracking-wider mb-2">
+          Pranchetas Existentes
+        </div>
         {artboards.map((artboard) => (
           <div
             key={artboard.id}
@@ -58,11 +102,6 @@ export const ArtboardsPanel = ({ onClose }: ArtboardsPanelProps) => {
           </div>
         ))}
       </div>
-      
-      <button className="w-full mt-4 py-2 px-3 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-lg transition-colors flex items-center justify-center gap-2">
-        <Plus className="w-4 h-4" />
-        Nova Prancheta
-      </button>
     </div>
   );
 };
