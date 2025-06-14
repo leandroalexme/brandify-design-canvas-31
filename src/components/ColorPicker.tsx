@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { X } from 'lucide-react';
 
 interface ColorPickerProps {
   selectedColor: string;
@@ -25,36 +26,36 @@ export const ColorPicker = ({ selectedColor, onColorSelect, onClose }: ColorPick
   ];
 
   return (
-    <div className="floating-module p-6 w-80 animate-scale-in">
+    <div className="floating-module p-4 w-72 animate-scale-in">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="font-semibold text-slate-200">Colors</h3>
+        <h3 className="font-semibold text-slate-200 text-sm">Cores</h3>
         <button
           onClick={onClose}
-          className="w-6 h-6 rounded-full bg-slate-700 hover:bg-slate-600 flex items-center justify-center text-slate-300"
+          className="w-6 h-6 rounded-lg bg-slate-700/60 hover:bg-slate-600/80 flex items-center justify-center text-slate-400 hover:text-slate-200 transition-colors"
         >
-          ×
+          <X className="w-4 h-4" />
         </button>
       </div>
       
-      <div className="grid grid-cols-5 gap-3 mb-6">
+      <div className="grid grid-cols-5 gap-2 mb-4">
         {colors.map((color) => (
           <button
             key={color}
-            className={`w-12 h-12 rounded-2xl border-4 transition-all duration-200 ${
-              selectedColor === color ? 'border-blue-500 scale-105' : 'border-slate-600 hover:border-slate-500'
-            } hover:scale-105`}
+            className={`w-10 h-10 rounded-xl border-2 transition-all duration-200 hover:scale-105 ${
+              selectedColor === color ? 'border-blue-500 ring-2 ring-blue-500/30' : 'border-slate-600/60 hover:border-slate-500/80'
+            }`}
             style={{ backgroundColor: color }}
             onClick={() => onColorSelect(color)}
           />
         ))}
       </div>
       
-      <h4 className="font-medium text-slate-300 mb-3">Gradients</h4>
-      <div className="grid grid-cols-3 gap-3">
+      <h4 className="font-medium text-slate-300 mb-3 text-sm">Gradientes</h4>
+      <div className="grid grid-cols-3 gap-2">
         {gradients.map((gradient, index) => (
           <button
             key={index}
-            className="w-16 h-12 rounded-2xl border-4 border-slate-600 hover:border-slate-500 hover:scale-105 transition-all duration-200"
+            className="w-16 h-10 rounded-xl border-2 border-slate-600/60 hover:border-slate-500/80 hover:scale-105 transition-all duration-200"
             style={{ background: gradient }}
             onClick={() => onColorSelect(gradient)}
           />

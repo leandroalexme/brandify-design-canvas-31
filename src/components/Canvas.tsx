@@ -1,10 +1,10 @@
 
-import React, { useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import { DesignElement } from './BrandifyStudio';
 
 interface CanvasProps {
   elements: DesignElement[];
-  selectedTool: 'select' | 'text' | 'shapes' | 'draw' | 'eraser';
+  selectedTool: 'select' | 'pen' | 'shapes' | 'text';
   selectedColor: string;
   onAddElement: (element: Omit<DesignElement, 'id' | 'selected'>) => void;
   onSelectElement: (id: string | null) => void;
@@ -19,25 +19,25 @@ export const Canvas = ({
   onSelectElement,
   onUpdateElement 
 }: CanvasProps) => {
-  const canvasRef = useRef<HTMLDivElement>(null);
+  const artboardRef = useRef<HTMLDivElement>(null);
 
-  const handleCanvasClick = (e: React.MouseEvent) => {
-    if (!canvasRef.current) return;
+  const handleArtboardClick = (e: React.MouseEvent) => {
+    if (!artboardRef.current) return;
     
-    const rect = canvasRef.current.getBoundingClientRect();
+    const rect = artboardRef.current.getBoundingClientRect();
     const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    const y = e.clientY - rect.top - 32; // Account for title height
 
     if (selectedTool === 'text') {
       onAddElement({
         type: 'text',
         x,
         y,
-        content: 'Olá meu nome é Leandro',
+        content: 'Texto de exemplo',
         color: selectedColor,
-        fontSize: 72,
-        fontFamily: 'Roboto',
-        fontWeight: 'bold',
+        fontSize: 24,
+        fontFamily: 'Inter',
+        fontWeight: '600',
       });
     } else if (selectedTool === 'shapes') {
       onAddElement({
@@ -57,65 +57,59 @@ export const Canvas = ({
   };
 
   return (
-    <div className="h-screen flex items-center justify-center bg-slate-900">
-      {/* Artboard */}
-      <div className="relative">
-        {/* Artboard Title */}
-        <div className="absolute -top-12 left-0 right-0 text-center">
-          <h2 className="text-slate-400 text-lg font-medium">Untitled Design</h2>
+    <div className="h-screen flex items-center justify-center">
+      {/* Artboard Container with integrated title */}
+      <div className="artboard-container" style={{ width: '800px', height: '600px' }}>
+        {/* Integrated Title */}
+        <div className="artboard-title">
+          Design sem título
         </div>
         
-        {/* Main Artboard */}
-        <div className="bg-white rounded-2xl artboard-shadow relative overflow-hidden" style={{ width: '800px', height: '600px' }}>
-          <div
-            ref={canvasRef}
-            className="w-full h-full relative cursor-crosshair"
-            onClick={handleCanvasClick}
-            style={{
-              backgroundImage: 'radial-gradient(circle, #e2e8f0 2px, transparent 2px)',
-              backgroundSize: '24px 24px',
-            }}
-          >
-            {elements.map((element) => (
-              <div
-                key={element.id}
-                className={`absolute cursor-pointer transition-all duration-200 ${
-                  element.selected ? 'ring-2 ring-blue-500 ring-offset-2 ring-offset-white' : ''
-                }`}
-                style={{
-                  left: element.x,
-                  top: element.y,
-                  transform: `rotate(${element.rotation || 0}deg)`,
-                }}
-                onClick={(e) => handleElementClick(e, element.id)}
-              >
-                {element.type === 'text' && (
-                  <div
-                    className="font-bold select-none"
-                    style={{
-                      color: element.color,
-                      fontSize: `${element.fontSize}px`,
-                      fontFamily: element.fontFamily,
-                      fontWeight: element.fontWeight,
-                    }}
-                  >
-                    {element.content}
-                  </div>
-                )}
-                
-                {element.type === 'shape' && (
-                  <div
-                    className="rounded-full"
-                    style={{
-                      backgroundColor: element.color,
-                      width: element.width,
-                      height: element.height,
-                    }}
-                  />
-                )}
-              </div>
-            ))}
-          </div>
+        {/* Artboard Content */}
+        <div
+          ref={artboardRef}
+          className="w-full h-full relative cursor-crosshair pt-8 rounded-2xl overflow-hidden"
+          onClick={handleArtboardClick}
+        >
+          {elements.map((element) => (
+            <div
+              key={element.id}
+              className={`absolute cursor-pointer transition-all duration-200 ${
+                element.selected ? 'ring-2 ring-blue-500 ring-offset-2 ring-offset-white' : ''
+              }`}
+              style={{
+                left: element.x,
+                top: element.y,
+                transform: `rotate(${element.rotation || 0}deg)`,
+              }}
+              onClick={(e) => handleElementClick(e, element.id)}
+            >
+              {element.type === 'text' && (
+                <div
+                  className="select-none"
+                  style={{
+                    color: element.color,
+                    fontSize: `${element.fontSize}px`,
+                    fontFamily: element.fontFamily,
+                    fontWeight: element.fontWeight,
+                  }}
+                >
+                  {element.content}
+                </div>
+              )}
+              
+              {element.type === 'shape' && (
+                <div
+                  className="rounded-2xl"
+                  style={{
+                    backgroundColor: element.color,
+                    width: element.width,
+                    height: element.height,
+                  }}
+                />
+              )}
+            </div>
+          ))}
         </div>
       </div>
     </div>

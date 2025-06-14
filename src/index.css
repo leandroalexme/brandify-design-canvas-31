@@ -53,24 +53,76 @@
   }
 
   body {
-    @apply bg-slate-900 text-slate-100 font-inter;
+    @apply bg-slate-900 text-slate-100 font-inter overflow-hidden;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
-  
+}
+
+/* Design System Components */
+@layer components {
+  /* Floating modules with glassmorphism */
   .floating-module {
-    @apply bg-slate-800/95 backdrop-blur-xl border border-slate-700/50 rounded-3xl shadow-2xl;
+    @apply bg-slate-800/90 backdrop-blur-xl border border-slate-700/60 rounded-2xl shadow-2xl;
+    box-shadow: 
+      0px 8px 32px -8px rgba(0, 0, 0, 0.4),
+      0px 2px 8px -2px rgba(0, 0, 0, 0.2),
+      inset 0px 1px 0px rgba(255, 255, 255, 0.05);
   }
   
-  .material-shadow {
+  /* Control buttons */
+  .control-button {
+    @apply w-12 h-12 rounded-2xl bg-slate-800/90 backdrop-blur-xl border border-slate-700/60 
+           hover:bg-slate-700/90 active:bg-slate-600/90 transition-all duration-200
+           flex items-center justify-center text-slate-300 hover:text-slate-100;
     box-shadow: 
+      0px 4px 16px -4px rgba(0, 0, 0, 0.3),
+      0px 1px 4px -1px rgba(0, 0, 0, 0.2);
+  }
+  
+  /* Tool buttons */
+  .tool-button {
+    @apply w-12 h-12 rounded-2xl transition-all duration-200 flex items-center justify-center
+           border border-slate-700/40 hover:border-slate-600/60;
+  }
+  
+  .tool-button.active {
+    @apply bg-gradient-to-br from-blue-500 to-blue-600 text-white border-blue-400/60;
+    box-shadow: 
+      0px 4px 16px -4px rgba(59, 130, 246, 0.4),
+      0px 2px 8px -2px rgba(59, 130, 246, 0.2);
+  }
+  
+  .tool-button:not(.active) {
+    @apply bg-slate-800/60 text-slate-400 hover:bg-slate-700/80 hover:text-slate-200;
+  }
+  
+  /* Artboard with integrated title */
+  .artboard-container {
+    @apply relative bg-white rounded-2xl;
+    box-shadow: 
+      0px 12px 48px -12px rgba(0, 0, 0, 0.6),
       0px 4px 16px -4px rgba(0, 0, 0, 0.4),
-      0px 8px 24px -8px rgba(0, 0, 0, 0.3);
+      0px 0px 0px 2px #3b82f6;
   }
   
-  .artboard-shadow {
-    box-shadow: 
-      0px 8px 32px -8px rgba(0, 0, 0, 0.6),
-      0px 16px 48px -16px rgba(0, 0, 0, 0.4);
+  .artboard-title {
+    @apply absolute -top-0 left-0 right-0 bg-white/95 backdrop-blur-sm 
+           text-slate-700 text-sm font-medium text-center py-2 px-4
+           rounded-t-2xl border-b border-slate-200/50;
+  }
+  
+  /* Grid background */
+  .grid-background {
+    background-image: radial-gradient(circle, rgba(148, 163, 184, 0.3) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+  
+  /* Zoom indicator */
+  .zoom-indicator {
+    @apply fixed top-6 left-1/2 transform -translate-x-1/2 
+           px-3 py-1 rounded-full bg-slate-800/90 backdrop-blur-xl 
+           border border-slate-700/60 text-xs font-medium text-slate-300;
+    box-shadow: 0px 4px 12px -4px rgba(0, 0, 0, 0.3);
   }
 }
 
@@ -90,4 +142,23 @@
 
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(148, 163, 184, 0.5);
+}
+
+/* Animation keyframes */
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out;
+}
+
+.animate-scale-in {
+  animation: scale-in 0.2s ease-out;
 }
