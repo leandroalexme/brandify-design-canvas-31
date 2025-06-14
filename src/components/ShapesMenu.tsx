@@ -29,9 +29,8 @@ export const ShapesMenu = ({ isOpen, onClose, onShapeSelect, position, selectedS
   const calculateOptimalPosition = (): { position: { x: number; y: number }; direction: 'up' | 'down' | 'left' | 'right' } => {
     const menuWidth = 72;
     const menuHeight = shapes.length * 52 + 16;
-    const margin = 20;
-    const toolbarHeight = 100; // Increased toolbar height to account for padding and margins
-    const bottomMargin = 120; // Distance from bottom where toolbar is located
+    const margin = 16;
+    const toolbarHeight = 80;
     
     const viewport = {
       width: window.innerWidth,
@@ -41,33 +40,35 @@ export const ShapesMenu = ({ isOpen, onClose, onShapeSelect, position, selectedS
     let optimalPosition = { ...position };
     let direction: 'up' | 'down' | 'left' | 'right' = 'up';
 
-    // Calculate available space above the toolbar
-    const spaceAbove = viewport.height - bottomMargin - menuHeight - margin;
+    // Calculate space above the toolbar (where the button is positioned)
+    const spaceAbove = position.y - menuHeight - margin;
     
-    // Always try to position above first, with sufficient margin from toolbar
+    // Try to position above the button (preferred)
     if (spaceAbove >= margin) {
-      optimalPosition.y = viewport.height - bottomMargin - menuHeight - margin;
+      optimalPosition.x = position.x - menuWidth / 2; // Center on button
+      optimalPosition.y = position.y - menuHeight - margin;
       direction = 'up';
     }
-    // Try left if not enough space above
+    // Try left of the button
     else if (position.x - menuWidth - margin >= 0) {
       optimalPosition.x = position.x - menuWidth - margin;
-      optimalPosition.y = Math.max(margin, Math.min(position.y - menuHeight/2, viewport.height - menuHeight - bottomMargin - margin));
+      optimalPosition.y = Math.max(margin, Math.min(position.y - menuHeight/2, viewport.height - menuHeight - toolbarHeight - margin));
       direction = 'left';
     }
-    // Try right
+    // Try right of the button
     else if (position.x + menuWidth + margin <= viewport.width) {
       optimalPosition.x = position.x + margin;
-      optimalPosition.y = Math.max(margin, Math.min(position.y - menuHeight/2, viewport.height - menuHeight - bottomMargin - margin));
+      optimalPosition.y = Math.max(margin, Math.min(position.y - menuHeight/2, viewport.height - menuHeight - toolbarHeight - margin));
       direction = 'right';
     }
-    // Fallback: force above with minimum spacing
+    // Fallback: position above with horizontal centering
     else {
-      optimalPosition.y = Math.max(margin, viewport.height - bottomMargin - menuHeight - 10);
+      optimalPosition.x = Math.max(margin, Math.min(position.x - menuWidth/2, viewport.width - menuWidth - margin));
+      optimalPosition.y = Math.max(margin, position.y - menuHeight - 10);
       direction = 'up';
     }
 
-    // Ensure horizontal bounds
+    // Ensure the menu stays within horizontal bounds
     optimalPosition.x = Math.max(margin, Math.min(optimalPosition.x, viewport.width - menuWidth - margin));
     
     return { position: optimalPosition, direction };
