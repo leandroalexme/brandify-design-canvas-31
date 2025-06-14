@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { X, MoreHorizontal } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
@@ -14,7 +13,6 @@ export const AlignmentPanel = ({ onClose }: AlignmentPanelProps) => {
   const [marginRight, setMarginRight] = useState('10');
   const [marginBottom, setMarginBottom] = useState('10');
   const [marginLeft, setMarginLeft] = useState('30');
-  const [centerSpacing, setCenterSpacing] = useState('30');
   const [presetEnabled, setPresetEnabled] = useState(false);
 
   const handleMarginChange = (margin: 'top' | 'right' | 'bottom' | 'left' | 'center', value: string) => {
@@ -30,9 +28,6 @@ export const AlignmentPanel = ({ onClose }: AlignmentPanelProps) => {
         break;
       case 'left':
         setMarginLeft(value);
-        break;
-      case 'center':
-        setCenterSpacing(value);
         break;
     }
   };
@@ -69,13 +64,13 @@ export const AlignmentPanel = ({ onClose }: AlignmentPanelProps) => {
           </div>
         </div>
 
-        {/* Only Margin Guides */}
+        {/* Margin Guides Only */}
         <MarginGuides
           marginTop={marginTop}
           marginRight={marginRight}
           marginBottom={marginBottom}
           marginLeft={marginLeft}
-          centerSpacing={centerSpacing}
+          centerSpacing=""
           presetEnabled={presetEnabled}
           onMarginChange={handleMarginChange}
           onPresetToggle={() => setPresetEnabled(!presetEnabled)}
