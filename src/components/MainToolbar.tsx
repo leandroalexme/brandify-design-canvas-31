@@ -28,7 +28,11 @@ export const MainToolbar = ({
   onOpenTextPanel,
   showTextPanel
 }: MainToolbarProps) => {
-  const { toggleTextPanel } = useEditor();
+  const { 
+    toggleTextPanel,
+    updateUIState,
+    uiState 
+  } = useEditor();
   
   // Use the main toolbar hook to get all submenu functionality
   const {
@@ -70,9 +74,39 @@ export const MainToolbar = ({
         setShowColorPanel(true);
       } else if (toolId === 'glyph') {
         setShowGlyphPanel(true);
+      } else if (toolId === 'typography') {
+        // Open font panel when typography is selected
+        const centerX = window.innerWidth / 2;
+        const centerY = window.innerHeight / 2;
+        handleFontPanelClose(); // Close first if open
+        setTimeout(() => {
+          // This will be handled by the existing font panel logic
+        }, 100);
       }
     }, 100);
-  }, []);
+  }, [handleFontPanelClose]);
+
+  // Enhanced tool click handler that manages all UI states
+  const enhancedToolClick = React.useCallback((toolId: string) => {
+    console.log('Enhanced tool click:', toolId);
+    
+    if (toolId === 'text') {
+      // Toggle text panel through context
+      toggleTextPanel();
+    } else {
+      // Handle other tools normally
+      handleToolClick(toolId as any);
+      
+      // Update UI state for other panels
+      if (toolId === 'select') {
+        // Could open layers panel or properties
+        console.log('Select tool clicked');
+      } else if (toolId === 'shapes') {
+        // Shape tool logic handled by useMainToolbar
+        console.log('Shapes tool clicked');
+      }
+    }
+  }, [handleToolClick, toggleTextPanel]);
 
   // Get current submenu tools
   const currentMainTool = getCurrentMainTool();
@@ -83,12 +117,12 @@ export const MainToolbar = ({
       <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-[400]" data-toolbar>
         <MainToolbarButtons
           selectedTool={selectedTool}
-          showTextPanel={showTextPanel}
+          showTextPanel={uiState.showTextPropertiesPanel}
           selectedShape={selectedShape}
           mainTools={mainTools}
           buttonRefs={buttonRefs}
           activeSubTools={activeSubTools}
-          onToolClick={handleToolClick}
+          onToolClick={enhancedToolClick}
           onToolRightClick={handleToolRightClick}
           onToolDoubleClick={handleToolDoubleClick}
         />
@@ -116,7 +150,7 @@ export const MainToolbar = ({
 
       {/* Text Panels Manager */}
       <TextPanelsManager
-        showTextPanel={showTextPanel}
+        showTextPanel={uiState.showTextPropertiesPanel}
         showAlignmentPanel={showAlignmentPanel}
         showColorPanel={showColorPanel}
         showGlyphPanel={showGlyphPanel}

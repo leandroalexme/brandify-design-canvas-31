@@ -70,6 +70,7 @@ export const EditorProvider = ({ children }: EditorProviderProps) => {
 
   // Tool Actions
   const updateToolState = useCallback((updates: Partial<ToolState>) => {
+    console.log('🔧 [EDITOR CONTEXT] Updating tool state:', updates);
     setState(prev => ({
       ...prev,
       toolState: { ...prev.toolState, ...updates }
@@ -78,6 +79,7 @@ export const EditorProvider = ({ children }: EditorProviderProps) => {
 
   // UI Actions
   const updateUIState = useCallback((updates: Partial<UIState>) => {
+    console.log('🎨 [EDITOR CONTEXT] Updating UI state:', updates);
     setState(prev => ({
       ...prev,
       uiState: { ...prev.uiState, ...updates }
@@ -132,12 +134,16 @@ export const EditorProvider = ({ children }: EditorProviderProps) => {
 
   // Fixed toggleTextPanel function
   const toggleTextPanel = useCallback(() => {
+    console.log('📝 [EDITOR CONTEXT] Toggling text panel');
     setState(prev => {
       const isTextPanelOpen = prev.uiState.showTextPropertiesPanel;
       const isTextToolActive = prev.toolState.selectedTool === 'text';
       
+      console.log('📝 [EDITOR CONTEXT] Current state:', { isTextPanelOpen, isTextToolActive });
+      
       if (isTextPanelOpen && isTextToolActive) {
         // Fechar painel e voltar para select
+        console.log('📝 [EDITOR CONTEXT] Closing text panel and returning to select');
         return {
           ...prev,
           toolState: { ...prev.toolState, selectedTool: 'select' },
@@ -145,6 +151,7 @@ export const EditorProvider = ({ children }: EditorProviderProps) => {
         };
       } else {
         // Abrir painel e ativar ferramenta de texto
+        console.log('📝 [EDITOR CONTEXT] Opening text panel and activating text tool');
         return {
           ...prev,
           toolState: { ...prev.toolState, selectedTool: 'text' },

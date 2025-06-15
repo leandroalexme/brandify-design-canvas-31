@@ -17,7 +17,7 @@ interface MainToolbarButtonsProps {
   mainTools: MainToolConfig[];
   buttonRefs: React.MutableRefObject<Record<string, HTMLButtonElement | null>>;
   activeSubTools: Record<MainTool, any>;
-  onToolClick: (toolId: MainTool) => void;
+  onToolClick: (toolId: string) => void;
   onToolRightClick: (e: React.MouseEvent, toolId: MainTool) => void;
   onToolDoubleClick: (toolId: MainTool) => void;
 }
@@ -33,9 +33,12 @@ export const MainToolbarButtons = ({
   onToolRightClick,
   onToolDoubleClick
 }: MainToolbarButtonsProps) => {
+  // Ensure mainTools is always an array
+  const safeMainTools = Array.isArray(mainTools) ? mainTools : [];
+  
   return (
     <div className="floating-module rounded-2xl p-3 flex items-center space-x-2">
-      {mainTools.map((tool) => {
+      {safeMainTools.map((tool) => {
         const isActive = tool.id === 'text' ? showTextPanel : selectedTool === tool.id;
         
         return (
