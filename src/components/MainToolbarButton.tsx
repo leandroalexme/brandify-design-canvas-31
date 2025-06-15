@@ -30,44 +30,16 @@ export const MainToolbarButton = ({
 }: MainToolbarButtonProps) => {
   const Icon = tool.icon;
   
-  console.log(`🔧 [MAIN TOOLBAR BUTTON] Rendering ${tool.id}:`, {
-    isActive,
-    hasActiveSub,
-    hasSelectedShape,
-    hasSubmenu: tool.hasSubmenu
-  });
-  
-  // Show indicator for tools with active sub-tool or selected shape
+  // Só mostrar a bolinha para ferramentas que têm sub-ferramenta ativa (não para texto)
   const shouldShowIndicator = tool.id !== 'text' && (hasActiveSub || hasSelectedShape);
-  
-  const handleClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    console.log(`🔧 [MAIN TOOLBAR BUTTON] Click on ${tool.id}`);
-    onClick();
-  };
-
-  const handleContextMenu = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    console.log(`🔧 [MAIN TOOLBAR BUTTON] Right click on ${tool.id}`);
-    onRightClick(e);
-  };
-
-  const handleDoubleClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    console.log(`🔧 [MAIN TOOLBAR BUTTON] Double click on ${tool.id}`);
-    onDoubleClick();
-  };
   
   return (
     <button
       ref={buttonRef}
       className={`tool-button ${isActive ? 'active' : ''}`}
-      onClick={handleClick}
-      onContextMenu={handleContextMenu}
-      onDoubleClick={handleDoubleClick}
+      onClick={onClick}
+      onContextMenu={onRightClick}
+      onDoubleClick={onDoubleClick}
       title={`${tool.label}${tool.hasSubmenu ? ' (clique direito para submenu)' : ''}`}
     >
       <Icon className="w-5 h-5" />

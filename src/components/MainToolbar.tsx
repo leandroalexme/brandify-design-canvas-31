@@ -1,14 +1,15 @@
-
-import React, { useRef, useCallback, useState } from 'react';
-import { MainToolbarButtons } from './toolbar/MainToolbarButtons';
-import { TextPanelsManager } from './toolbar/TextPanelsManager';
+import React from 'react';
+import { SimpleSubmenu } from './SimpleSubmenu';
 import { ShapesMenu } from './ShapesMenu';
-import { ToolSubmenu } from './ToolSubmenu';
-import { useEditor } from '../contexts/EditorContext';
-import { ToolType, MainTool } from '../types/tools';
+import { FontConfigPanel } from './FontConfigPanel';
+import { TextPropertiesSubmenu } from './TextPropertiesSubmenu';
+import { AlignmentConfigPanel } from './AlignmentConfigPanel';
+import { ColorConfigPanel } from './ColorConfigPanel';
+import { GlyphPanel } from './GlyphPanel';
+import { MainToolbarButton } from './MainToolbarButton';
+import { useMainToolbar } from '../hooks/useMainToolbar';
+import { ToolType } from '../types/tools';
 import { SUB_TOOL_OPTIONS } from '../utils/toolConfig';
-import { TOOL_ICONS, TOOL_LABELS } from '../utils/toolConfig';
-import { SHAPE_ICONS } from '../utils/shapeIcons';
 
 interface MainToolbarProps {
   selectedTool: ToolType;
@@ -17,6 +18,7 @@ interface MainToolbarProps {
   onColorSelect: (color: string) => void;
   selectedShape: string | null;
   onShapeSelect: (shape: string | null) => void;
+  onOpenTextPanel: () => void;
   showTextPanel: boolean;
 }
 
@@ -25,239 +27,206 @@ export const MainToolbar = ({
   onToolSelect, 
   selectedShape, 
   onShapeSelect,
+  onOpenTextPanel,
   showTextPanel
 }: MainToolbarProps) => {
-  console.log('🔧 [MAIN TOOLBAR] Rendering with props:', {
-    selectedTool,
-    selectedShape,
-    showTextPanel
-  });
+  // Estados para painéis melhorados com posicionamento otimizado
+  const [showAlignmentPanel, setShowAlignmentPanel] = React.useState(false);
+  const [showColorPanel, setShowColorPanel] = React.useState(false);
+  const [showGlyphPanel, setShowGlyphPanel] = React.useState(false);
 
-  const { toggleTextPanel, updateUIState } = useEditor();
-  
-  // Estados locais para submenus
-  const [showShapesMenu, setShowShapesMenu] = useState(false);
-  const [shapesMenuPosition, setShapesMenuPosition] = useState({ x: 0, y: 0 });
-  const [showSubmenu, setShowSubmenu] = useState<MainTool | null>(null);
-  const [submenuPosition, setSubmenuPosition] = useState({ x: 0, y: 0 });
-  const [activeSubTools, setActiveSubTools] = useState<Record<MainTool, any>>({
-    select: null,
-    pen: null,
-    shapes: null,
-    text: null
-  });
+  // Calculate base position from toolbar center
+  const getToolbarCenter = React.useCallback(() => {
+    return {
+      x: window.innerWidth / 2,
+      y: window.innerHeight - 120 // Toolbar is at bottom-6 (24px) + toolbar height
+    };
+  }, []);
 
-  // Estados para painéis de texto
-  const [showAlignmentPanel, setShowAlignmentPanel] = useState(false);
-  const [showColorPanel, setShowColorPanel] = useState(false);
-  const [showGlyphPanel, setShowGlyphPanel] = useState(false);
-  const [showFontPanel, setShowFontPanel] = useState(false);
-  const [fontPanelPosition, setFontPanelPosition] = useState({ x: 0, y: 0 });
+  const {
+    mainTools,
+    buttonRefs,
+    showShapesMenu,
+    shapesMenuPosition,
+    showSubmenu,
+    submenuPosition,
+    showFontPanel,
+    fontPanelPosition,
+    activeSubTools,
+    getCurrentMainTool,
+    handleToolClick,
+    handleToolRightClick,
+    handleToolDoubleClick,
+    handleSubToolSelect,
+    handleSubmenuClose,
+    handleShapeSelect,
+    handleShapesMenuClose,
+    handleFontPanelClose
+  } = useMainToolbar(selectedTool, onToolSelect, selectedShape, onShapeSelect);
 
-  // Refs para botões
-  const buttonRefs = useRef<Record<string, HTMLButtonElement | null>>({});
+  const handleTextToolClick = React.useCallback(() => {
+    console.log('📝 [MAIN TOOLBAR] Text tool clicked - Opening text properties submenu');
+    onOpenTextPanel();
+  }, [onOpenTextPanel]);
 
-  // Definição das ferramentas principais
-  const mainTools = [
-    {
-      id: 'select' as MainTool,
-      icon: activeSubTools.select ? TOOL_ICONS[activeSubTools.select] : TOOL_ICONS.select,
-      label: activeSubTools.select ? TOOL_LABELS[activeSubTools.select] : TOOL_LABELS.select,
-      hasSubmenu: true
-    },
-    {
-      id: 'pen' as MainTool,
-      icon: activeSubTools.pen ? TOOL_ICONS[activeSubTools.pen] : TOOL_ICONS.pen,
-      label: activeSubTools.pen ? TOOL_LABELS[activeSubTools.pen] : TOOL_LABELS.pen,
-      hasSubmenu: true
-    },
-    {
-      id: 'shapes' as MainTool,
-      icon: selectedShape ? SHAPE_ICONS[selectedShape as keyof typeof SHAPE_ICONS] : TOOL_ICONS.shapes,
-      label: selectedShape ? `Forma: ${selectedShape}` : TOOL_LABELS.shapes,
-      hasSubmenu: true
-    },
-    {
-      id: 'text' as MainTool,
-      icon: TOOL_ICONS.text,
-      label: TOOL_LABELS.text,
-      hasSubmenu: false
-    }
-  ];
-
-  // Handler principal para clicks dos botões
-  const handleToolClick = useCallback((toolId: string) => {
-    console.log('🔧 [MAIN TOOLBAR] Tool click:', toolId);
+  const handleCustomToolClick = React.useCallback((toolId: string) => {
+    console.log('🔧 [MAIN TOOLBAR] Custom tool click:', toolId);
     
     if (toolId === 'text') {
-      toggleTextPanel();
+      handleTextToolClick();
     } else {
-      onToolSelect(toolId as ToolType);
+      handleToolClick(toolId as any);
     }
-  }, [onToolSelect, toggleTextPanel]);
+  }, [handleTextToolClick, handleToolClick]);
 
-  // Handler para right-click (abrir submenus)
-  const handleToolRightClick = useCallback((e: React.MouseEvent, toolId: MainTool) => {
-    e.preventDefault();
-    console.log('🔧 [MAIN TOOLBAR] Right click:', toolId);
+  // Enhanced handler for text submenu tools with intelligent positioning
+  const handleTextSubmenuToolSelect = React.useCallback((toolId: string) => {
+    console.log('📝 [MAIN TOOLBAR] Text submenu tool selected:', toolId);
     
-    const button = buttonRefs.current[toolId];
-    if (!button) {
-      console.warn('🔧 [MAIN TOOLBAR] Button ref not found for:', toolId);
-      return;
-    }
-
-    const rect = button.getBoundingClientRect();
-    const position = {
-      x: rect.left + rect.width / 2,
-      y: rect.top
-    };
-
-    if (toolId === 'shapes') {
-      console.log('🔧 [MAIN TOOLBAR] Opening shapes menu at:', position);
-      setShapesMenuPosition(position);
-      setShowShapesMenu(true);
-    } else if (SUB_TOOL_OPTIONS[toolId]) {
-      console.log('🔧 [MAIN TOOLBAR] Opening submenu for:', toolId, 'at:', position);
-      setSubmenuPosition(position);
-      setShowSubmenu(toolId);
-    }
-  }, []);
-
-  // Handler para double-click (voltar à ferramenta principal)
-  const handleToolDoubleClick = useCallback((toolId: MainTool) => {
-    console.log('🔧 [MAIN TOOLBAR] Double click:', toolId);
+    const toolbarCenter = getToolbarCenter();
     
-    if (activeSubTools[toolId]) {
-      setActiveSubTools(prev => ({ ...prev, [toolId]: null }));
-      onToolSelect(toolId);
-    }
-    
-    if (toolId === 'shapes') {
-      onShapeSelect(null);
-    }
-  }, [activeSubTools, onToolSelect, onShapeSelect]);
-
-  // Handler para seleção de sub-ferramenta
-  const handleSubToolSelect = useCallback((subToolId: string) => {
-    console.log('🔧 [MAIN TOOLBAR] Sub-tool selected:', subToolId);
-    
-    if (showSubmenu) {
-      setActiveSubTools(prev => ({ ...prev, [showSubmenu]: subToolId }));
-      onToolSelect(subToolId as ToolType);
-      setShowSubmenu(null);
-    }
-  }, [showSubmenu, onToolSelect]);
-
-  // Handler para seleção de forma
-  const handleShapeSelect = useCallback((shapeId: string) => {
-    console.log('🔧 [MAIN TOOLBAR] Shape selected:', shapeId);
-    onShapeSelect(shapeId);
-    setShowShapesMenu(false);
-  }, [onShapeSelect]);
-
-  // Handler para fechar submenus
-  const handleSubmenuClose = useCallback(() => {
-    console.log('🔧 [MAIN TOOLBAR] Closing submenu');
-    setShowSubmenu(null);
-  }, []);
-
-  const handleShapesMenuClose = useCallback(() => {
-    console.log('🔧 [MAIN TOOLBAR] Closing shapes menu');
-    setShowShapesMenu(false);
-  }, []);
-
-  const handleFontPanelClose = useCallback(() => {
-    console.log('🔧 [MAIN TOOLBAR] Closing font panel');
-    setShowFontPanel(false);
-  }, []);
-
-  // Handler para ferramentas do submenu de texto
-  const handleTextSubmenuToolSelect = useCallback((toolId: string) => {
-    console.log('🔧 [MAIN TOOLBAR] Text submenu tool selected:', toolId);
-    
-    // Fechar todos os painéis primeiro
+    // Close all panels first to avoid conflicts
     setShowAlignmentPanel(false);
     setShowColorPanel(false);
     setShowGlyphPanel(false);
-    setShowFontPanel(false);
     
-    // Abrir o painel correspondente
+    // Small delay to ensure clean transitions
     setTimeout(() => {
-      if (toolId === 'alignment') {
+      if (toolId === 'typography') {
+        console.log('📝 [MAIN TOOLBAR] Opening font config panel');
+        const fontPanelButton = buttonRefs.current['text'];
+        if (fontPanelButton) {
+          const rect = fontPanelButton.getBoundingClientRect();
+          const buttonPosition = {
+            x: rect.left + rect.width / 2,
+            y: rect.top
+          };
+          
+          handleSubToolSelect('fontConfig');
+        }
+      } else if (toolId === 'alignment') {
+        console.log('📐 [MAIN TOOLBAR] Opening alignment config panel');
         setShowAlignmentPanel(true);
       } else if (toolId === 'color') {
+        console.log('🎨 [MAIN TOOLBAR] Opening color config panel');  
         setShowColorPanel(true);
       } else if (toolId === 'glyph') {
+        console.log('🔤 [MAIN TOOLBAR] Opening glyph panel');
         setShowGlyphPanel(true);
-      } else if (toolId === 'typography') {
-        setShowFontPanel(true);
-        setFontPanelPosition({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
       }
     }, 100);
+  }, [handleSubToolSelect, buttonRefs, getToolbarCenter]);
+
+  // Handlers para fechar painéis
+  const handleAlignmentPanelClose = React.useCallback(() => {
+    setShowAlignmentPanel(false);
   }, []);
 
-  // Get current submenu tools
-  const submenuTools = showSubmenu ? SUB_TOOL_OPTIONS[showSubmenu] || [] : [];
+  const handleColorPanelClose = React.useCallback(() => {
+    setShowColorPanel(false);
+  }, []);
 
-  console.log('🔧 [MAIN TOOLBAR] Current state:', {
-    showSubmenu,
-    showShapesMenu,
-    showTextPanel,
-    mainToolsCount: mainTools.length
-  });
+  const handleGlyphPanelClose = React.useCallback(() => {
+    setShowGlyphPanel(false);
+  }, []);
+
+  const handleTextPanelClose = React.useCallback(() => {
+    console.log('📝 [MAIN TOOLBAR] Closing text panel and all subpanels');
+    onOpenTextPanel();
+    
+    // Fechar todos os subpainéis
+    setShowAlignmentPanel(false);
+    setShowColorPanel(false);
+    setShowGlyphPanel(false);
+  }, [onOpenTextPanel]);
 
   return (
     <>
       <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-[400]" data-toolbar>
-        <MainToolbarButtons
-          selectedTool={selectedTool}
-          showTextPanel={showTextPanel}
-          selectedShape={selectedShape}
-          mainTools={mainTools}
-          buttonRefs={buttonRefs}
-          activeSubTools={activeSubTools}
-          onToolClick={handleToolClick}
-          onToolRightClick={handleToolRightClick}
-          onToolDoubleClick={handleToolDoubleClick}
-        />
+        <div className="floating-module rounded-2xl p-3 flex items-center space-x-2">
+          {mainTools.map((tool) => {
+            const isActive = tool.id === 'text' ? 
+              showTextPanel : 
+              (!showTextPanel && getCurrentMainTool() === tool.id);
+            
+            const hasActiveSub = !showTextPanel && activeSubTools[tool.id] ? activeSubTools[tool.id] : null;
+            const hasSelectedShape = tool.id === 'shapes' && !!selectedShape;
+            
+            return (
+              <MainToolbarButton
+                key={tool.id}
+                tool={tool}
+                isActive={isActive}
+                hasActiveSub={hasActiveSub}
+                hasSelectedShape={hasSelectedShape}
+                buttonRef={el => buttonRefs.current[tool.id] = el}
+                onClick={() => handleCustomToolClick(tool.id)}
+                onRightClick={(e) => handleToolRightClick(e, tool.id)}
+                onDoubleClick={() => handleToolDoubleClick(tool.id)}
+              />
+            );
+          })}
+        </div>
       </div>
 
-      {/* Shapes Menu */}
-      <ShapesMenu
-        isOpen={showShapesMenu}
-        onClose={handleShapesMenuClose}
-        onShapeSelect={handleShapeSelect}
-        position={shapesMenuPosition}
-        selectedShape={selectedShape}
+      {/* Submenu para select e pen - otimizado */}
+      {!showTextPanel && showSubmenu && showSubmenu !== 'text' && SUB_TOOL_OPTIONS[showSubmenu as keyof typeof SUB_TOOL_OPTIONS] && (
+        <SimpleSubmenu
+          isOpen={!!showSubmenu}
+          onClose={handleSubmenuClose}
+          onSelect={handleSubToolSelect}
+          position={submenuPosition}
+          options={SUB_TOOL_OPTIONS[showSubmenu as keyof typeof SUB_TOOL_OPTIONS]}
+        />
+      )}
+
+      {/* Text Properties Submenu - with improved positioning */}
+      <TextPropertiesSubmenu
+        isOpen={showTextPanel}
+        onClose={handleTextPanelClose}
+        onToolSelect={handleTextSubmenuToolSelect}
+        position={getToolbarCenter()}
       />
 
-      {/* Tool Submenu */}
-      <ToolSubmenu
-        isOpen={showSubmenu !== null}
-        onClose={handleSubmenuClose}
-        onToolSelect={handleSubToolSelect}
-        position={submenuPosition}
-        selectedTool={activeSubTools[showSubmenu || 'select']}
-        tools={submenuTools}
-        title={showSubmenu || 'select'}
-      />
+      {/* Menu de formas */}
+      {!showTextPanel && (
+        <ShapesMenu
+          isOpen={showShapesMenu}
+          onClose={handleShapesMenuClose}
+          onShapeSelect={handleShapeSelect}
+          position={shapesMenuPosition}
+          selectedShape={selectedShape}
+        />
+      )}
 
-      {/* Text Panels Manager */}
-      <TextPanelsManager
-        showTextPanel={showTextPanel}
-        showAlignmentPanel={showAlignmentPanel}
-        showColorPanel={showColorPanel}
-        showGlyphPanel={showGlyphPanel}
-        showFontPanel={showFontPanel}
-        position={{ x: window.innerWidth / 2, y: window.innerHeight - 120 }}
-        onTextPanelClose={toggleTextPanel}
-        onAlignmentPanelClose={() => setShowAlignmentPanel(false)}
-        onColorPanelClose={() => setShowColorPanel(false)}
-        onGlyphPanelClose={() => setShowGlyphPanel(false)}
-        onFontPanelClose={handleFontPanelClose}
-        onTextSubmenuToolSelect={handleTextSubmenuToolSelect}
-      />
+      {/* Painéis melhorados - só aparecem quando texto está ativo */}
+      {showTextPanel && (
+        <>
+          <FontConfigPanel
+            isOpen={showFontPanel}
+            onClose={handleFontPanelClose}
+            position={getToolbarCenter()}
+          />
+
+          <AlignmentConfigPanel
+            isOpen={showAlignmentPanel}
+            onClose={handleAlignmentPanelClose}
+            position={getToolbarCenter()}
+          />
+
+          <ColorConfigPanel
+            isOpen={showColorPanel}
+            onClose={handleColorPanelClose}
+            position={getToolbarCenter()}
+          />
+
+          <GlyphPanel
+            isOpen={showGlyphPanel}
+            onClose={handleGlyphPanelClose}
+            position={getToolbarCenter()}
+          />
+        </>
+      )}
     </>
   );
 };

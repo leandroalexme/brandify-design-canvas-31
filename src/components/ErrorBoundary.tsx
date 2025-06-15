@@ -2,7 +2,7 @@
 import React from 'react';
 import { AlertTriangle, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { debug } from '../utils/debug';
+import { logger } from '../utils/validation';
 
 interface ErrorBoundaryState {
   hasError: boolean;
@@ -37,7 +37,7 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
       errorInfo
     });
 
-    debug.error('Error caught by boundary', {
+    logger.error('Error caught by boundary', {
       error: error.message,
       stack: error.stack,
       componentStack: errorInfo.componentStack

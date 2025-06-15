@@ -1,8 +1,7 @@
 
 import { useState, useCallback } from 'react';
 import { DesignElement } from '../types/design';
-import { isValidDesignElement, isValidPosition } from '../utils/validation';
-import { debug } from '../utils/debug';
+import { isValidDesignElement, isValidPosition, logger } from '../utils/validation';
 
 export const useDesignElements = () => {
   const [elements, setElements] = useState<DesignElement[]>([]);
@@ -11,7 +10,7 @@ export const useDesignElements = () => {
   const addElement = useCallback((element: Omit<DesignElement, 'id' | 'selected'>) => {
     try {
       if (!isValidPosition({ x: element.x, y: element.y })) {
-        debug.error('Invalid position for new element', element);
+        logger.error('Invalid position for new element', element);
         return;
       }
 
@@ -22,14 +21,14 @@ export const useDesignElements = () => {
       };
 
       if (!isValidDesignElement(newElement)) {
-        debug.error('Invalid design element created', newElement);
+        logger.error('Invalid design element created', newElement);
         return;
       }
 
       setElements(prev => [...prev, newElement]);
-      debug.log('Element added successfully', newElement);
+      logger.debug('Element added successfully', newElement);
     } catch (error) {
-      debug.error('Error adding element', error);
+      logger.error('Error adding element', error);
     }
   }, []);
 
@@ -40,7 +39,7 @@ export const useDesignElements = () => {
           if (el.id === id) {
             const updated = { ...el, ...updates };
             if (!isValidDesignElement(updated)) {
-              debug.error('Invalid element update', { id, updates });
+              logger.error('Invalid element update', { id, updates });
               return el;
             }
             return updated;
@@ -48,9 +47,9 @@ export const useDesignElements = () => {
           return el;
         })
       );
-      debug.log('Element updated successfully', { id, updates });
+      logger.debug('Element updated successfully', { id, updates });
     } catch (error) {
-      debug.error('Error updating element', error);
+      logger.error('Error updating element', error);
     }
   }, []);
 
@@ -60,9 +59,9 @@ export const useDesignElements = () => {
         prev.map(el => ({ ...el, selected: el.id === id }))
       );
       setSelectedElement(id);
-      debug.log('Element selected', id);
+      logger.debug('Element selected', id);
     } catch (error) {
-      debug.error('Error selecting element', error);
+      logger.error('Error selecting element', error);
     }
   }, []);
 
@@ -72,9 +71,9 @@ export const useDesignElements = () => {
       if (selectedElement === id) {
         setSelectedElement(null);
       }
-      debug.log('Element deleted', id);
+      logger.debug('Element deleted', id);
     } catch (error) {
-      debug.error('Error deleting element', error);
+      logger.error('Error deleting element', error);
     }
   }, [selectedElement]);
 

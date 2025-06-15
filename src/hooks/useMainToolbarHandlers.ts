@@ -1,7 +1,7 @@
 
 import React, { useCallback } from 'react';
 import { ToolType, MainTool } from '../types/tools';
-import { debug } from '../utils/debug';
+import { logger } from '../utils/validation';
 
 interface ToolDefinition {
   id: MainTool;
@@ -27,11 +27,11 @@ export const useMainToolbarHandlers = (
 ) => {
   // Handlers otimizados com melhor logging
   const handleToolClick = useCallback((toolId: MainTool) => {
-    debug.log('Tool clicked', { toolId }, 'toolbar');
+    logger.debug('Tool clicked', { toolId });
     
     const tool = mainTools.find(t => t.id === toolId);
     if (!tool) {
-      debug.warn('Tool not found', { toolId }, 'toolbar');
+      logger.warn('Tool not found', { toolId });
       return;
     }
 
@@ -46,11 +46,11 @@ export const useMainToolbarHandlers = (
 
   const handleToolRightClick = useCallback((e: React.MouseEvent, toolId: MainTool) => {
     e.preventDefault();
-    debug.log('Tool right clicked', { toolId }, 'toolbar');
+    logger.debug('Tool right clicked', { toolId });
     
     const tool = mainTools.find(t => t.id === toolId);
     if (!tool?.hasSubmenu) {
-      debug.log('Tool has no submenu', { toolId }, 'toolbar');
+      logger.debug('Tool has no submenu', { toolId });
       return;
     }
 
@@ -63,44 +63,44 @@ export const useMainToolbarHandlers = (
       };
 
       if (toolId === 'shapes') {
-        debug.log('Opening shapes menu', { position }, 'toolbar');
+        logger.debug('Opening shapes menu', { position });
         setShapesMenuPosition(position);
         setShowShapesMenu(true);
       } else {
-        debug.log('Opening submenu', { toolId, position }, 'toolbar');
+        logger.debug('Opening submenu', { toolId, position });
         toggleSubmenu(toolId, position);
       }
     }
   }, [mainTools, toggleSubmenu, buttonRefs, setShapesMenuPosition, setShowShapesMenu]);
 
   const handleToolDoubleClick = useCallback((toolId: MainTool) => {
-    debug.log('Tool double clicked', { toolId }, 'toolbar');
+    logger.debug('Tool double clicked', { toolId });
     
     const activeSub = activeSubTools[toolId];
     if (activeSub) {
-      debug.log('Returning to main tool', { toolId, activeSub }, 'toolbar');
+      logger.debug('Returning to main tool', { toolId, activeSub });
       returnToMainTool(toolId);
     }
     
     if (toolId === 'shapes') {
-      debug.log('Clearing shape selection', undefined, 'toolbar');
+      logger.debug('Clearing shape selection');
       onShapeSelect(null);
     }
   }, [activeSubTools, returnToMainTool, onShapeSelect]);
 
   const handleSubToolSelect = useCallback((subToolId: string) => {
-    debug.log('Sub-tool selected', { subToolId }, 'toolbar');
+    logger.debug('Sub-tool selected', { subToolId });
     
     // Se for o ícone de texto, abrir o painel de configuração
     if (subToolId === 'fontConfig') {
-      debug.log('Opening font config panel', undefined, 'toolbar');
+      console.log('📝 [MAIN TOOLBAR] Opening font config panel');
       
       // Calcular posição centralizada na tela
       const centerX = window.innerWidth / 2;
       const centerY = window.innerHeight / 2;
       
       const position = { x: centerX, y: centerY };
-      debug.log('Font panel position', { position }, 'toolbar');
+      console.log('📝 [MAIN TOOLBAR] Font panel position:', position);
       
       setFontPanelPosition(position);
       setShowFontPanel(true);
@@ -116,24 +116,24 @@ export const useMainToolbarHandlers = (
   }, [selectSubTool, toggleSubmenu, onToolSelect, setFontPanelPosition, setShowFontPanel]);
 
   const handleSubmenuClose = useCallback(() => {
-    debug.log('Closing submenu', undefined, 'toolbar');
+    logger.debug('Closing submenu');
     toggleSubmenu(null);
   }, [toggleSubmenu]);
 
   const handleShapeSelect = useCallback((shapeId: string) => {
-    debug.log('Shape selected', { shapeId }, 'toolbar');
+    logger.debug('Shape selected', { shapeId });
     onShapeSelect(shapeId);
     setShowShapesMenu(false);
   }, [onShapeSelect, setShowShapesMenu]);
 
   const handleShapesMenuClose = useCallback(() => {
-    debug.log('Closing shapes menu', undefined, 'toolbar');
+    logger.debug('Closing shapes menu');
     setShowShapesMenu(false);
     onShapeSelect(null);
   }, [onShapeSelect, setShowShapesMenu]);
 
   const handleFontPanelClose = useCallback(() => {
-    debug.log('Closing font panel', undefined, 'toolbar');
+    console.log('📝 [MAIN TOOLBAR] Closing font panel');
     setShowFontPanel(false);
   }, [setShowFontPanel]);
 

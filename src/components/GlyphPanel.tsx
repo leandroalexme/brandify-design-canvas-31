@@ -69,10 +69,9 @@ export const GlyphPanel = ({
     { value: 'Extra Bold', label: 'Extra Bold' }
   ];
 
-  // Fix: Create category options using the key as both value and label
   const categoryOptions = Object.keys(categoryData).map(key => ({
     value: key,
-    label: key
+    label: categoryData[key].label
   }));
 
   // Handle click outside

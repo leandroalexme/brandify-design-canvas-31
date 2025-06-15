@@ -1,8 +1,7 @@
 
 import { useState, useCallback } from 'react';
 import { ToolType, UIState, ToolState } from '../types/tools';
-import { isValidTool } from '../utils/validation';
-import { debug } from '../utils/debug';
+import { isValidTool, logger } from '../utils/validation';
 
 export const useAppState = () => {
   const [toolState, setToolState] = useState<ToolState>({
@@ -23,23 +22,23 @@ export const useAppState = () => {
   const updateToolState = useCallback((updates: Partial<ToolState>) => {
     try {
       if (updates.selectedTool && !isValidTool(updates.selectedTool)) {
-        debug.error('Invalid tool selected', updates.selectedTool);
+        logger.error('Invalid tool selected', updates.selectedTool);
         return;
       }
       
       setToolState(prev => ({ ...prev, ...updates }));
-      debug.log('Tool state updated', updates);
+      logger.debug('Tool state updated', updates);
     } catch (error) {
-      debug.error('Error updating tool state', error);
+      logger.error('Error updating tool state', error);
     }
   }, []);
 
   const updateUIState = useCallback((updates: Partial<UIState>) => {
     try {
       setUIState(prev => ({ ...prev, ...updates }));
-      debug.log('UI state updated', updates);
+      logger.debug('UI state updated', updates);
     } catch (error) {
-      debug.error('Error updating UI state', error);
+      logger.error('Error updating UI state', error);
     }
   }, []);
 

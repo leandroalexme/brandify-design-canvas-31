@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { ToolType } from '../types/tools';
-import { debug } from '../utils/debug';
+import { logger } from '../utils/validation';
 
 export const useMainToolbarEffects = (
   currentTool: ToolType,
@@ -21,7 +21,7 @@ export const useMainToolbarEffects = (
       
       if (!isToolbarClick && !isSubmenuClick && !isFontPanelClick) {
         if (showShapesMenu) {
-          debug.log('Clicking outside shapes menu, closing', undefined, 'toolbar');
+          logger.debug('Clicking outside shapes menu, closing');
           onShapeSelect(null);
         }
       }
@@ -39,7 +39,7 @@ export const useMainToolbarEffects = (
   // Sincronizar com estado externo - otimizado para evitar loops
   React.useEffect(() => {
     if (currentTool !== selectedTool) {
-      debug.log('Syncing tool state', { currentTool, selectedTool }, 'toolbar');
+      logger.debug('Syncing tool state', { currentTool, selectedTool });
       onToolSelect(currentTool);
     }
   }, [currentTool, selectedTool, onToolSelect]);
