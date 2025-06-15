@@ -131,6 +131,12 @@ export const OptimizedBrandifyStudio = memo(() => {
     setSelectedElement(null);
   }, [setSelectedElement]);
 
+  // Função para definir elementos (necessária para undo/redo)
+  const setElements = useCallback((newElements: typeof elements) => {
+    // Esta função será implementada quando integrarmos com o estado global
+    console.log('🔄 [STUDIO] Set elements called:', newElements.length);
+  }, []);
+
   const mappedTool = getCanvasToolType(toolState.selectedTool);
 
   return (
@@ -147,6 +153,7 @@ export const OptimizedBrandifyStudio = memo(() => {
             onSelectElement={selectElement}
             onUpdateElement={debouncedUpdateElement}
             onCreateText={handleCreateText}
+            setElements={setElements}
           />
         </div>
         

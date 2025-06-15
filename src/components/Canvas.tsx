@@ -3,6 +3,7 @@ import React, { useRef, useState, useCallback } from 'react';
 import { Copy, Plus } from 'lucide-react';
 import { DesignElement } from '../types/design';
 import { useEventListener } from '../hooks/useEventListener';
+import { useAdvancedInteractions } from '../hooks/useAdvancedInteractions';
 
 interface CanvasProps {
   elements: DesignElement[];
@@ -12,6 +13,7 @@ interface CanvasProps {
   onSelectElement: (id: string | null) => void;
   onUpdateElement: (id: string, updates: Partial<DesignElement>) => void;
   onCreateText: (x: number, y: number) => void;
+  setElements?: (elements: DesignElement[]) => void;
 }
 
 export const Canvas = ({ 
@@ -21,11 +23,21 @@ export const Canvas = ({
   onAddElement, 
   onSelectElement,
   onUpdateElement,
-  onCreateText
+  onCreateText,
+  setElements = () => {}
 }: CanvasProps) => {
   const artboardRef = useRef<HTMLDivElement>(null);
   const [artboardColor, setArtboardColor] = useState('#ffffff');
   const [showColorPicker, setShowColorPicker] = useState(false);
+  const [selectionBox, setSelectionBox] = useState<{ start: { x: number; y: number }; end: { x: number; y: number } } | null>(null);
+
+  // Advanced interactions
+  const interactions = useAdvancedInteractions(
+    elements,
+    setElements,
+    onUpdateElement,
+    elements.find(el => el.selected)?.id || null
+  );
 
   useEventListener('mousedown', useCallback((event: MouseEvent) => {
     const target = event.target as Element;
@@ -34,52 +46,91 @@ export const Canvas = ({
     }
   }, [showColorPicker]));
 
-  const handleArtboardClick = useCallback((e: React.MouseEvent) => {
-    console.log('🎯 [CANVAS] Artboard clicked');
-    console.log('🔧 [CANVAS] Current tool:', selectedTool);
-    console.log('📊 [CANVAS] Elements count:', elements.length);
-    
-    if (!artboardRef.current) {
-      console.error('❌ [CANVAS] Artboard ref is null');
-      return;
-    }
+  // Handlers de mouse para seleção por área
+  const [isAreaSelecting, setIsAreaSelecting] = useState(false);
+
+  const handleArtboardMouseDown = useCallback((e: React.MouseEvent) => {
+    if (!artboardRef.current) return;
     
     const rect = artboardRef.current.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
-    console.log('📍 [CANVAS] Click coordinates:', { x, y });
-
     // Validar coordenadas
-    if (x < 0 || y < 0 || x > rect.width || y > rect.height) {
-      console.warn('⚠️ [CANVAS] Click outside artboard bounds');
-      return;
-    }
+    if (x < 0 || y < 0 || x > rect.width || y > rect.height) return;
 
-    // Limpar seleções primeiro
-    onSelectElement(null);
+    if (selectedTool === 'select') {
+      // Iniciar seleção por área se Ctrl/Cmd estiver pressionado
+      if (e.ctrlKey || e.metaKey) {
+        setIsAreaSelecting(true);
+        setSelectionBox({ start: { x, y }, end: { x, y } });
+      } else {
+        // Limpar seleção se clicar no artboard
+        interactions.clearSelection();
+        onSelectElement(null);
+      }
+    } else {
+      // Comportamento original para outras ferramentas
+      onSelectElement(null);
 
-    if (selectedTool === 'text') {
-      console.log('📝 [CANVAS] Creating text element');
-      onCreateText(x, y);
-    } else if (selectedTool === 'shapes') {
-      console.log('🔷 [CANVAS] Creating shape element');
-      onAddElement({
-        type: 'shape',
-        x,
-        y,
-        color: selectedColor,
-        width: 100,
-        height: 100,
-      });
+      if (selectedTool === 'text') {
+        console.log('📝 [CANVAS] Creating text element');
+        onCreateText(x, y);
+        interactions.autoSaveState('Create text');
+      } else if (selectedTool === 'shapes') {
+        console.log('🔷 [CANVAS] Creating shape element');
+        onAddElement({
+          type: 'shape',
+          x,
+          y,
+          color: selectedColor,
+          width: 100,
+          height: 100,
+        });
+        interactions.autoSaveState('Create shape');
+      }
     }
-  }, [artboardRef, onSelectElement, selectedTool, onCreateText, onAddElement, selectedColor, elements.length]);
+  }, [selectedTool, selectedColor, onAddElement, onCreateText, onSelectElement, interactions]);
+
+  const handleArtboardMouseMove = useCallback((e: React.MouseEvent) => {
+    if (!artboardRef.current) return;
+
+    // Handle drag operations
+    interactions.handleMouseMove(e);
+
+    // Handle area selection
+    if (isAreaSelecting && selectionBox) {
+      const rect = artboardRef.current.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      
+      setSelectionBox(prev => prev ? { ...prev, end: { x, y } } : null);
+    }
+  }, [interactions, isAreaSelecting, selectionBox]);
+
+  const handleArtboardMouseUp = useCallback(() => {
+    // Handle drag end
+    interactions.handleMouseUp();
+
+    // Handle area selection end
+    if (isAreaSelecting && selectionBox) {
+      const { start, end } = selectionBox;
+      interactions.selectInArea(start.x, start.y, end.x, end.y);
+      setIsAreaSelecting(false);
+      setSelectionBox(null);
+    }
+  }, [interactions, isAreaSelecting, selectionBox]);
 
   const handleElementClick = useCallback((e: React.MouseEvent, elementId: string) => {
     e.stopPropagation();
     console.log('🎯 [CANVAS] Element clicked:', elementId);
-    onSelectElement(elementId);
-  }, [onSelectElement]);
+    
+    if (selectedTool === 'select') {
+      interactions.handleElementMouseDown(elementId, e);
+    } else {
+      onSelectElement(elementId);
+    }
+  }, [selectedTool, interactions, onSelectElement]);
 
   const handleColorChange = useCallback((color: string) => {
     setArtboardColor(color);
@@ -149,28 +200,64 @@ export const Canvas = ({
       >
         <div
           ref={artboardRef}
-          className="w-full h-full relative cursor-crosshair rounded-2xl overflow-hidden"
-          onClick={handleArtboardClick}
+          className={`w-full h-full relative rounded-2xl overflow-hidden ${
+            selectedTool === 'select' ? 'cursor-default' : 'cursor-crosshair'
+          }`}
+          onMouseDown={handleArtboardMouseDown}
+          onMouseMove={handleArtboardMouseMove}
+          onMouseUp={handleArtboardMouseUp}
         >
           {/* Debug info */}
           <div className="absolute top-2 left-2 text-xs text-slate-400 bg-slate-800/50 px-2 py-1 rounded z-10">
-            Elementos: {elements.length} | Ferramenta: {selectedTool}
+            Elementos: {elements.length} | Ferramenta: {selectedTool} | Modo: {interactions.interactionMode}
+            {interactions.canUndo && <span> | Undo disponível</span>}
+            {interactions.canRedo && <span> | Redo disponível</span>}
           </div>
+          
+          {/* Selection box */}
+          {selectionBox && (
+            <div
+              className="absolute border-2 border-blue-500 bg-blue-500/20 pointer-events-none z-20"
+              style={{
+                left: Math.min(selectionBox.start.x, selectionBox.end.x),
+                top: Math.min(selectionBox.start.y, selectionBox.end.y),
+                width: Math.abs(selectionBox.end.x - selectionBox.start.x),
+                height: Math.abs(selectionBox.end.y - selectionBox.start.y),
+              }}
+            />
+          )}
           
           {/* Render elements */}
           {elements.map((element) => {
-            console.log('🎨 [CANVAS] Rendering element:', element);
+            const isMultiSelected = interactions.selectedIds.has(element.id);
+            const isDragTarget = interactions.dragState.draggedElementId === element.id;
             
             return (
               <div
                 key={element.id}
-                className={`absolute cursor-pointer transition-all duration-200 ${
-                  element.selected ? 'ring-2 ring-blue-500 ring-offset-2 ring-offset-white' : ''
+                className={`absolute transition-all duration-100 ${
+                  selectedTool === 'select' ? 'cursor-move' : 'cursor-pointer'
+                } ${
+                  element.selected || isMultiSelected 
+                    ? 'ring-2 ring-blue-500 ring-offset-2 ring-offset-white' 
+                    : ''
+                } ${
+                  isDragTarget ? 'opacity-80 scale-105' : ''
+                } ${
+                  isMultiSelected && interactions.selectedCount > 1 
+                    ? 'ring-green-500' 
+                    : ''
                 }`}
                 style={{
                   left: element.x,
                   top: element.y,
                   transform: `rotate(${element.rotation || 0}deg)`,
+                  zIndex: isDragTarget ? 100 : 1
+                }}
+                onMouseDown={(e) => {
+                  if (selectedTool === 'select') {
+                    interactions.handleElementMouseDown(element.id, e);
+                  }
                 }}
                 onClick={(e) => handleElementClick(e, element.id)}
               >
