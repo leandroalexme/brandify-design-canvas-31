@@ -42,18 +42,21 @@ export const MainToolbarButton = ({
   
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     console.log(`🔧 [MAIN TOOLBAR BUTTON] Click on ${tool.id}`);
     onClick();
   };
 
   const handleContextMenu = (e: React.MouseEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     console.log(`🔧 [MAIN TOOLBAR BUTTON] Right click on ${tool.id}`);
     onRightClick(e);
   };
 
   const handleDoubleClick = (e: React.MouseEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     console.log(`🔧 [MAIN TOOLBAR BUTTON] Double click on ${tool.id}`);
     onDoubleClick();
   };

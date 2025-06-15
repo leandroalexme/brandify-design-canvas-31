@@ -41,17 +41,14 @@ export const MainToolbarButtons = ({
     activeSubTools
   });
 
-  // Ensure mainTools is always an array
-  const safeMainTools = Array.isArray(mainTools) ? mainTools : [];
-  
-  if (safeMainTools.length === 0) {
+  if (!Array.isArray(mainTools) || mainTools.length === 0) {
     console.warn('🔧 [MAIN TOOLBAR BUTTONS] No main tools available');
     return null;
   }
   
   return (
     <div className="floating-module rounded-2xl p-3 flex items-center space-x-2">
-      {safeMainTools.map((tool) => {
+      {mainTools.map((tool) => {
         const isActive = tool.id === 'text' ? showTextPanel : selectedTool === tool.id;
         
         console.log(`🔧 [MAIN TOOLBAR BUTTONS] Tool ${tool.id}:`, {

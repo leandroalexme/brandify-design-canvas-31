@@ -12,9 +12,6 @@ import { LazyPanelWrapper, LazyLayersPanel, LazyAlignmentPanel, LazyArtboardsPan
 import { ToolType } from '../types/tools';
 import { useEditor } from '../contexts/EditorContext';
 import { useTextCreation } from '../hooks/useTextCreation';
-import { useDebounceCallback } from '../hooks/useDebounceCallback';
-import { useOptimizedEventListener } from '../hooks/useOptimizedEventListener';
-import { debug } from '../utils/debug';
 
 export const BrandifyStudio = () => {
   console.log('🏢 [BRANDIFY STUDIO] Rendering component');
@@ -49,19 +46,6 @@ export const BrandifyStudio = () => {
   });
 
   const canvasRef = useRef<HTMLDivElement>(null);
-  
-  // Otimização com debounce para updates de elementos
-  const debouncedUpdateElement = useDebounceCallback(updateElement, 16); // 60fps
-
-  // Event listener otimizado para keyboard shortcuts
-  useOptimizedEventListener('keydown', useCallback((e: KeyboardEvent) => {
-    if (e.key === 'Escape') {
-      setSelectedElement(null);
-      if (uiState.showTextPropertiesPanel) {
-        toggleTextPanel();
-      }
-    }
-  }, [setSelectedElement, uiState.showTextPropertiesPanel, toggleTextPanel]), { passive: true });
 
   // Mapear ferramentas para o Canvas
   const getCanvasToolType = useCallback((tool: ToolType): 'select' | 'pen' | 'shapes' | 'text' => {
@@ -102,7 +86,7 @@ export const BrandifyStudio = () => {
     createTextElement(x, y);
   }, [createTextElement]);
 
-  // Handlers para botões laterais com logs
+  // Handlers para botões laterais - CONECTADOS AO CONTEXTO
   const handleLayersToggle = useCallback(() => {
     console.log('🏢 [BRANDIFY STUDIO] Toggling layers panel, current:', uiState.showLayersPanel);
     updateUIState({ showLayersPanel: !uiState.showLayersPanel });
@@ -132,7 +116,7 @@ export const BrandifyStudio = () => {
             selectedColor={toolState.selectedColor}
             onAddElement={addElement}
             onSelectElement={selectElement}
-            onUpdateElement={debouncedUpdateElement}
+            onUpdateElement={updateElement}
             onCreateText={handleCreateText}
           />
         </div>
@@ -144,7 +128,6 @@ export const BrandifyStudio = () => {
           onColorSelect={handleColorSelect}
           selectedShape={uiState.selectedShape}
           onShapeSelect={handleShapeSelect}
-          onOpenTextPanel={toggleTextPanel}
           showTextPanel={uiState.showTextPropertiesPanel}
         />
         
@@ -152,7 +135,7 @@ export const BrandifyStudio = () => {
         <GridButton onClick={handleGridToggle} />
         <ArtboardsButton onClick={handleArtboardsToggle} />
         
-        {/* Lazy loaded panels com logs */}
+        {/* Painéis lazy loaded - CONECTADOS AO CONTEXTO */}
         {uiState.showLayersPanel && (
           <LazyPanelWrapper>
             <LazyLayersPanel

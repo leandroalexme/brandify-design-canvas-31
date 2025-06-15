@@ -147,7 +147,7 @@ export const EditorProvider = ({ children }: EditorProviderProps) => {
     }));
   }, []);
 
-  // Fixed toggleTextPanel function
+  // Função toggleTextPanel CORRIGIDA
   const toggleTextPanel = useCallback(() => {
     console.log('📊 [EDITOR CONTEXT] Toggling text panel');
     setState(prev => {
