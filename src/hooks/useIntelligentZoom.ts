@@ -1,4 +1,4 @@
-
+import React from 'react';
 import { useState, useCallback, useMemo, useRef } from 'react';
 import { DesignElement } from '../types/design';
 import { logger } from '../utils/validation';
