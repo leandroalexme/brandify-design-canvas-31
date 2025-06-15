@@ -130,20 +130,21 @@ export const EditorProvider = ({ children }: EditorProviderProps) => {
     }));
   }, []);
 
-  // Combined Actions - FIX: Elimina o loop infinito
+  // Fixed toggleTextPanel function
   const toggleTextPanel = useCallback(() => {
     setState(prev => {
-      const isCurrentlyOpen = prev.uiState.showTextPropertiesPanel;
+      const isTextPanelOpen = prev.uiState.showTextPropertiesPanel;
+      const isTextToolActive = prev.toolState.selectedTool === 'text';
       
-      if (isCurrentlyOpen) {
-        // Fechar painel de texto
+      if (isTextPanelOpen && isTextToolActive) {
+        // Fechar painel e voltar para select
         return {
           ...prev,
           toolState: { ...prev.toolState, selectedTool: 'select' },
           uiState: { ...prev.uiState, showTextPropertiesPanel: false }
         };
       } else {
-        // Abrir painel de texto
+        // Abrir painel e ativar ferramenta de texto
         return {
           ...prev,
           toolState: { ...prev.toolState, selectedTool: 'text' },
