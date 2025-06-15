@@ -15,6 +15,7 @@ interface MainToolbarProps {
   selectedShape: string | null;
   onShapeSelect: (shape: string | null) => void;
   onOpenTextPanel: () => void;
+  showTextPanel: boolean;
 }
 
 export const MainToolbar = ({ 
@@ -22,7 +23,8 @@ export const MainToolbar = ({
   onToolSelect, 
   selectedShape, 
   onShapeSelect,
-  onOpenTextPanel
+  onOpenTextPanel,
+  showTextPanel
 }: MainToolbarProps) => {
   const {
     mainTools,
@@ -42,11 +44,12 @@ export const MainToolbar = ({
     handleShapesMenuClose
   } = useMainToolbar(selectedTool, onToolSelect, selectedShape, onShapeSelect);
 
-  // Handler específico para o botão de texto
+  // Handler específico para o botão de texto com toggle
   const handleTextToolClick = React.useCallback(() => {
-    console.log('📝 [MAIN TOOLBAR] Text tool clicked');
+    console.log('📝 [MAIN TOOLBAR] Text tool clicked - Toggle mode');
+    console.log('📝 [MAIN TOOLBAR] Current panel state:', showTextPanel);
     onOpenTextPanel();
-  }, [onOpenTextPanel]);
+  }, [onOpenTextPanel, showTextPanel]);
 
   // Handler personalizado que intercepta cliques no botão de texto
   const handleCustomToolClick = React.useCallback((toolId: string) => {
@@ -64,7 +67,7 @@ export const MainToolbar = ({
       <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-[400]" data-toolbar>
         <div className="floating-module rounded-2xl p-3 flex items-center space-x-2">
           {mainTools.map((tool) => {
-            const isActive = getCurrentMainTool() === tool.id;
+            const isActive = tool.id === 'text' ? showTextPanel : getCurrentMainTool() === tool.id;
             const hasActiveSub = activeSubTools[tool.id];
             const hasSelectedShape = tool.id === 'shapes' && !!selectedShape;
             

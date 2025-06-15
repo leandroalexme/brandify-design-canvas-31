@@ -93,22 +93,27 @@ export const BrandifyStudio = () => {
     createTextElement(x, y);
   }, [createTextElement]);
 
-  // Nova função específica para abrir o painel de texto
-  const handleOpenTextPanel = useCallback(() => {
-    console.log('🎛️ [BRANDIFY] Opening text panel manually');
-    console.log('🎛️ [BRANDIFY] Current tool before:', toolState.selectedTool);
+  // Função de toggle para o painel de texto
+  const handleToggleTextPanel = useCallback(() => {
+    const isCurrentlyOpen = uiState.showTextPropertiesPanel;
+    console.log('🎛️ [BRANDIFY] Toggling text panel. Current state:', isCurrentlyOpen);
     
-    // Selecionar ferramenta de texto e abrir painel
-    updateToolState({ selectedTool: 'text' });
-    updateUIState({ showTextPropertiesPanel: true });
-    
-    console.log('🎛️ [BRANDIFY] Text panel opened, tool set to text');
-  }, [updateToolState, updateUIState, toolState.selectedTool]);
+    if (isCurrentlyOpen) {
+      // Fechar painel e voltar para select
+      console.log('🚪 [BRANDIFY] Closing text panel');
+      updateUIState({ showTextPropertiesPanel: false });
+      updateToolState({ selectedTool: 'select' });
+    } else {
+      // Abrir painel e selecionar ferramenta de texto
+      console.log('🎛️ [BRANDIFY] Opening text panel');
+      updateUIState({ showTextPropertiesPanel: true });
+      updateToolState({ selectedTool: 'text' });
+    }
+  }, [uiState.showTextPropertiesPanel, updateUIState, updateToolState]);
 
   const handleCloseTextPanel = useCallback(() => {
-    console.log('🚪 [BRANDIFY] Closing text panel');
+    console.log('🚪 [BRANDIFY] Closing text panel via X button');
     updateUIState({ showTextPropertiesPanel: false });
-    // Voltar para ferramenta de seleção ao fechar o painel
     updateToolState({ selectedTool: 'select' });
   }, [updateUIState, updateToolState]);
 
@@ -138,7 +143,8 @@ export const BrandifyStudio = () => {
           onColorSelect={handleColorSelect}
           selectedShape={uiState.selectedShape}
           onShapeSelect={handleShapeSelect}
-          onOpenTextPanel={handleOpenTextPanel}
+          onOpenTextPanel={handleToggleTextPanel}
+          showTextPanel={uiState.showTextPropertiesPanel}
         />
         
         <LayersButton onClick={() => updateUIState({ showLayersPanel: !uiState.showLayersPanel })} />

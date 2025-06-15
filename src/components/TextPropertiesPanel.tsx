@@ -23,33 +23,36 @@ export const TextPropertiesPanel = ({ isOpen, onClose }: TextPropertiesPanelProp
   ];
 
   const handleToolClick = (toolId: string) => {
-    console.log(`Text tool clicked: ${toolId}`);
+    console.log(`📝 [TEXT PANEL] Tool clicked: ${toolId}`);
   };
 
   return (
-    <div className="fixed left-6 top-1/2 transform -translate-y-1/2 z-[1000] animate-fade-in">
-      <div className="floating-module flex flex-col w-16 p-3 gap-2">
-        <div className="flex items-center justify-between mb-2">
-          <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+    <div className="fixed left-6 top-1/2 transform -translate-y-1/2 z-[1000] animate-slide-in-left-60fps">
+      <div className="text-panel-container">
+        {/* Header com indicador e botão de fechar */}
+        <div className="text-panel-header">
+          <div className="text-panel-indicator"></div>
           <button
             onClick={onClose}
-            className="w-6 h-6 rounded-lg bg-slate-700/60 hover:bg-slate-600/80 flex items-center justify-center text-slate-400 hover:text-slate-200 transition-colors"
+            className="text-panel-close-button"
+            aria-label="Fechar painel de texto"
           >
             <X className="w-3 h-3" />
           </button>
         </div>
 
-        <div className="flex flex-col gap-2">
+        {/* Tools com animação escalonada */}
+        <div className="text-panel-tools">
           {tools.map((tool, index) => {
             const Icon = tool.icon;
             return (
               <button
                 key={tool.id}
                 onClick={() => handleToolClick(tool.id)}
-                className="action-button w-10 h-10"
+                className="text-panel-tool-button animate-stagger-60fps"
                 title={tool.label}
                 style={{
-                  animationDelay: `${index * 50}ms`
+                  animationDelay: `${index * 33.33}ms` // 60fps timing
                 }}
               >
                 <Icon className="w-5 h-5" />
