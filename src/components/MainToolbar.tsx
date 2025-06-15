@@ -62,20 +62,39 @@ export const MainToolbar = ({
     handleFontPanelClose
   } = useMainToolbar(selectedTool, onToolSelect, selectedShape, onShapeSelect);
 
+  // Handler melhorado para ferramenta de texto - SIMPLIFICADO
   const handleTextToolClick = React.useCallback(() => {
-    console.log('📝 [MAIN TOOLBAR] Text tool clicked - Opening text properties submenu');
-    onOpenTextPanel();
-  }, [onOpenTextPanel]);
+    console.log('📝 [MAIN TOOLBAR] Text tool clicked');
+    console.log('📝 [MAIN TOOLBAR] Current showTextPanel:', showTextPanel);
+    console.log('📝 [MAIN TOOLBAR] Current selectedTool:', selectedTool);
+    
+    // Se o painel já está aberto, fechar e voltar para select
+    if (showTextPanel) {
+      console.log('📝 [MAIN TOOLBAR] Closing text panel and selecting select tool');
+      onOpenTextPanel(); // Toggle para fechar
+      onToolSelect('select');
+    } else {
+      // Se o painel está fechado, abrir e selecionar ferramenta de texto
+      console.log('📝 [MAIN TOOLBAR] Opening text panel and selecting text tool');
+      onToolSelect('text');
+      onOpenTextPanel(); // Toggle para abrir
+    }
+  }, [showTextPanel, selectedTool, onOpenTextPanel, onToolSelect]);
 
   const handleCustomToolClick = React.useCallback((toolId: string) => {
-    console.log('🔧 [MAIN TOOLBAR] Custom tool click:', toolId);
+    console.log('🔧 [MAIN TOOLBAR] Custom tool click:', { toolId, showTextPanel });
     
     if (toolId === 'text') {
       handleTextToolClick();
     } else {
+      // Para outras ferramentas, fechar o painel de texto se estiver aberto
+      if (showTextPanel) {
+        console.log('🔧 [MAIN TOOLBAR] Closing text panel due to other tool selection');
+        onOpenTextPanel();
+      }
       handleToolClick(toolId as any);
     }
-  }, [handleTextToolClick, handleToolClick]);
+  }, [handleTextToolClick, handleToolClick, showTextPanel, onOpenTextPanel]);
 
   // Handler melhorado para ferramentas do submenu de texto
   const handleTextSubmenuToolSelect = React.useCallback((toolId: string) => {
@@ -128,13 +147,18 @@ export const MainToolbar = ({
 
   const handleTextPanelClose = React.useCallback(() => {
     console.log('📝 [MAIN TOOLBAR] Closing text panel and all subpanels');
+    
+    // Fechar painel principal
     onOpenTextPanel();
     
     // Fechar todos os subpainéis
     setShowAlignmentPanel(false);
     setShowColorPanel(false);
     setShowGlyphPanel(false);
-  }, [onOpenTextPanel]);
+    
+    // Voltar para select tool
+    onToolSelect('select');
+  }, [onOpenTextPanel, onToolSelect]);
 
   return (
     <>

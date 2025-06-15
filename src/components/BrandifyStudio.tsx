@@ -82,18 +82,16 @@ export const BrandifyStudio = () => {
     console.log('🔧 [BRANDIFY] Tool selection request:', { 
       newTool: tool, 
       currentTool: toolState.selectedTool,
+      showTextPanel: uiState.showTextPropertiesPanel,
       timestamp: new Date().toISOString()
     });
     
     // Sincronização forçada para evitar descompasso
     updateToolState({ selectedTool: tool });
     
-    // Fechar painel de texto se mudou para outra ferramenta
-    if (tool !== 'text' && uiState.showTextPropertiesPanel) {
-      console.log('🚪 [BRANDIFY] Closing text panel due to tool change');
-      updateUIState({ showTextPropertiesPanel: false });
-    }
-  }, [updateToolState, toolState.selectedTool, uiState.showTextPropertiesPanel, updateUIState]);
+    // NÃO fechar painel de texto automaticamente - deixar o MainToolbar gerenciar isso
+    console.log('🔧 [BRANDIFY] Tool updated, panel state preserved');
+  }, [updateToolState, toolState.selectedTool, uiState.showTextPropertiesPanel]);
 
   const handleColorSelect = useCallback((color: string) => {
     console.log('🎨 [BRANDIFY] Color selection:', { color, timestamp: new Date().toISOString() });
@@ -110,27 +108,21 @@ export const BrandifyStudio = () => {
     createTextElement(x, y);
   }, [createTextElement]);
 
-  // Função de toggle para o painel de texto com melhor sincronização
+  // Função de toggle para o painel de texto SIMPLIFICADA - apenas gerencia o estado do painel
   const handleToggleTextPanel = useCallback(() => {
-    const isCurrentlyOpen = uiState.showTextPropertiesPanel;
-    console.log('🎛️ [BRANDIFY] Text panel toggle:', {
-      currentState: isCurrentlyOpen,
+    const currentPanelState = uiState.showTextPropertiesPanel;
+    console.log('🎛️ [BRANDIFY] Text panel toggle request:', {
+      currentPanelState,
       currentTool: toolState.selectedTool,
       timestamp: new Date().toISOString()
     });
     
-    if (isCurrentlyOpen) {
-      // Fechar painel e voltar para select
-      console.log('🚪 [BRANDIFY] Closing text panel');
-      updateUIState({ showTextPropertiesPanel: false });
-      updateToolState({ selectedTool: 'select' });
-    } else {
-      // Abrir painel e selecionar ferramenta de texto
-      console.log('🎛️ [BRANDIFY] Opening text panel');
-      updateUIState({ showTextPropertiesPanel: true });
-      updateToolState({ selectedTool: 'text' });
-    }
-  }, [uiState.showTextPropertiesPanel, toolState.selectedTool, updateUIState, updateToolState]);
+    // Simplesmente alternar o estado do painel - NÃO mexer na ferramenta
+    const newPanelState = !currentPanelState;
+    updateUIState({ showTextPropertiesPanel: newPanelState });
+    
+    console.log('🎛️ [BRANDIFY] Panel state updated to:', newPanelState);
+  }, [uiState.showTextPropertiesPanel, updateUIState]);
 
   const mappedTool = getCanvasToolType(toolState.selectedTool);
 
