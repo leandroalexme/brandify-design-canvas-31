@@ -9,7 +9,7 @@ import { ColorConfigPanel } from './ColorConfigPanel';
 import { GlyphPanel } from './GlyphPanel';
 import { MainToolbarButton } from './MainToolbarButton';
 import { useEditor } from '../contexts/EditorContext';
-import { ToolType } from '../types/tools';
+import { ToolType, MainTool } from '../types/tools';
 import { debug } from '../utils/debug';
 
 interface MainToolbarProps {
@@ -48,13 +48,13 @@ export const MainToolbar = ({
   }, []);
 
   // Simplified tool handling
-  const handleToolClick = React.useCallback((toolId: string) => {
+  const handleToolClick = React.useCallback((toolId: MainTool) => {
     debug.log('Tool clicked in MainToolbar', { toolId }, 'toolbar');
     
     if (toolId === 'text') {
       toggleTextPanel();
     } else {
-      onToolSelect(toolId as ToolType);
+      onToolSelect(toolId);
     }
   }, [onToolSelect, toggleTextPanel]);
 
@@ -114,8 +114,13 @@ export const MainToolbar = ({
     setShowFontPanel(false);
   }, []);
 
-  // Simplified main tools array
-  const mainTools = [
+  // Properly typed main tools array
+  const mainTools: Array<{
+    id: MainTool;
+    icon: any;
+    label: string;
+    hasSubmenu: boolean;
+  }> = [
     {
       id: 'select',
       icon: require('lucide-react').MousePointer,
