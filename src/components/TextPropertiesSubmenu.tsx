@@ -32,11 +32,18 @@ export const TextPropertiesSubmenu = ({
     onToolSelect(toolId);
   };
 
-  // Handle click outside
+  // Modificar para não fechar automaticamente quando clica fora
+  // O painel deve permanecer aberto enquanto os subpainéis estão sendo usados
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        onClose();
+        // Verificar se o clique foi em um subpainel
+        const isSubPanelClick = (event.target as Element).closest('[data-alignment-panel], [data-font-panel]');
+        
+        // Só fechar se não foi clique em subpainel
+        if (!isSubPanelClick) {
+          onClose();
+        }
       }
     };
 

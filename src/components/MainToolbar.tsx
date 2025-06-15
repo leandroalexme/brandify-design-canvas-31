@@ -116,13 +116,28 @@ export const MainToolbar = ({
     setShowAlignmentPanel(false);
   }, []);
 
+  // Handler personalizado para fechar o painel de texto
+  const handleTextPanelClose = React.useCallback(() => {
+    console.log('📝 [MAIN TOOLBAR] Closing text panel');
+    onOpenTextPanel(); // Toggle the text panel
+    
+    // Fechar também subpainéis se estiverem abertos
+    if (showAlignmentPanel) {
+      setShowAlignmentPanel(false);
+    }
+  }, [onOpenTextPanel, showAlignmentPanel]);
+
   return (
     <>
       <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-[400]" data-toolbar>
         <div className="floating-module rounded-2xl p-3 flex items-center space-x-2">
           {mainTools.map((tool) => {
-            const isActive = tool.id === 'text' ? showTextPanel : getCurrentMainTool() === tool.id;
-            const hasActiveSub = activeSubTools[tool.id];
+            // Corrigir lógica de estado ativo - apenas texto deve estar ativo quando painel de texto estiver aberto
+            const isActive = tool.id === 'text' ? 
+              showTextPanel : 
+              (!showTextPanel && getCurrentMainTool() === tool.id);
+            
+            const hasActiveSub = !showTextPanel && activeSubTools[tool.id];
             const hasSelectedShape = tool.id === 'shapes' && !!selectedShape;
             
             return (
@@ -142,8 +157,8 @@ export const MainToolbar = ({
         </div>
       </div>
 
-      {/* Submenu para select e pen apenas */}
-      {showSubmenu && showSubmenu !== 'text' && SUB_TOOL_OPTIONS[showSubmenu as keyof typeof SUB_TOOL_OPTIONS] && (
+      {/* Submenu para select e pen apenas - não mostrar quando painel de texto estiver aberto */}
+      {!showTextPanel && showSubmenu && showSubmenu !== 'text' && SUB_TOOL_OPTIONS[showSubmenu as keyof typeof SUB_TOOL_OPTIONS] && (
         <SimpleSubmenu
           isOpen={!!showSubmenu}
           onClose={handleSubmenuClose}
@@ -156,33 +171,39 @@ export const MainToolbar = ({
       {/* Submenu de propriedades de texto */}
       <TextPropertiesSubmenu
         isOpen={showTextPanel}
-        onClose={() => onOpenTextPanel()}
+        onClose={handleTextPanelClose}
         onToolSelect={handleTextSubmenuToolSelect}
         position={{ x: 32, y: 120 }}
       />
 
-      {/* Menu específico para shapes */}
-      <ShapesMenu
-        isOpen={showShapesMenu}
-        onClose={handleShapesMenuClose}
-        onShapeSelect={handleShapeSelect}
-        position={shapesMenuPosition}
-        selectedShape={selectedShape}
-      />
+      {/* Menu específico para shapes - não mostrar quando painel de texto estiver aberto */}
+      {!showTextPanel && (
+        <ShapesMenu
+          isOpen={showShapesMenu}
+          onClose={handleShapesMenuClose}
+          onShapeSelect={handleShapeSelect}
+          position={shapesMenuPosition}
+          selectedShape={selectedShape}
+        />
+      )}
 
-      {/* Painel de configuração de fonte - vinculado à tipografia */}
-      <FontConfigPanel
-        isOpen={showFontPanel}
-        onClose={handleFontPanelClose}
-        position={fontPanelPosition}
-      />
+      {/* Painel de configuração de fonte - vinculado à tipografia e só aparece quando texto está ativo */}
+      {showTextPanel && (
+        <FontConfigPanel
+          isOpen={showFontPanel}
+          onClose={handleFontPanelClose}
+          position={fontPanelPosition}
+        />
+      )}
 
-      {/* Novo painel de configuração de alinhamento */}
-      <AlignmentConfigPanel
-        isOpen={showAlignmentPanel}
-        onClose={handleAlignmentPanelClose}
-        position={alignmentPanelPosition}
-      />
+      {/* Painel de configuração de alinhamento - só aparece quando texto está ativo */}
+      {showTextPanel && (
+        <AlignmentConfigPanel
+          isOpen={showAlignmentPanel}
+          onClose={handleAlignmentPanelClose}
+          position={alignmentPanelPosition}
+        />
+      )}
     </>
   );
 };
