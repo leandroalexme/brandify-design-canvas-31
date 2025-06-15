@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
-import { X, Plus, Copy, Trash2, Smartphone, Monitor, Tablet, Square, Search } from 'lucide-react';
-import { Button } from './ui/button';
-import { Input } from './ui/input';
-import { Card, CardContent } from './ui/card';
-import { ScrollArea } from './ui/scroll-area';
+import { Plus, Copy, Trash2, Smartphone, Monitor, Tablet, Square, Search } from 'lucide-react';
+import { PanelContainer } from './ui/PanelContainer';
+import { UnifiedDropdown } from './ui/UnifiedDropdown';
 
 interface ArtboardPreset {
   id: string;
@@ -75,162 +73,157 @@ export const ArtboardsPanel = ({ onClose }: ArtboardsPanelProps) => {
   };
 
   return (
-    <div className="panel-container panel-top-right">
-      {/* Header */}
-      <div className="panel-header">
-        <h3 className="panel-title">Pranchetas</h3>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setShowSearch(!showSearch)}
-            className="panel-action-button"
-            title="Buscar pranchetas"
-          >
-            <Search className="h-4 w-4" />
-          </button>
-          <button
-            onClick={onClose}
-            className="panel-action-button"
-            title="Fechar painel"
-          >
-            <X className="h-4 w-4" />
-          </button>
+    <PanelContainer
+      isOpen={true}
+      onClose={onClose}
+      title="Pranchetas"
+      position={{ x: window.innerWidth - 416, y: 120 }}
+      width={400}
+      height={600}
+      dataAttribute="data-artboards-panel"
+      isDraggable={true}
+    >
+      <div className="panel-content-unified">
+        {/* Search Section */}
+        <div className="panel-section-unified">
+          <div className="flex items-center space-x-2">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <input
+                type="text"
+                placeholder="Buscar pranchetas..."
+                value={searchValue}
+                onChange={(e) => setSearchValue(e.target.value)}
+                className="input-search-unified"
+              />
+            </div>
+            <button
+              onClick={() => setShowSearch(!showSearch)}
+              className={`button-icon-unified ${showSearch ? 'selected' : ''}`}
+              title="Toggle search"
+            >
+              <Search className="w-4 h-4" />
+            </button>
+          </div>
         </div>
-      </div>
 
-      {/* Search Bar (conditionally shown) */}
-      {showSearch && (
-        <div className="px-4 py-3 border-b border-slate-700/60">
-          <Input
-            type="text"
-            placeholder="Buscar pranchetas..."
-            value={searchValue}
-            onChange={(e) => setSearchValue(e.target.value)}
-            className="bg-slate-700/50 border-slate-600/60 text-slate-200 placeholder-slate-400"
-          />
-        </div>
-      )}
-
-      {/* Content */}
-      <div className="panel-content">
-        <ScrollArea className="h-full">
+        <div className="panel-scrollable-unified flex-1">
           {/* Presets Section */}
-          <div className="panel-section">
-            <h4 className="panel-section-title">Presets</h4>
+          <div className="panel-section-unified">
+            <h4 className="panel-section-title-unified">Presets</h4>
             <div className="space-y-2">
-              {presets.map((preset) => {
+              {presets.map((preset, index) => {
                 const IconComponent = preset.icon;
                 return (
-                  <Button
+                  <button
                     key={preset.id}
-                    variant="ghost"
                     onClick={() => handlePresetSelect(preset)}
-                    className="w-full justify-between p-3 h-auto text-left hover:bg-slate-700/50"
+                    className="w-full p-3 bg-slate-700/30 hover:bg-slate-700/50 border border-slate-600/40 hover:border-slate-500/60 rounded-xl transition-all duration-150 hover:scale-[1.02] animate-stagger-fade"
+                    style={{ 
+                      animationDelay: `${index * 0.05}s`,
+                      animationFillMode: 'both'
+                    }}
                   >
-                    <div className="flex items-center gap-3">
-                      <div className="w-6 h-6 flex items-center justify-center text-slate-400">
-                        <IconComponent className="w-4 h-4" />
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-8 h-8 bg-slate-600/50 rounded-lg flex items-center justify-center">
+                          <IconComponent className="w-4 h-4 text-slate-300" />
+                        </div>
+                        <span className="text-sm font-medium text-slate-200">{preset.name}</span>
                       </div>
-                      <span className="text-sm font-medium text-slate-200">{preset.name}</span>
+                      <span className="text-xs text-slate-400">{preset.width}×{preset.height}</span>
                     </div>
-                    <span className="text-xs text-slate-400">{preset.width}×{preset.height}</span>
-                  </Button>
+                  </button>
                 );
               })}
             </div>
           </div>
 
           {/* Custom Dimensions Section */}
-          <div className="panel-section border-t border-slate-700/60">
-            <h4 className="panel-section-title">Dimensões Personalizadas</h4>
+          <div className="panel-section-unified">
+            <h4 className="panel-section-title-unified">Dimensões Personalizadas</h4>
             <div className="space-y-3">
-              <div className="flex gap-2">
-                <Input
+              <div className="grid-unified-2">
+                <input
                   type="number"
                   placeholder="Largura"
                   value={customWidth}
                   onChange={(e) => setCustomWidth(e.target.value)}
-                  className="bg-slate-700/50 border-slate-600/60 text-slate-200 placeholder-slate-400"
+                  className="input-unified"
                 />
-                <Input
+                <input
                   type="number"
                   placeholder="Altura"
                   value={customHeight}
                   onChange={(e) => setCustomHeight(e.target.value)}
-                  className="bg-slate-700/50 border-slate-600/60 text-slate-200 placeholder-slate-400"
+                  className="input-unified"
                 />
               </div>
+              {customWidth && customHeight && (
+                <button
+                  onClick={handleCreateCustom}
+                  className="button-primary-unified w-full animate-fade-in-60fps"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Criar ({customWidth}×{customHeight})
+                </button>
+              )}
             </div>
           </div>
 
           {/* Existing Artboards Section */}
-          <div className="panel-section border-t border-slate-700/60">
-            <h4 className="panel-section-title">Pranchetas Existentes</h4>
-            <div className="space-y-2">
-              {filteredArtboards.map((artboard) => (
-                <Card
+          <div className="panel-section-unified">
+            <h4 className="panel-section-title-unified">Pranchetas Existentes</h4>
+            <div className="space-y-3">
+              {filteredArtboards.map((artboard, index) => (
+                <div
                   key={artboard.id}
-                  className={`cursor-pointer transition-colors ${
+                  className={`p-3 rounded-xl border transition-all duration-150 hover:scale-[1.01] animate-stagger-fade ${
                     artboard.selected 
                       ? 'bg-blue-500/20 border-blue-500/50' 
-                      : 'bg-slate-800/40 border-slate-700/40 hover:bg-slate-700/50'
+                      : 'bg-slate-700/30 border-slate-600/40 hover:bg-slate-700/50 hover:border-slate-500/60'
                   }`}
+                  style={{ 
+                    animationDelay: `${(index + presets.length) * 0.05}s`,
+                    animationFillMode: 'both'
+                  }}
                 >
-                  <CardContent className="p-3">
-                    <div className="flex items-center justify-between mb-2">
-                      <h4 className="text-sm font-medium text-slate-200 truncate">{artboard.name}</h4>
-                      <div className="flex items-center gap-1">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-6 w-6 text-slate-400 hover:text-slate-200"
-                        >
-                          <Copy className="w-3 h-3" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-6 w-6 text-slate-400 hover:text-red-400"
-                        >
-                          <Trash2 className="w-3 h-3" />
-                        </Button>
-                      </div>
+                  <div className="flex items-center justify-between mb-3">
+                    <h5 className="text-sm font-medium text-slate-200 truncate">{artboard.name}</h5>
+                    <div className="flex items-center space-x-1">
+                      <button className="button-icon-unified w-6 h-6" title="Duplicar">
+                        <Copy className="w-3 h-3" />
+                      </button>
+                      <button className="button-icon-unified w-6 h-6 hover:!bg-red-500/20 hover:!border-red-500/40 hover:!text-red-400" title="Excluir">
+                        <Trash2 className="w-3 h-3" />
+                      </button>
                     </div>
-                    
-                    <div className="bg-slate-800/50 rounded-lg p-2 mb-2">
-                      <div 
-                        className="w-full bg-white rounded border border-slate-600"
-                        style={{ aspectRatio: `${artboard.width}/${artboard.height}`, height: '40px' }}
-                      />
-                    </div>
-                    
-                    <p className="text-xs text-slate-400">
-                      {artboard.width} × {artboard.height}
-                    </p>
-                  </CardContent>
-                </Card>
+                  </div>
+                  
+                  <div className="bg-slate-800/50 rounded-lg p-2 mb-2">
+                    <div 
+                      className="w-full bg-slate-200 rounded border border-slate-600/40"
+                      style={{ aspectRatio: `${artboard.width}/${artboard.height}`, height: '40px' }}
+                    />
+                  </div>
+                  
+                  <p className="text-xs text-slate-400 text-center">
+                    {artboard.width} × {artboard.height}
+                  </p>
+                </div>
               ))}
             </div>
           </div>
-        </ScrollArea>
-      </div>
+        </div>
 
-      {/* Footer with New Artboard Button */}
-      <div className="panel-footer">
-        {customWidth && customHeight ? (
-          <Button
-            onClick={handleCreateCustom}
-            className="w-full bg-blue-500 hover:bg-blue-600 text-white"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Criar Prancheta ({customWidth}×{customHeight})
-          </Button>
-        ) : (
-          <Button className="w-full bg-blue-500 hover:bg-blue-600 text-white">
+        {/* Footer */}
+        <div className="panel-section-unified border-t border-slate-700/60">
+          <button className="button-primary-unified w-full">
             <Plus className="w-4 h-4 mr-2" />
             Nova Prancheta
-          </Button>
-        )}
+          </button>
+        </div>
       </div>
-    </div>
+    </PanelContainer>
   );
 };

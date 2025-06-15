@@ -1,11 +1,8 @@
 
 import React from 'react';
 import { DesignElement } from '../types/design';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Trash2, Bold, Italic, Underline } from 'lucide-react';
+import { UnifiedDropdown } from './ui/UnifiedDropdown';
 
 interface PropertiesPanelProps {
   selectedElement: DesignElement | null;
@@ -18,23 +15,20 @@ export const PropertiesPanel = ({
   onUpdateElement, 
   onDeleteElement 
 }: PropertiesPanelProps) => {
-  if (!selectedElement) {
-    return (
-      <div className="w-80 bg-white/90 backdrop-blur-md border-l border-slate-200/50 p-6">
-        <div className="text-center text-slate-500 mt-20">
-          <div className="w-16 h-16 bg-slate-100 rounded-full mx-auto mb-4 flex items-center justify-center">
-            <span className="text-2xl">🎨</span>
-          </div>
-          <h3 className="font-medium mb-2">No element selected</h3>
-          <p className="text-sm">Select an element to edit its properties</p>
-        </div>
-      </div>
-    );
-  }
+  const [showFontDropdown, setShowFontDropdown] = React.useState(false);
+  const [showWeightDropdown, setShowWeightDropdown] = React.useState(false);
 
   const fonts = [
-    'Roboto', 'Inter', 'Poppins', 'Montserrat', 'Open Sans',
-    'Lato', 'Nunito', 'Source Sans Pro', 'Raleway', 'Ubuntu'
+    { value: 'Roboto', label: 'Roboto' },
+    { value: 'Inter', label: 'Inter' },
+    { value: 'Poppins', label: 'Poppins' },
+    { value: 'Montserrat', label: 'Montserrat' },
+    { value: 'Open Sans', label: 'Open Sans' },
+    { value: 'Lato', label: 'Lato' },
+    { value: 'Nunito', label: 'Nunito' },
+    { value: 'Source Sans Pro', label: 'Source Sans Pro' },
+    { value: 'Raleway', label: 'Raleway' },
+    { value: 'Ubuntu', label: 'Ubuntu' }
   ];
 
   const fontWeights = [
@@ -45,172 +39,205 @@ export const PropertiesPanel = ({
     { value: '800', label: 'Extra Bold' },
   ];
 
+  if (!selectedElement) {
+    return (
+      <div className="w-80 panel-container-unified border-l border-slate-700/60">
+        <div className="panel-content-unified">
+          <div className="panel-section-unified">
+            <div className="text-center py-20 animate-fade-in-60fps">
+              <div className="w-16 h-16 bg-slate-700/50 rounded-xl mx-auto mb-4 flex items-center justify-center">
+                <span className="text-2xl">🎨</span>
+              </div>
+              <h3 className="text-system-title mb-2">Nenhum elemento selecionado</h3>
+              <p className="text-system-caption">Selecione um elemento para editar suas propriedades</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="w-80 bg-white/90 backdrop-blur-md border-l border-slate-200/50 p-6 overflow-y-auto">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-lg font-semibold text-slate-800">Properties</h2>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="text-red-500 hover:text-red-600 hover:bg-red-50"
+    <div className="w-80 panel-container-unified border-l border-slate-700/60 animate-slide-in-right-60fps">
+      <div className="panel-header-unified">
+        <div className="panel-title-unified">Propriedades</div>
+        <button
+          className="panel-close-button-unified"
           onClick={() => onDeleteElement(selectedElement.id)}
+          title="Excluir elemento"
         >
           <Trash2 className="w-4 h-4" />
-        </Button>
+        </button>
       </div>
 
-      <div className="space-y-6">
-        {selectedElement.type === 'text' && (
-          <>
-            <div className="space-y-2">
-              <Label>Content</Label>
-              <textarea
-                className="w-full p-3 border border-slate-200 rounded-xl resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                rows={3}
-                value={selectedElement.content || ''}
-                onChange={(e) => onUpdateElement(selectedElement.id, { content: e.target.value })}
-              />
+      <div className="panel-content-unified">
+        <div className="panel-scrollable-unified h-full">
+          <div className="panel-section-unified space-y-6">
+            {selectedElement.type === 'text' && (
+              <>
+                <div className="space-y-3">
+                  <label className="panel-section-title-unified">Conteúdo</label>
+                  <textarea
+                    className="input-unified resize-none"
+                    rows={3}
+                    value={selectedElement.content || ''}
+                    onChange={(e) => onUpdateElement(selectedElement.id, { content: e.target.value })}
+                    placeholder="Digite o texto..."
+                  />
+                </div>
+
+                <div className="space-y-3">
+                  <label className="panel-section-title-unified">Família da Fonte</label>
+                  <UnifiedDropdown
+                    value={selectedElement.fontFamily || 'Inter'}
+                    options={fonts}
+                    onChange={(value) => onUpdateElement(selectedElement.id, { fontFamily: value })}
+                    placeholder="Selecione uma fonte"
+                    isOpen={showFontDropdown}
+                    onToggle={() => setShowFontDropdown(!showFontDropdown)}
+                  />
+                </div>
+
+                <div className="grid-unified-2">
+                  <div className="space-y-3">
+                    <label className="panel-section-title-unified">Tamanho</label>
+                    <input
+                      type="number"
+                      min="8"
+                      max="200"
+                      value={selectedElement.fontSize || 24}
+                      onChange={(e) => onUpdateElement(selectedElement.id, { fontSize: parseInt(e.target.value) })}
+                      className="input-unified"
+                    />
+                  </div>
+                  
+                  <div className="space-y-3">
+                    <label className="panel-section-title-unified">Peso</label>
+                    <UnifiedDropdown
+                      value={selectedElement.fontWeight || 'normal'}
+                      options={fontWeights}
+                      onChange={(value) => onUpdateElement(selectedElement.id, { fontWeight: value })}
+                      placeholder="Peso da fonte"
+                      isOpen={showWeightDropdown}
+                      onToggle={() => setShowWeightDropdown(!showWeightDropdown)}
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <label className="panel-section-title-unified">Estilo</label>
+                  <div className="grid-unified-3">
+                    <button className="button-icon-unified" title="Negrito">
+                      <Bold className="w-4 h-4" />
+                    </button>
+                    <button className="button-icon-unified" title="Itálico">
+                      <Italic className="w-4 h-4" />
+                    </button>
+                    <button className="button-icon-unified" title="Sublinhado">
+                      <Underline className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              </>
+            )}
+
+            <div className="space-y-3">
+              <label className="panel-section-title-unified">Cor</label>
+              <div className="flex items-center space-x-3">
+                <div
+                  className="w-12 h-12 rounded-xl border-4 border-slate-600/60 shadow-lg transition-transform hover:scale-105 cursor-pointer"
+                  style={{ backgroundColor: selectedElement.color }}
+                  title="Clique para alterar a cor"
+                />
+                <input
+                  value={selectedElement.color}
+                  onChange={(e) => onUpdateElement(selectedElement.id, { color: e.target.value })}
+                  className="input-unified flex-1"
+                  placeholder="#000000"
+                />
+              </div>
             </div>
 
-            <div className="space-y-2">
-              <Label>Font Family</Label>
-              <Select
-                value={selectedElement.fontFamily}
-                onValueChange={(value) => onUpdateElement(selectedElement.id, { fontFamily: value })}
-              >
-                <SelectTrigger className="rounded-xl">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {fonts.map((font) => (
-                    <SelectItem key={font} value={font} style={{ fontFamily: font }}>
-                      {font}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-2">
-                <Label>Size</Label>
-                <Input
+            <div className="grid-unified-2">
+              <div className="space-y-3">
+                <label className="panel-section-title-unified">Posição X</label>
+                <input
                   type="number"
-                  min="8"
-                  max="200"
-                  value={selectedElement.fontSize}
-                  onChange={(e) => onUpdateElement(selectedElement.id, { fontSize: parseInt(e.target.value) })}
-                  className="rounded-xl"
+                  value={Math.round(selectedElement.x)}
+                  onChange={(e) => onUpdateElement(selectedElement.id, { x: parseInt(e.target.value) })}
+                  className="input-unified"
                 />
               </div>
               
-              <div className="space-y-2">
-                <Label>Weight</Label>
-                <Select
-                  value={selectedElement.fontWeight}
-                  onValueChange={(value) => onUpdateElement(selectedElement.id, { fontWeight: value })}
-                >
-                  <SelectTrigger className="rounded-xl">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {fontWeights.map((weight) => (
-                      <SelectItem key={weight.value} value={weight.value}>
-                        {weight.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+              <div className="space-y-3">
+                <label className="panel-section-title-unified">Posição Y</label>
+                <input
+                  type="number"
+                  value={Math.round(selectedElement.y)}
+                  onChange={(e) => onUpdateElement(selectedElement.id, { y: parseInt(e.target.value) })}
+                  className="input-unified"
+                />
               </div>
             </div>
 
-            <div className="flex space-x-2">
-              <Button variant="outline" size="sm" className="rounded-xl">
-                <Bold className="w-4 h-4" />
-              </Button>
-              <Button variant="outline" size="sm" className="rounded-xl">
-                <Italic className="w-4 h-4" />
-              </Button>
-              <Button variant="outline" size="sm" className="rounded-xl">
-                <Underline className="w-4 h-4" />
-              </Button>
+            {selectedElement.type === 'shape' && (
+              <div className="grid-unified-2">
+                <div className="space-y-3">
+                  <label className="panel-section-title-unified">Largura</label>
+                  <input
+                    type="number"
+                    min="10"
+                    value={selectedElement.width || 100}
+                    onChange={(e) => onUpdateElement(selectedElement.id, { width: parseInt(e.target.value) })}
+                    className="input-unified"
+                  />
+                </div>
+                
+                <div className="space-y-3">
+                  <label className="panel-section-title-unified">Altura</label>
+                  <input
+                    type="number"
+                    min="10"
+                    value={selectedElement.height || 100}
+                    onChange={(e) => onUpdateElement(selectedElement.id, { height: parseInt(e.target.value) })}
+                    className="input-unified"
+                  />
+                </div>
+              </div>
+            )}
+
+            <div className="space-y-3">
+              <label className="panel-section-title-unified">Rotação</label>
+              <div className="flex items-center space-x-2">
+                <input
+                  type="range"
+                  min="-180"
+                  max="180"
+                  value={selectedElement.rotation || 0}
+                  onChange={(e) => onUpdateElement(selectedElement.id, { rotation: parseInt(e.target.value) })}
+                  className="flex-1"
+                />
+                <input
+                  type="number"
+                  min="-180"
+                  max="180"
+                  value={selectedElement.rotation || 0}
+                  onChange={(e) => onUpdateElement(selectedElement.id, { rotation: parseInt(e.target.value) })}
+                  className="input-unified w-16 text-center"
+                />
+              </div>
             </div>
-          </>
-        )}
 
-        <div className="space-y-2">
-          <Label>Color</Label>
-          <div className="flex items-center space-x-3">
-            <div
-              className="w-12 h-12 rounded-xl border-4 border-white shadow-lg"
-              style={{ backgroundColor: selectedElement.color }}
-            />
-            <Input
-              value={selectedElement.color}
-              onChange={(e) => onUpdateElement(selectedElement.id, { color: e.target.value })}
-              className="rounded-xl"
-            />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-3">
-          <div className="space-y-2">
-            <Label>X Position</Label>
-            <Input
-              type="number"
-              value={Math.round(selectedElement.x)}
-              onChange={(e) => onUpdateElement(selectedElement.id, { x: parseInt(e.target.value) })}
-              className="rounded-xl"
-            />
-          </div>
-          
-          <div className="space-y-2">
-            <Label>Y Position</Label>
-            <Input
-              type="number"
-              value={Math.round(selectedElement.y)}
-              onChange={(e) => onUpdateElement(selectedElement.id, { y: parseInt(e.target.value) })}
-              className="rounded-xl"
-            />
-          </div>
-        </div>
-
-        {selectedElement.type === 'shape' && (
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-2">
-              <Label>Width</Label>
-              <Input
-                type="number"
-                min="10"
-                value={selectedElement.width}
-                onChange={(e) => onUpdateElement(selectedElement.id, { width: parseInt(e.target.value) })}
-                className="rounded-xl"
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label>Height</Label>
-              <Input
-                type="number"
-                min="10"
-                value={selectedElement.height}
-                onChange={(e) => onUpdateElement(selectedElement.id, { height: parseInt(e.target.value) })}
-                className="rounded-xl"
-              />
+            <div className="pt-4 border-t border-slate-700/60">
+              <button
+                onClick={() => onDeleteElement(selectedElement.id)}
+                className="w-full px-4 py-3 bg-red-500/20 hover:bg-red-500/30 border border-red-500/40 hover:border-red-500/60 text-red-400 hover:text-red-300 rounded-xl transition-all duration-150 hover:scale-[1.02] text-sm font-medium flex items-center justify-center space-x-2"
+              >
+                <Trash2 className="w-4 h-4" />
+                <span>Excluir Elemento</span>
+              </button>
             </div>
           </div>
-        )}
-
-        <div className="space-y-2">
-          <Label>Rotation</Label>
-          <Input
-            type="number"
-            min="-180"
-            max="180"
-            value={selectedElement.rotation || 0}
-            onChange={(e) => onUpdateElement(selectedElement.id, { rotation: parseInt(e.target.value) })}
-            className="rounded-xl"
-          />
         </div>
       </div>
     </div>
