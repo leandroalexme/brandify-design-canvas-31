@@ -1,12 +1,10 @@
 
 import React, { useRef, useEffect, useState } from 'react';
-import { FileType } from 'lucide-react';
-import { StandardPanelHeader } from './panels/StandardPanelHeader';
-import { StandardDropdown } from './panels/StandardDropdown';
+import { GlyphPanelHeader } from './glyph/GlyphPanelHeader';
+import { FontSelector } from './glyph/FontSelector';
+import { CategorySelector, categoryData } from './glyph/CategorySelector';
 import { GlyphSearch } from './glyph/GlyphSearch';
 import { GlyphGrid } from './glyph/GlyphGrid';
-import { categoryData } from './glyph/CategorySelector';
-import { PanelPositioningSystem } from '../utils/panelPositioning';
 
 interface GlyphPanelProps {
   isOpen: boolean;
@@ -27,19 +25,6 @@ export const GlyphPanel = ({
   const [showFontDropdown, setShowFontDropdown] = useState(false);
   const [showWeightDropdown, setShowWeightDropdown] = useState(false);
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
-  const [finalPosition, setFinalPosition] = useState(position);
-
-  // Calculate optimal positioning
-  useEffect(() => {
-    if (isOpen) {
-      const optimalPos = PanelPositioningSystem.calculateOptimalPosition(
-        position,
-        { width: 320, height: 500 },
-        'top'
-      );
-      setFinalPosition(optimalPos);
-    }
-  }, [isOpen, position]);
 
   const handleGlyphSelect = (glyph: string) => {
     console.log('🔤 [GLYPH PANEL] Glyph selected:', glyph, 'Font:', selectedFont, 'Weight:', selectedWeight);
@@ -51,28 +36,39 @@ export const GlyphPanel = ({
     searchTerm === '' || glyph.toLowerCase().includes(searchTerm.toLowerCase())
   ) || [];
 
-  // Font options
-  const fontOptions = [
-    { value: 'Inter', label: 'Inter', description: 'Sans Serif' },
-    { value: 'Roboto', label: 'Roboto', description: 'Sans Serif' },
-    { value: 'Arial', label: 'Arial', description: 'Sans Serif' },
-    { value: 'Times New Roman', label: 'Times New Roman', description: 'Serif' },
-    { value: 'Georgia', label: 'Georgia', description: 'Serif' }
-  ];
+  // Handle dropdowns
+  const handleFontDropdownToggle = () => {
+    setShowFontDropdown(!showFontDropdown);
+    setShowWeightDropdown(false);
+    setShowCategoryDropdown(false);
+  };
 
-  const weightOptions = [
-    { value: 'Light', label: 'Light' },
-    { value: 'Regular', label: 'Regular' },
-    { value: 'Medium', label: 'Medium' },
-    { value: 'Semi Bold', label: 'Semi Bold' },
-    { value: 'Bold', label: 'Bold' },
-    { value: 'Extra Bold', label: 'Extra Bold' }
-  ];
+  const handleWeightDropdownToggle = () => {
+    setShowWeightDropdown(!showWeightDropdown);
+    setShowFontDropdown(false);
+    setShowCategoryDropdown(false);
+  };
 
-  const categoryOptions = Object.keys(categoryData).map(key => ({
-    value: key,
-    label: categoryData[key].label
-  }));
+  const handleCategoryDropdownToggle = () => {
+    setShowCategoryDropdown(!showCategoryDropdown);
+    setShowFontDropdown(false);
+    setShowWeightDropdown(false);
+  };
+
+  const handleFontChange = (font: string) => {
+    setSelectedFont(font);
+    setShowFontDropdown(false);
+  };
+
+  const handleWeightChange = (weight: string) => {
+    setSelectedWeight(weight);
+    setShowWeightDropdown(false);
+  };
+
+  const handleCategoryChange = (category: string) => {
+    setSelectedCategory(category);
+    setShowCategoryDropdown(false);
+  };
 
   // Handle click outside
   useEffect(() => {
@@ -96,80 +92,47 @@ export const GlyphPanel = ({
   return (
     <div 
       ref={panelRef}
-      className="panel-container animate-scale-in-60fps"
+      className="fixed z-[500] animate-scale-in"
       style={{
-        left: finalPosition.x,
-        top: finalPosition.y
+        left: position.x,
+        top: position.y
       }}
       data-glyph-panel
     >
-      <StandardPanelHeader 
-        title="Glyph Browser"
-        icon={FileType}
-        iconColor="text-orange-400"
-        onClose={onClose}
-      />
-      
-      <div className="panel-content">
-        <StandardDropdown
-          label="Família da Fonte"
-          value={selectedFont}
-          options={fontOptions}
-          isOpen={showFontDropdown}
-          onToggle={() => {
-            setShowFontDropdown(!showFontDropdown);
-            setShowWeightDropdown(false);
-            setShowCategoryDropdown(false);
-          }}
-          onSelect={(font) => {
-            setSelectedFont(font);
-            setShowFontDropdown(false);
-          }}
-        />
+      <div className="floating-module w-96 overflow-hidden">
+        <GlyphPanelHeader onClose={onClose} />
+        
+        <div className="p-5 space-y-6">
+          <FontSelector
+            selectedFont={selectedFont}
+            selectedWeight={selectedWeight}
+            onFontChange={handleFontChange}
+            onWeightChange={handleWeightChange}
+            showFontDropdown={showFontDropdown}
+            showWeightDropdown={showWeightDropdown}
+            onToggleFontDropdown={handleFontDropdownToggle}
+            onToggleWeightDropdown={handleWeightDropdownToggle}
+          />
 
-        <StandardDropdown
-          label="Peso da Fonte"
-          value={selectedWeight}
-          options={weightOptions}
-          isOpen={showWeightDropdown}
-          onToggle={() => {
-            setShowWeightDropdown(!showWeightDropdown);
-            setShowFontDropdown(false);
-            setShowCategoryDropdown(false);
-          }}
-          onSelect={(weight) => {
-            setSelectedWeight(weight);
-            setShowWeightDropdown(false);
-          }}
-        />
+          <CategorySelector
+            selectedCategory={selectedCategory}
+            onCategoryChange={handleCategoryChange}
+            showCategoryDropdown={showCategoryDropdown}
+            onToggleCategoryDropdown={handleCategoryDropdownToggle}
+          />
 
-        <StandardDropdown
-          label="Categoria"
-          value={selectedCategory}
-          options={categoryOptions}
-          isOpen={showCategoryDropdown}
-          onToggle={() => {
-            setShowCategoryDropdown(!showCategoryDropdown);
-            setShowFontDropdown(false);
-            setShowWeightDropdown(false);
-          }}
-          onSelect={(category) => {
-            setSelectedCategory(category);
-            setShowCategoryDropdown(false);
-          }}
-        />
+          <GlyphSearch
+            searchTerm={searchTerm}
+            onSearchChange={setSearchTerm}
+          />
 
-        <GlyphSearch
-          searchTerm={searchTerm}
-          onSearchChange={setSearchTerm}
-        />
-
-        <GlyphGrid
-          glyphs={filteredGlyphs}
-          selectedFont={selectedFont}
-          selectedWeight={selectedWeight}
-          onGlyphSelect={handleGlyphSelect}
-        />
+          <GlyphGrid
+            glyphs={filteredGlyphs}
+            selectedFont={selectedFont}
+            selectedWeight={selectedWeight}
+            onGlyphSelect={handleGlyphSelect}
+          />
+        </div>
       </div>
     </div>
   );
