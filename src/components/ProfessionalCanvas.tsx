@@ -1,6 +1,6 @@
 
 import React, { useState, useCallback } from 'react';
-import { Copy, Plus } from 'lucide-react';
+import { Copy, Plus, Trash2 } from 'lucide-react';
 import { KonvaCanvasComponent } from './KonvaCanvas';
 import { DesignElement } from '../types/design';
 
@@ -11,7 +11,11 @@ interface ProfessionalCanvasProps {
   onAddElement: (element: Omit<DesignElement, 'id' | 'selected'>) => void;
   onSelectElement: (id: string | null) => void;
   onUpdateElement: (id: string, updates: Partial<DesignElement>) => void;
+  onDeleteElement: (id: string) => void;
+  onCopyElement: (id: string) => void;
+  onPasteElement: () => void;
   onCreateText: (x: number, y: number) => void;
+  selectedShape?: string | null;
 }
 
 export const ProfessionalCanvas = ({
@@ -21,16 +25,45 @@ export const ProfessionalCanvas = ({
   onAddElement,
   onSelectElement,
   onUpdateElement,
+  onDeleteElement,
+  onCopyElement,
+  onPasteElement,
   onCreateText,
+  selectedShape = null,
 }: ProfessionalCanvasProps) => {
   const [artboardColor, setArtboardColor] = useState('#ffffff');
   const [showColorPicker, setShowColorPicker] = useState(false);
+  const [clipboard, setClipboard] = useState<DesignElement | null>(null);
 
   const handleColorChange = useCallback((color: string) => {
     setArtboardColor(color);
     setShowColorPicker(false);
     console.log('🎨 [PROFESSIONAL CANVAS] Artboard color changed:', color);
   }, []);
+
+  const handleCopyElement = useCallback((id: string) => {
+    const element = elements.find(el => el.id === id);
+    if (element) {
+      setClipboard(element);
+      console.log('📋 [PROFESSIONAL CANVAS] Element copied:', element);
+    }
+  }, [elements]);
+
+  const handlePasteElement = useCallback(() => {
+    if (clipboard) {
+      const newElement = {
+        ...clipboard,
+        x: clipboard.x + 20,
+        y: clipboard.y + 20,
+        selected: false
+      };
+      delete (newElement as any).id;
+      onAddElement(newElement);
+      console.log('📋 [PROFESSIONAL CANVAS] Element pasted:', newElement);
+    }
+  }, [clipboard, onAddElement]);
+
+  const selectedElement = elements.find(el => el.selected);
 
   // Debug log
   React.useEffect(() => {
@@ -39,10 +72,12 @@ export const ProfessionalCanvas = ({
         elementsCount: elements.length,
         selectedTool,
         selectedColor,
-        artboardColor
+        selectedShape,
+        artboardColor,
+        hasClipboard: !!clipboard
       });
     }
-  }, [elements.length, selectedTool, selectedColor, artboardColor]);
+  }, [elements.length, selectedTool, selectedColor, selectedShape, artboardColor, clipboard]);
 
   return (
     <div className="h-screen flex items-center justify-center relative">
@@ -78,6 +113,8 @@ export const ProfessionalCanvas = ({
           <button 
             className="w-6 h-6 flex items-center justify-center text-slate-400 hover:text-slate-200 transition-colors"
             title="Duplicar prancheta"
+            onClick={() => selectedElement && handleCopyElement(selectedElement.id)}
+            disabled={!selectedElement}
           >
             <Copy className="w-4 h-4" />
           </button>
@@ -88,7 +125,28 @@ export const ProfessionalCanvas = ({
           >
             <Plus className="w-4 h-4" />
           </button>
+
+          {selectedElement && (
+            <button 
+              className="w-6 h-6 flex items-center justify-center text-red-400 hover:text-red-200 transition-colors"
+              title="Excluir elemento selecionado"
+              onClick={() => onDeleteElement(selectedElement.id)}
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          )}
         </div>
+      </div>
+
+      {/* Atalhos de teclado - info */}
+      <div className="absolute top-4 right-4 text-xs text-slate-400 bg-slate-800/50 px-3 py-2 rounded max-w-xs">
+        <div className="font-medium mb-1">Atalhos:</div>
+        <div>Delete/Backspace: Excluir</div>
+        <div>Ctrl+C: Copiar</div>
+        <div>Ctrl+V: Colar</div>
+        <div>Ctrl+D: Duplicar</div>
+        <div>Shift: Manter proporção</div>
+        <div>Esc: Deselecionar</div>
       </div>
 
       {/* Debug info */}
@@ -96,7 +154,9 @@ export const ProfessionalCanvas = ({
         <div className="absolute top-4 left-4 text-xs text-slate-400 bg-slate-800/50 px-3 py-2 rounded z-10">
           <div>Elementos: {elements.length}</div>
           <div>Ferramenta: {selectedTool}</div>
+          <div>Forma: {selectedShape || 'nenhuma'}</div>
           <div>Cor: {selectedColor}</div>
+          <div>Clipboard: {clipboard ? '✓' : '✗'}</div>
           <div>🎯 Konva.js Canvas Ativo</div>
         </div>
       )}
@@ -109,8 +169,12 @@ export const ProfessionalCanvas = ({
         onAddElement={onAddElement}
         onSelectElement={onSelectElement}
         onUpdateElement={onUpdateElement}
+        onDeleteElement={onDeleteElement}
+        onCopyElement={handleCopyElement}
+        onPasteElement={handlePasteElement}
         onCreateText={onCreateText}
         artboardColor={artboardColor}
+        selectedShape={selectedShape as any}
       />
     </div>
   );
