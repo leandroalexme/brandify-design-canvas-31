@@ -53,7 +53,7 @@ export const useMainToolbarState = (
         id: 'text',
         icon: TOOL_ICONS.text,
         label: TOOL_LABELS.text,
-        hasSubmenu: true
+        hasSubmenu: false // Mudado para false pois agora usa TextPropertiesSubmenu
       }
     ];
   }, [activeSubTools.select, activeSubTools.pen, selectedShape]);

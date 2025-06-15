@@ -3,6 +3,7 @@ import React from 'react';
 import { SimpleSubmenu } from './SimpleSubmenu';
 import { ShapesMenu } from './ShapesMenu';
 import { FontConfigPanel } from './FontConfigPanel';
+import { TextPropertiesSubmenu } from './TextPropertiesSubmenu';
 import { MainToolbarButton } from './MainToolbarButton';
 import { useMainToolbar } from '../hooks/useMainToolbar';
 import { ToolType } from '../types/tools';
@@ -48,9 +49,9 @@ export const MainToolbar = ({
     handleFontPanelClose
   } = useMainToolbar(selectedTool, onToolSelect, selectedShape, onShapeSelect);
 
-  // Handler específico para o botão de texto com toggle
+  // Handler específico para o botão de texto - agora abre o submenu de propriedades
   const handleTextToolClick = React.useCallback(() => {
-    console.log('📝 [MAIN TOOLBAR] Text tool clicked - Toggle mode');
+    console.log('📝 [MAIN TOOLBAR] Text tool clicked - Opening text properties submenu');
     onOpenTextPanel();
   }, [onOpenTextPanel]);
 
@@ -64,6 +65,38 @@ export const MainToolbar = ({
       handleToolClick(toolId as any);
     }
   }, [handleTextToolClick, handleToolClick]);
+
+  // Handler para ferramentas do submenu de texto
+  const handleTextSubmenuToolSelect = React.useCallback((toolId: string) => {
+    console.log('📝 [MAIN TOOLBAR] Text submenu tool selected:', toolId);
+    
+    if (toolId === 'typography') {
+      // Abrir o FontConfigPanel quando selecionar tipografia
+      console.log('📝 [MAIN TOOLBAR] Opening font config panel from typography tool');
+      
+      const centerX = window.innerWidth / 2;
+      const centerY = window.innerHeight / 2;
+      
+      const position = { x: centerX, y: centerY };
+      console.log('📝 [MAIN TOOLBAR] Font panel position:', position);
+      
+      // Usar os handlers existentes do hook
+      const fontPanelButton = buttonRefs.current['text'];
+      if (fontPanelButton) {
+        const rect = fontPanelButton.getBoundingClientRect();
+        const buttonPosition = {
+          x: rect.left + rect.width / 2,
+          y: rect.top
+        };
+        
+        // Simular o comportamento do submenu existente para abrir o font panel
+        handleSubToolSelect('fontConfig');
+      }
+    } else {
+      // Para outras ferramentas, apenas log por enquanto
+      console.log('📝 [MAIN TOOLBAR] Text tool not implemented yet:', toolId);
+    }
+  }, [handleSubToolSelect, buttonRefs]);
 
   return (
     <>
@@ -91,8 +124,8 @@ export const MainToolbar = ({
         </div>
       </div>
 
-      {/* Submenu para select, pen e text */}
-      {showSubmenu && SUB_TOOL_OPTIONS[showSubmenu as keyof typeof SUB_TOOL_OPTIONS] && (
+      {/* Submenu para select e pen apenas */}
+      {showSubmenu && showSubmenu !== 'text' && SUB_TOOL_OPTIONS[showSubmenu as keyof typeof SUB_TOOL_OPTIONS] && (
         <SimpleSubmenu
           isOpen={!!showSubmenu}
           onClose={handleSubmenuClose}
@@ -101,6 +134,14 @@ export const MainToolbar = ({
           options={SUB_TOOL_OPTIONS[showSubmenu as keyof typeof SUB_TOOL_OPTIONS]}
         />
       )}
+
+      {/* Novo submenu de propriedades de texto */}
+      <TextPropertiesSubmenu
+        isOpen={showTextPanel}
+        onClose={() => onOpenTextPanel()}
+        onToolSelect={handleTextSubmenuToolSelect}
+        position={{ x: 32, y: 120 }}
+      />
 
       {/* Menu específico para shapes */}
       <ShapesMenu
@@ -111,7 +152,7 @@ export const MainToolbar = ({
         selectedShape={selectedShape}
       />
 
-      {/* Painel de configuração de fonte - novo e melhorado */}
+      {/* Painel de configuração de fonte - agora vinculado à tipografia */}
       <FontConfigPanel
         isOpen={showFontPanel}
         onClose={handleFontPanelClose}

@@ -1,5 +1,5 @@
 
-import { MousePointer, PenTool, Square, Type, Move, MessageCircle, Brush, Pencil, Settings } from 'lucide-react';
+import { MousePointer, PenTool, Square, Type, Move, MessageCircle, Brush, Pencil, Settings, AlignLeft, AlignCenter, AlignRight, FileType, Columns2, Palette, Sparkles } from 'lucide-react';
 import { ToolDefinition, MainTool, SubTool } from '../types/tools';
 
 // Configuração das sub-ferramentas por ferramenta principal
@@ -7,7 +7,7 @@ export const SUB_TOOLS: Record<MainTool, SubTool[]> = {
   select: ['node', 'move', 'comment'],
   pen: ['brush', 'pencil'],
   shapes: [],
-  text: []
+  text: [] // Removido submenu anterior, agora usa TextPropertiesSubmenu
 };
 
 // Mapeamento de sub-ferramentas para suas ferramentas principais
@@ -48,7 +48,7 @@ export const TOOL_LABELS = {
   pencil: 'Lápis'
 };
 
-// Sub-ferramentas para menus
+// Sub-ferramentas para menus (removido text do SUB_TOOL_OPTIONS)
 export const SUB_TOOL_OPTIONS = {
   select: [
     { id: 'node', icon: MousePointer, label: 'Ferramenta de Nó' },
@@ -58,8 +58,18 @@ export const SUB_TOOL_OPTIONS = {
   pen: [
     { id: 'brush', icon: Brush, label: 'Pincel' },
     { id: 'pencil', icon: Pencil, label: 'Lápis' }
-  ],
-  text: [
-    { id: 'fontConfig', icon: Settings, label: 'Configurar Fonte' }
   ]
 };
+
+// Ferramentas do submenu de propriedades de texto
+export const TEXT_PROPERTIES_TOOLS = [
+  { id: 'typography', icon: Type, label: 'Tipografia' },
+  { id: 'align-left', icon: AlignLeft, label: 'Alinhar à Esquerda' },
+  { id: 'align-center', icon: AlignCenter, label: 'Centralizar' },
+  { id: 'align-right', icon: AlignRight, label: 'Alinhar à Direita' },
+  { id: 'advanced', icon: Settings, label: 'Modo Avançado' },
+  { id: 'glyph', icon: FileType, label: 'Glyph' },
+  { id: 'columns', icon: Columns2, label: 'Colunas' },
+  { id: 'color', icon: Palette, label: 'Cor' },
+  { id: 'effects', icon: Sparkles, label: 'Efeitos' }
+];
