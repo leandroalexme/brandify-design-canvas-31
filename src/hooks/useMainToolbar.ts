@@ -1,4 +1,3 @@
-
 import React, { useRef, useMemo, useCallback } from 'react';
 import { useToolState } from './useToolState';
 import { ToolType, MainTool } from '../types/tools';
@@ -37,28 +36,39 @@ export const useMainToolbar = (
   const [showShapesMenu, setShowShapesMenu] = React.useState(false);
   const [shapesMenuPosition, setShapesMenuPosition] = React.useState({ x: 0, y: 0 });
 
+  // Estados para o painel de configuração de fonte
+  const [showFontPanel, setShowFontPanel] = React.useState(false);
+  const [fontPanelPosition, setFontPanelPosition] = React.useState({ x: 0, y: 0 });
+
   // Auto-retorno para shapes quando clica fora
   React.useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Element;
       const isToolbarClick = target.closest('[data-toolbar]');
       const isSubmenuClick = target.closest('[data-submenu]');
+      const isFontPanelClick = target.closest('[data-font-panel]');
       
-      if (!isToolbarClick && !isSubmenuClick && showShapesMenu) {
-        logger.debug('Clicking outside shapes menu, closing');
-        setShowShapesMenu(false);
-        onShapeSelect(null);
+      if (!isToolbarClick && !isSubmenuClick && !isFontPanelClick) {
+        if (showShapesMenu) {
+          logger.debug('Clicking outside shapes menu, closing');
+          setShowShapesMenu(false);
+          onShapeSelect(null);
+        }
+        if (showFontPanel) {
+          logger.debug('Clicking outside font panel, closing');
+          setShowFontPanel(false);
+        }
       }
     };
 
-    if (showShapesMenu) {
+    if (showShapesMenu || showFontPanel) {
       document.addEventListener('mousedown', handleClickOutside);
     }
 
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [showShapesMenu, onShapeSelect]);
+  }, [showShapesMenu, showFontPanel, onShapeSelect]);
 
   // Sincronizar com estado externo - otimizado para evitar loops
   React.useEffect(() => {
@@ -165,8 +175,24 @@ export const useMainToolbar = (
 
   const handleSubToolSelect = useCallback((subToolId: string) => {
     logger.debug('Sub-tool selected', { subToolId });
-    selectSubTool(subToolId as any);
-  }, [selectSubTool]);
+    
+    // Se for o ícone de texto, abrir o painel de configuração
+    if (subToolId === 'text') {
+      const button = buttonRefs.current['text'];
+      if (button) {
+        const rect = button.getBoundingClientRect();
+        const position = {
+          x: rect.left + rect.width / 2,
+          y: rect.top
+        };
+        setFontPanelPosition(position);
+        setShowFontPanel(true);
+        toggleSubmenu(null); // Fechar submenu
+      }
+    } else {
+      selectSubTool(subToolId as any);
+    }
+  }, [selectSubTool, toggleSubmenu]);
 
   const handleSubmenuClose = useCallback(() => {
     logger.debug('Closing submenu');
@@ -185,6 +211,11 @@ export const useMainToolbar = (
     onShapeSelect(null);
   }, [onShapeSelect]);
 
+  const handleFontPanelClose = useCallback(() => {
+    logger.debug('Closing font panel');
+    setShowFontPanel(false);
+  }, []);
+
   return {
     mainTools,
     buttonRefs,
@@ -192,6 +223,8 @@ export const useMainToolbar = (
     shapesMenuPosition,
     showSubmenu,
     submenuPosition,
+    showFontPanel,
+    fontPanelPosition,
     activeSubTools,
     selectedShape,
     getCurrentMainTool,
@@ -201,6 +234,7 @@ export const useMainToolbar = (
     handleSubToolSelect,
     handleSubmenuClose,
     handleShapeSelect,
-    handleShapesMenuClose
+    handleShapesMenuClose,
+    handleFontPanelClose
   };
 };

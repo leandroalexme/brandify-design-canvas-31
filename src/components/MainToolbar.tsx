@@ -2,6 +2,7 @@
 import React from 'react';
 import { SimpleSubmenu } from './SimpleSubmenu';
 import { ShapesMenu } from './ShapesMenu';
+import { FontConfigPanel } from './FontConfigPanel';
 import { MainToolbarButton } from './MainToolbarButton';
 import { useMainToolbar } from '../hooks/useMainToolbar';
 import { ToolType } from '../types/tools';
@@ -33,6 +34,8 @@ export const MainToolbar = ({
     shapesMenuPosition,
     showSubmenu,
     submenuPosition,
+    showFontPanel,
+    fontPanelPosition,
     activeSubTools,
     getCurrentMainTool,
     handleToolClick,
@@ -41,7 +44,8 @@ export const MainToolbar = ({
     handleSubToolSelect,
     handleSubmenuClose,
     handleShapeSelect,
-    handleShapesMenuClose
+    handleShapesMenuClose,
+    handleFontPanelClose
   } = useMainToolbar(selectedTool, onToolSelect, selectedShape, onShapeSelect);
 
   // Handler específico para o botão de texto com toggle
@@ -107,6 +111,15 @@ export const MainToolbar = ({
         position={shapesMenuPosition}
         selectedShape={selectedShape}
       />
+
+      {/* Painel de configuração de fonte */}
+      <div data-font-panel>
+        <FontConfigPanel
+          isOpen={showFontPanel}
+          onClose={handleFontPanelClose}
+          position={fontPanelPosition}
+        />
+      </div>
     </>
   );
 };
