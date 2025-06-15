@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { MousePointer, Pen, Circle, Type } from 'lucide-react';
 import { SimpleSubmenu } from './SimpleSubmenu';
 import { ShapesMenu } from './ShapesMenu';
 import { FontConfigPanel } from './FontConfigPanel';
@@ -114,7 +115,7 @@ export const MainToolbar = ({
     setShowFontPanel(false);
   }, []);
 
-  // Properly typed main tools array
+  // Properly typed main tools array with direct icon imports
   const mainTools: Array<{
     id: MainTool;
     icon: any;
@@ -123,25 +124,25 @@ export const MainToolbar = ({
   }> = [
     {
       id: 'select',
-      icon: require('lucide-react').MousePointer,
+      icon: MousePointer,
       label: 'Select',
       hasSubmenu: false
     },
     {
       id: 'pen',
-      icon: require('lucide-react').Pen,
+      icon: Pen,
       label: 'Pen',
       hasSubmenu: false
     },
     {
       id: 'shapes',
-      icon: require('lucide-react').Circle,
+      icon: Circle,
       label: 'Shapes',
       hasSubmenu: false
     },
     {
       id: 'text',
-      icon: require('lucide-react').Type,
+      icon: Type,
       label: 'Text',
       hasSubmenu: false
     }
