@@ -119,7 +119,7 @@ export const FabricCanvasComponent = ({
     const commonProps = {
       x: fabricObj.left || 0,
       y: fabricObj.top || 0,
-      color: (fabricObj.fill as string) || selectedColor,
+      color: typeof fabricObj.fill === 'string' ? fabricObj.fill : selectedColor,
       rotation: fabricObj.angle || 0,
     };
 
