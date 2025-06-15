@@ -10,7 +10,6 @@ import { ZoomIndicator } from './ZoomIndicator';
 import { LayersPanel } from './LayersPanel';
 import { AlignmentPanel } from './AlignmentPanel';
 import { ArtboardsPanel } from './ArtboardsPanel';
-import { TextPropertiesPanel } from './TextPropertiesPanel';
 import { ErrorBoundary } from './ErrorBoundary';
 import { ToolType } from '../types/tools';
 import { useDesignElements } from '../hooks/useDesignElements';
@@ -93,10 +92,10 @@ export const BrandifyStudio = () => {
     createTextElement(x, y);
   }, [createTextElement]);
 
-  // Função de toggle para o painel de texto
+  // Função de toggle para o painel de texto unificado - agora usa o novo FontConfigPanel
   const handleToggleTextPanel = useCallback(() => {
     const isCurrentlyOpen = uiState.showTextPropertiesPanel;
-    console.log('🎛️ [BRANDIFY] Toggling text panel. Current state:', isCurrentlyOpen);
+    console.log('🎛️ [BRANDIFY] Toggling unified text panel. Current state:', isCurrentlyOpen);
     
     if (isCurrentlyOpen) {
       // Fechar painel e voltar para select
@@ -110,12 +109,6 @@ export const BrandifyStudio = () => {
       updateToolState({ selectedTool: 'text' });
     }
   }, [uiState.showTextPropertiesPanel, updateUIState, updateToolState]);
-
-  const handleCloseTextPanel = useCallback(() => {
-    console.log('🚪 [BRANDIFY] Closing text panel via X button');
-    updateUIState({ showTextPropertiesPanel: false });
-    updateToolState({ selectedTool: 'select' });
-  }, [updateUIState, updateToolState]);
 
   const mappedTool = getCanvasToolType(toolState.selectedTool);
 
@@ -150,11 +143,6 @@ export const BrandifyStudio = () => {
         <LayersButton onClick={() => updateUIState({ showLayersPanel: !uiState.showLayersPanel })} />
         <GridButton onClick={() => updateUIState({ showAlignmentPanel: !uiState.showAlignmentPanel })} />
         <ArtboardsButton onClick={() => updateUIState({ showArtboardsPanel: !uiState.showArtboardsPanel })} />
-        
-        <TextPropertiesPanel
-          isOpen={uiState.showTextPropertiesPanel}
-          onClose={handleCloseTextPanel}
-        />
         
         {uiState.showLayersPanel && (
           <LayersPanel

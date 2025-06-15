@@ -51,9 +51,8 @@ export const MainToolbar = ({
   // Handler específico para o botão de texto com toggle
   const handleTextToolClick = React.useCallback(() => {
     console.log('📝 [MAIN TOOLBAR] Text tool clicked - Toggle mode');
-    console.log('📝 [MAIN TOOLBAR] Current panel state:', showTextPanel);
     onOpenTextPanel();
-  }, [onOpenTextPanel, showTextPanel]);
+  }, [onOpenTextPanel]);
 
   // Handler personalizado que intercepta cliques no botão de texto
   const handleCustomToolClick = React.useCallback((toolId: string) => {
@@ -112,14 +111,12 @@ export const MainToolbar = ({
         selectedShape={selectedShape}
       />
 
-      {/* Painel de configuração de fonte */}
-      <div data-font-panel>
-        <FontConfigPanel
-          isOpen={showFontPanel}
-          onClose={handleFontPanelClose}
-          position={fontPanelPosition}
-        />
-      </div>
+      {/* Painel de configuração de fonte - novo e melhorado */}
+      <FontConfigPanel
+        isOpen={showFontPanel}
+        onClose={handleFontPanelClose}
+        position={fontPanelPosition}
+      />
     </>
   );
 };

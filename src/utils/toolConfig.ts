@@ -1,5 +1,5 @@
 
-import { MousePointer, PenTool, Square, Type, Move, MessageCircle, Brush, Pencil } from 'lucide-react';
+import { MousePointer, PenTool, Square, Type, Move, MessageCircle, Brush, Pencil, Settings } from 'lucide-react';
 import { ToolDefinition, MainTool, SubTool } from '../types/tools';
 
 // Configuração das sub-ferramentas por ferramenta principal
@@ -60,6 +60,6 @@ export const SUB_TOOL_OPTIONS = {
     { id: 'pencil', icon: Pencil, label: 'Lápis' }
   ],
   text: [
-    { id: 'text', icon: Type, label: 'Configurar Fonte' }
+    { id: 'fontConfig', icon: Settings, label: 'Configurar Fonte' }
   ]
 };

@@ -92,21 +92,18 @@ export const useMainToolbarHandlers = (
     logger.debug('Sub-tool selected', { subToolId });
     
     // Se for o ícone de texto, abrir o painel de configuração
-    if (subToolId === 'text') {
-      console.log('📝 [MAIN TOOLBAR] Opening font panel for text tool');
+    if (subToolId === 'fontConfig') {
+      console.log('📝 [MAIN TOOLBAR] Opening font config panel');
       
-      // Usar a posição do botão de texto da toolbar principal
-      const textButton = buttonRefs.current['text'];
-      if (textButton) {
-        const rect = textButton.getBoundingClientRect();
-        const position = {
-          x: rect.left + rect.width / 2,
-          y: rect.top
-        };
-        console.log('📝 [MAIN TOOLBAR] Font panel position:', position);
-        setFontPanelPosition(position);
-        setShowFontPanel(true);
-      }
+      // Calcular posição centralizada na tela
+      const centerX = window.innerWidth / 2;
+      const centerY = window.innerHeight / 2;
+      
+      const position = { x: centerX, y: centerY };
+      console.log('📝 [MAIN TOOLBAR] Font panel position:', position);
+      
+      setFontPanelPosition(position);
+      setShowFontPanel(true);
       
       // Fechar submenu
       toggleSubmenu(null);
@@ -116,7 +113,7 @@ export const useMainToolbarHandlers = (
     } else {
       selectSubTool(subToolId as any);
     }
-  }, [selectSubTool, toggleSubmenu, onToolSelect, buttonRefs, setFontPanelPosition, setShowFontPanel]);
+  }, [selectSubTool, toggleSubmenu, onToolSelect, setFontPanelPosition, setShowFontPanel]);
 
   const handleSubmenuClose = useCallback(() => {
     logger.debug('Closing submenu');
