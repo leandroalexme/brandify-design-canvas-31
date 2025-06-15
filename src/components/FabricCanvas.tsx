@@ -116,10 +116,18 @@ export const FabricCanvasComponent = ({
 
   // Convert Fabric object to DesignElement
   const createDesignElement = useCallback((fabricObj: FabricObject, type: DesignElement['type']): Omit<DesignElement, 'id' | 'selected'> => {
+    // Helper function to ensure color is always a string
+    const getColorAsString = (fill: any): string => {
+      if (typeof fill === 'string') {
+        return fill;
+      }
+      return selectedColor;
+    };
+
     const commonProps = {
       x: fabricObj.left || 0,
       y: fabricObj.top || 0,
-      color: typeof fabricObj.fill === 'string' ? fabricObj.fill : selectedColor,
+      color: getColorAsString(fabricObj.fill),
       rotation: fabricObj.angle || 0,
     };
 
