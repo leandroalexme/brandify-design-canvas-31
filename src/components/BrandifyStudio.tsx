@@ -44,17 +44,20 @@ export const BrandifyStudio = () => {
   const canvasRef = useRef<HTMLDivElement>(null);
   const debouncedUpdateElement = useDebounce(updateElement, 100);
 
-  // Log para debug detalhado
+  // Log para debug detalhado com melhor rastreamento
   React.useEffect(() => {
-    console.log('📊 [BRANDIFY] Current state:', {
+    console.log('📊 [BRANDIFY] State sync check:', {
       selectedTool: toolState.selectedTool,
       elementsCount: elements.length,
-      showTextPanel: uiState.showTextPropertiesPanel
+      showTextPanel: uiState.showTextPropertiesPanel,
+      timestamp: new Date().toISOString()
     });
   }, [toolState.selectedTool, elements.length, uiState.showTextPropertiesPanel]);
 
-  // Mapear ferramentas para o Canvas
+  // Mapear ferramentas para o Canvas com validação
   const getCanvasToolType = useCallback((tool: ToolType): 'select' | 'pen' | 'shapes' | 'text' => {
+    console.log('🔄 [BRANDIFY] Mapping tool for canvas:', tool);
+    
     if (tool === 'select' || tool === 'pen' || tool === 'shapes' || tool === 'text') {
       return tool;
     }
@@ -63,39 +66,58 @@ export const BrandifyStudio = () => {
       case 'node':
       case 'move':
       case 'comment':
+        console.log('🔄 [BRANDIFY] Mapping to select:', tool);
         return 'select';
       case 'brush':
       case 'pencil':
+        console.log('🔄 [BRANDIFY] Mapping to pen:', tool);
         return 'pen';
       default:
+        console.warn('🔄 [BRANDIFY] Unknown tool, defaulting to select:', tool);
         return 'select';
     }
   }, []);
 
   const handleToolSelect = useCallback((tool: ToolType) => {
-    console.log('🔧 [BRANDIFY] Tool selected:', tool);
+    console.log('🔧 [BRANDIFY] Tool selection request:', { 
+      newTool: tool, 
+      currentTool: toolState.selectedTool,
+      timestamp: new Date().toISOString()
+    });
+    
+    // Sincronização forçada para evitar descompasso
     updateToolState({ selectedTool: tool });
-  }, [updateToolState]);
+    
+    // Fechar painel de texto se mudou para outra ferramenta
+    if (tool !== 'text' && uiState.showTextPropertiesPanel) {
+      console.log('🚪 [BRANDIFY] Closing text panel due to tool change');
+      updateUIState({ showTextPropertiesPanel: false });
+    }
+  }, [updateToolState, toolState.selectedTool, uiState.showTextPropertiesPanel, updateUIState]);
 
   const handleColorSelect = useCallback((color: string) => {
-    console.log('🎨 [BRANDIFY] Color selected:', color);
+    console.log('🎨 [BRANDIFY] Color selection:', { color, timestamp: new Date().toISOString() });
     updateToolState({ selectedColor: color });
   }, [updateToolState]);
 
   const handleShapeSelect = useCallback((shape: string | null) => {
-    console.log('🔷 [BRANDIFY] Shape selected:', shape);
+    console.log('🔷 [BRANDIFY] Shape selection:', { shape, timestamp: new Date().toISOString() });
     updateUIState({ selectedShape: shape });
   }, [updateUIState]);
 
   const handleCreateText = useCallback((x: number, y: number) => {
-    console.log('📝 [BRANDIFY] Creating text at:', { x, y });
+    console.log('📝 [BRANDIFY] Text creation at:', { x, y, timestamp: new Date().toISOString() });
     createTextElement(x, y);
   }, [createTextElement]);
 
-  // Função de toggle para o painel de texto unificado - agora usa o novo FontConfigPanel
+  // Função de toggle para o painel de texto com melhor sincronização
   const handleToggleTextPanel = useCallback(() => {
     const isCurrentlyOpen = uiState.showTextPropertiesPanel;
-    console.log('🎛️ [BRANDIFY] Toggling unified text panel. Current state:', isCurrentlyOpen);
+    console.log('🎛️ [BRANDIFY] Text panel toggle:', {
+      currentState: isCurrentlyOpen,
+      currentTool: toolState.selectedTool,
+      timestamp: new Date().toISOString()
+    });
     
     if (isCurrentlyOpen) {
       // Fechar painel e voltar para select
@@ -108,7 +130,7 @@ export const BrandifyStudio = () => {
       updateUIState({ showTextPropertiesPanel: true });
       updateToolState({ selectedTool: 'text' });
     }
-  }, [uiState.showTextPropertiesPanel, updateUIState, updateToolState]);
+  }, [uiState.showTextPropertiesPanel, toolState.selectedTool, updateUIState, updateToolState]);
 
   const mappedTool = getCanvasToolType(toolState.selectedTool);
 
