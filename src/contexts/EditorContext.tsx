@@ -50,6 +50,8 @@ interface EditorProviderProps {
 }
 
 export const EditorProvider = ({ children }: EditorProviderProps) => {
+  console.log('📊 [EDITOR CONTEXT] Provider rendering');
+
   const [state, setState] = useState<EditorState>({
     toolState: {
       selectedTool: 'select',
@@ -70,24 +72,33 @@ export const EditorProvider = ({ children }: EditorProviderProps) => {
 
   // Tool Actions
   const updateToolState = useCallback((updates: Partial<ToolState>) => {
-    console.log('🔧 [EDITOR CONTEXT] Updating tool state:', updates);
-    setState(prev => ({
-      ...prev,
-      toolState: { ...prev.toolState, ...updates }
-    }));
+    console.log('📊 [EDITOR CONTEXT] Updating tool state:', updates);
+    setState(prev => {
+      const newState = {
+        ...prev,
+        toolState: { ...prev.toolState, ...updates }
+      };
+      console.log('📊 [EDITOR CONTEXT] New tool state:', newState.toolState);
+      return newState;
+    });
   }, []);
 
   // UI Actions
   const updateUIState = useCallback((updates: Partial<UIState>) => {
-    console.log('🎨 [EDITOR CONTEXT] Updating UI state:', updates);
-    setState(prev => ({
-      ...prev,
-      uiState: { ...prev.uiState, ...updates }
-    }));
+    console.log('📊 [EDITOR CONTEXT] Updating UI state:', updates);
+    setState(prev => {
+      const newState = {
+        ...prev,
+        uiState: { ...prev.uiState, ...updates }
+      };
+      console.log('📊 [EDITOR CONTEXT] New UI state:', newState.uiState);
+      return newState;
+    });
   }, []);
 
   // Element Actions
   const addElement = useCallback((element: Omit<DesignElement, 'id' | 'selected'>) => {
+    console.log('📊 [EDITOR CONTEXT] Adding element:', element);
     const newElement: DesignElement = {
       ...element,
       id: Date.now().toString(),
@@ -101,6 +112,7 @@ export const EditorProvider = ({ children }: EditorProviderProps) => {
   }, []);
 
   const updateElement = useCallback((id: string, updates: Partial<DesignElement>) => {
+    console.log('📊 [EDITOR CONTEXT] Updating element:', { id, updates });
     setState(prev => ({
       ...prev,
       elements: prev.elements.map(el => 
@@ -110,6 +122,7 @@ export const EditorProvider = ({ children }: EditorProviderProps) => {
   }, []);
 
   const selectElement = useCallback((id: string | null) => {
+    console.log('📊 [EDITOR CONTEXT] Selecting element:', id);
     setState(prev => ({
       ...prev,
       elements: prev.elements.map(el => ({ ...el, selected: el.id === id })),
@@ -118,6 +131,7 @@ export const EditorProvider = ({ children }: EditorProviderProps) => {
   }, []);
 
   const deleteElement = useCallback((id: string) => {
+    console.log('📊 [EDITOR CONTEXT] Deleting element:', id);
     setState(prev => ({
       ...prev,
       elements: prev.elements.filter(el => el.id !== id),
@@ -126,6 +140,7 @@ export const EditorProvider = ({ children }: EditorProviderProps) => {
   }, []);
 
   const setSelectedElement = useCallback((id: string | null) => {
+    console.log('📊 [EDITOR CONTEXT] Setting selected element:', id);
     setState(prev => ({
       ...prev,
       selectedElement: id
@@ -134,16 +149,20 @@ export const EditorProvider = ({ children }: EditorProviderProps) => {
 
   // Fixed toggleTextPanel function
   const toggleTextPanel = useCallback(() => {
-    console.log('📝 [EDITOR CONTEXT] Toggling text panel');
+    console.log('📊 [EDITOR CONTEXT] Toggling text panel');
     setState(prev => {
       const isTextPanelOpen = prev.uiState.showTextPropertiesPanel;
       const isTextToolActive = prev.toolState.selectedTool === 'text';
       
-      console.log('📝 [EDITOR CONTEXT] Current state:', { isTextPanelOpen, isTextToolActive });
+      console.log('📊 [EDITOR CONTEXT] Text panel state:', { 
+        isTextPanelOpen, 
+        isTextToolActive,
+        currentTool: prev.toolState.selectedTool 
+      });
       
       if (isTextPanelOpen && isTextToolActive) {
         // Fechar painel e voltar para select
-        console.log('📝 [EDITOR CONTEXT] Closing text panel and returning to select');
+        console.log('📊 [EDITOR CONTEXT] Closing text panel and returning to select');
         return {
           ...prev,
           toolState: { ...prev.toolState, selectedTool: 'select' },
@@ -151,7 +170,7 @@ export const EditorProvider = ({ children }: EditorProviderProps) => {
         };
       } else {
         // Abrir painel e ativar ferramenta de texto
-        console.log('📝 [EDITOR CONTEXT] Opening text panel and activating text tool');
+        console.log('📊 [EDITOR CONTEXT] Opening text panel and activating text tool');
         return {
           ...prev,
           toolState: { ...prev.toolState, selectedTool: 'text' },
@@ -172,6 +191,13 @@ export const EditorProvider = ({ children }: EditorProviderProps) => {
     setSelectedElement,
     toggleTextPanel
   };
+
+  console.log('📊 [EDITOR CONTEXT] Current context value:', {
+    toolState: state.toolState,
+    uiState: state.uiState,
+    elementsCount: state.elements.length,
+    selectedElement: state.selectedElement
+  });
 
   return (
     <EditorContext.Provider value={contextValue}>

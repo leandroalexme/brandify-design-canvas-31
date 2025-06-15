@@ -28,6 +28,12 @@ export const MainToolbar = ({
   onOpenTextPanel,
   showTextPanel
 }: MainToolbarProps) => {
+  console.log('🔧 [MAIN TOOLBAR] Rendering with props:', {
+    selectedTool,
+    selectedShape,
+    showTextPanel
+  });
+
   const { 
     toggleTextPanel,
     updateUIState,
@@ -63,6 +69,8 @@ export const MainToolbar = ({
 
   // Handler for text submenu tools
   const handleTextSubmenuToolSelect = React.useCallback((toolId: string) => {
+    console.log('🔧 [MAIN TOOLBAR] Text submenu tool selected:', toolId);
+    
     setShowAlignmentPanel(false);
     setShowColorPanel(false);
     setShowGlyphPanel(false);
@@ -76,8 +84,6 @@ export const MainToolbar = ({
         setShowGlyphPanel(true);
       } else if (toolId === 'typography') {
         // Open font panel when typography is selected
-        const centerX = window.innerWidth / 2;
-        const centerY = window.innerHeight / 2;
         handleFontPanelClose(); // Close first if open
         setTimeout(() => {
           // This will be handled by the existing font panel logic
@@ -88,29 +94,45 @@ export const MainToolbar = ({
 
   // Enhanced tool click handler that manages all UI states
   const enhancedToolClick = React.useCallback((toolId: string) => {
-    console.log('Enhanced tool click:', toolId);
+    console.log('🔧 [MAIN TOOLBAR] Enhanced tool click:', toolId);
     
     if (toolId === 'text') {
       // Toggle text panel through context
+      console.log('🔧 [MAIN TOOLBAR] Toggling text panel via context');
       toggleTextPanel();
     } else {
       // Handle other tools normally
+      console.log('🔧 [MAIN TOOLBAR] Handling tool click via useMainToolbar:', toolId);
       handleToolClick(toolId as any);
       
-      // Update UI state for other panels
-      if (toolId === 'select') {
-        // Could open layers panel or properties
-        console.log('Select tool clicked');
-      } else if (toolId === 'shapes') {
-        // Shape tool logic handled by useMainToolbar
-        console.log('Shapes tool clicked');
-      }
+      // Call the parent handler to update the state
+      onToolSelect(toolId as ToolType);
     }
-  }, [handleToolClick, toggleTextPanel]);
+  }, [handleToolClick, toggleTextPanel, onToolSelect]);
+
+  // Enhanced right click handler
+  const enhancedRightClick = React.useCallback((e: React.MouseEvent, toolId: any) => {
+    console.log('🔧 [MAIN TOOLBAR] Enhanced right click:', toolId);
+    handleToolRightClick(e, toolId);
+  }, [handleToolRightClick]);
+
+  // Enhanced double click handler
+  const enhancedDoubleClick = React.useCallback((toolId: any) => {
+    console.log('🔧 [MAIN TOOLBAR] Enhanced double click:', toolId);
+    handleToolDoubleClick(toolId);
+  }, [handleToolDoubleClick]);
 
   // Get current submenu tools
   const currentMainTool = getCurrentMainTool();
   const submenuTools = SUB_TOOL_OPTIONS[currentMainTool] || [];
+
+  console.log('🔧 [MAIN TOOLBAR] Current state:', {
+    currentMainTool,
+    showSubmenu,
+    showShapesMenu,
+    showTextPanel: uiState.showTextPropertiesPanel,
+    mainToolsCount: mainTools.length
+  });
 
   return (
     <>
@@ -123,8 +145,8 @@ export const MainToolbar = ({
           buttonRefs={buttonRefs}
           activeSubTools={activeSubTools}
           onToolClick={enhancedToolClick}
-          onToolRightClick={handleToolRightClick}
-          onToolDoubleClick={handleToolDoubleClick}
+          onToolRightClick={enhancedRightClick}
+          onToolDoubleClick={enhancedDoubleClick}
         />
       </div>
 

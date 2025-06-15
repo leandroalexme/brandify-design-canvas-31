@@ -17,6 +17,8 @@ import { useOptimizedEventListener } from '../hooks/useOptimizedEventListener';
 import { debug } from '../utils/debug';
 
 export const BrandifyStudio = () => {
+  console.log('🏢 [BRANDIFY STUDIO] Rendering component');
+  
   const {
     toolState,
     uiState,
@@ -31,6 +33,14 @@ export const BrandifyStudio = () => {
     setSelectedElement,
     toggleTextPanel
   } = useEditor();
+
+  console.log('🏢 [BRANDIFY STUDIO] Current state:', {
+    selectedTool: toolState.selectedTool,
+    showLayersPanel: uiState.showLayersPanel,
+    showAlignmentPanel: uiState.showAlignmentPanel,
+    showArtboardsPanel: uiState.showArtboardsPanel,
+    showTextPropertiesPanel: uiState.showTextPropertiesPanel
+  });
 
   const { createTextElement } = useTextCreation({
     selectedTool: toolState.selectedTool,
@@ -73,24 +83,40 @@ export const BrandifyStudio = () => {
   }, []);
 
   const handleToolSelect = useCallback((tool: ToolType) => {
-    debug.log('Tool selected', { tool }, 'toolbar');
+    console.log('🏢 [BRANDIFY STUDIO] Tool selected:', tool);
     updateToolState({ selectedTool: tool });
   }, [updateToolState]);
 
   const handleColorSelect = useCallback((color: string) => {
-    debug.log('Color selected', { color }, 'toolbar');
+    console.log('🏢 [BRANDIFY STUDIO] Color selected:', color);
     updateToolState({ selectedColor: color });
   }, [updateToolState]);
 
   const handleShapeSelect = useCallback((shape: string | null) => {
-    debug.log('Shape selected', { shape }, 'toolbar');
+    console.log('🏢 [BRANDIFY STUDIO] Shape selected:', shape);
     updateUIState({ selectedShape: shape });
   }, [updateUIState]);
 
   const handleCreateText = useCallback((x: number, y: number) => {
-    debug.log('Creating text element', { x, y }, 'canvas');
+    console.log('🏢 [BRANDIFY STUDIO] Creating text element:', { x, y });
     createTextElement(x, y);
   }, [createTextElement]);
+
+  // Handlers para botões laterais com logs
+  const handleLayersToggle = useCallback(() => {
+    console.log('🏢 [BRANDIFY STUDIO] Toggling layers panel, current:', uiState.showLayersPanel);
+    updateUIState({ showLayersPanel: !uiState.showLayersPanel });
+  }, [uiState.showLayersPanel, updateUIState]);
+
+  const handleGridToggle = useCallback(() => {
+    console.log('🏢 [BRANDIFY STUDIO] Toggling alignment panel, current:', uiState.showAlignmentPanel);
+    updateUIState({ showAlignmentPanel: !uiState.showAlignmentPanel });
+  }, [uiState.showAlignmentPanel, updateUIState]);
+
+  const handleArtboardsToggle = useCallback(() => {
+    console.log('🏢 [BRANDIFY STUDIO] Toggling artboards panel, current:', uiState.showArtboardsPanel);
+    updateUIState({ showArtboardsPanel: !uiState.showArtboardsPanel });
+  }, [uiState.showArtboardsPanel, updateUIState]);
 
   const mappedTool = getCanvasToolType(toolState.selectedTool);
 
@@ -122,11 +148,11 @@ export const BrandifyStudio = () => {
           showTextPanel={uiState.showTextPropertiesPanel}
         />
         
-        <LayersButton onClick={() => updateUIState({ showLayersPanel: !uiState.showLayersPanel })} />
-        <GridButton onClick={() => updateUIState({ showAlignmentPanel: !uiState.showAlignmentPanel })} />
-        <ArtboardsButton onClick={() => updateUIState({ showArtboardsPanel: !uiState.showArtboardsPanel })} />
+        <LayersButton onClick={handleLayersToggle} />
+        <GridButton onClick={handleGridToggle} />
+        <ArtboardsButton onClick={handleArtboardsToggle} />
         
-        {/* Lazy loaded panels */}
+        {/* Lazy loaded panels com logs */}
         {uiState.showLayersPanel && (
           <LazyPanelWrapper>
             <LazyLayersPanel
@@ -134,20 +160,29 @@ export const BrandifyStudio = () => {
               onSelectElement={selectElement}
               onUpdateElement={updateElement}
               onDeleteElement={deleteElement}
-              onClose={() => updateUIState({ showLayersPanel: false })}
+              onClose={() => {
+                console.log('🏢 [BRANDIFY STUDIO] Closing layers panel');
+                updateUIState({ showLayersPanel: false });
+              }}
             />
           </LazyPanelWrapper>
         )}
         
         {uiState.showAlignmentPanel && (
           <LazyPanelWrapper>
-            <LazyAlignmentPanel onClose={() => updateUIState({ showAlignmentPanel: false })} />
+            <LazyAlignmentPanel onClose={() => {
+              console.log('🏢 [BRANDIFY STUDIO] Closing alignment panel');
+              updateUIState({ showAlignmentPanel: false });
+            }} />
           </LazyPanelWrapper>
         )}
         
         {uiState.showArtboardsPanel && (
           <LazyPanelWrapper>
-            <LazyArtboardsPanel onClose={() => updateUIState({ showArtboardsPanel: false })} />
+            <LazyArtboardsPanel onClose={() => {
+              console.log('🏢 [BRANDIFY STUDIO] Closing artboards panel');
+              updateUIState({ showArtboardsPanel: false });
+            }} />
           </LazyPanelWrapper>
         )}
         

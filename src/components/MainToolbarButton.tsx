@@ -30,21 +30,31 @@ export const MainToolbarButton = ({
 }: MainToolbarButtonProps) => {
   const Icon = tool.icon;
   
+  console.log(`🔧 [MAIN TOOLBAR BUTTON] Rendering ${tool.id}:`, {
+    isActive,
+    hasActiveSub,
+    hasSelectedShape,
+    hasSubmenu: tool.hasSubmenu
+  });
+  
   // Show indicator for tools with active sub-tool or selected shape
   const shouldShowIndicator = tool.id !== 'text' && (hasActiveSub || hasSelectedShape);
   
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault();
+    console.log(`🔧 [MAIN TOOLBAR BUTTON] Click on ${tool.id}`);
     onClick();
   };
 
   const handleContextMenu = (e: React.MouseEvent) => {
     e.preventDefault();
+    console.log(`🔧 [MAIN TOOLBAR BUTTON] Right click on ${tool.id}`);
     onRightClick(e);
   };
 
   const handleDoubleClick = (e: React.MouseEvent) => {
     e.preventDefault();
+    console.log(`🔧 [MAIN TOOLBAR BUTTON] Double click on ${tool.id}`);
     onDoubleClick();
   };
   
