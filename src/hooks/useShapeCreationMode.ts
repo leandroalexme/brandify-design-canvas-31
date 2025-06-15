@@ -21,10 +21,10 @@ export const useShapeCreationMode = ({
   const previewShapeRef = useRef<FabricObject|null>(null);
 
   // MouseDown: inicia criação da forma
-  const handleMouseDown = useCallback((opt: fabric.IEvent<MouseEvent>) => {
+  const handleMouseDown = useCallback((options: any) => {
     if (!fabricCanvas || !selectedShape) return;
 
-    const pointer = fabricCanvas.getPointer(opt.e);
+    const pointer = fabricCanvas.getPointer(options.e);
     startPoint.current = { x: pointer.x, y: pointer.y };
     setIsDrawing(true);
 
@@ -38,9 +38,9 @@ export const useShapeCreationMode = ({
   }, [fabricCanvas, selectedShape, color]);
 
   // MouseMove: redimensiona preview durante arraste
-  const handleMouseMove = useCallback((opt: fabric.IEvent<MouseEvent>) => {
+  const handleMouseMove = useCallback((options: any) => {
     if (!fabricCanvas || !isDrawing || !startPoint.current || !selectedShape || !previewShapeRef.current) return;
-    const pointer = fabricCanvas.getPointer(opt.e);
+    const pointer = fabricCanvas.getPointer(options.e);
 
     const width = Math.abs(pointer.x - startPoint.current.x);
     const height = Math.abs(pointer.y - startPoint.current.y);
@@ -71,7 +71,7 @@ export const useShapeCreationMode = ({
   }, [fabricCanvas, isDrawing, selectedShape]);
 
   // MouseUp: fixa a forma e limpa preview
-  const handleMouseUp = useCallback((opt: fabric.IEvent<MouseEvent>) => {
+  const handleMouseUp = useCallback((options: any) => {
     if (!fabricCanvas || !isDrawing || !startPoint.current || !selectedShape || !previewShapeRef.current) return;
 
     // Remover preview visual
@@ -79,7 +79,7 @@ export const useShapeCreationMode = ({
     preview && fabricCanvas.remove(preview);
     fabricCanvas.requestRenderAll();
 
-    const pointer = fabricCanvas.getPointer(opt.e);
+    const pointer = fabricCanvas.getPointer(options.e);
     const width = Math.abs(pointer.x - startPoint.current.x);
     const height = Math.abs(pointer.y - startPoint.current.y);
     const left = Math.min(pointer.x, startPoint.current.x);
