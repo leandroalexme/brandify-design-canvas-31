@@ -121,10 +121,11 @@ export const useOptimizedAppState = () => {
 
   // Função para alternar painel específico
   const togglePanel = useCallback((panelName: keyof Pick<UIState, 'showLayersPanel' | 'showAlignmentPanel' | 'showArtboardsPanel' | 'showTextPropertiesPanel'>) => {
-    updateUIState(prev => ({
+    setUIState(prev => ({
+      ...prev,
       [panelName]: !prev[panelName]
     }));
-  }, [updateUIState]);
+  }, []);
 
   // Reset de métricas (útil para debugging)
   const resetMetrics = useCallback(() => {
