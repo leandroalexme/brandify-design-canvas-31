@@ -1,9 +1,10 @@
-
 import React, { useEffect } from 'react';
 import { DesignElement } from '../types/design';
 import { useFabricCanvas } from '../hooks/useFabricCanvas';
 import { useFabricCanvasEvents } from '../hooks/useFabricCanvasEvents';
 import { createFabricObject } from '../utils/fabricObjectFactory';
+import { useShapeCreationMode } from '../hooks/useShapeCreationMode';
+import { ShapeType } from '../utils/enhancedShapeFactory';
 
 interface FabricCanvasProps {
   elements: DesignElement[];
@@ -14,6 +15,7 @@ interface FabricCanvasProps {
   onUpdateElement: (id: string, updates: Partial<DesignElement>) => void;
   onCreateText: (x: number, y: number) => void;
   artboardColor?: string;
+  selectedShape?: ShapeType | null;
 }
 
 export const FabricCanvasComponent = ({
@@ -24,12 +26,31 @@ export const FabricCanvasComponent = ({
   onSelectElement,
   onUpdateElement,
   onCreateText,
-  artboardColor = '#ffffff'
+  artboardColor = '#ffffff',
+  selectedShape = null,
 }: FabricCanvasProps) => {
   const { canvasRef, fabricCanvas, elementMapRef } = useFabricCanvas({
     selectedTool,
     selectedColor,
     artboardColor,
+  });
+
+  // "Arrastar para criar shape" só para ferramenta shapes ativa
+  useShapeCreationMode({
+    fabricCanvas,
+    selectedShape: selectedTool === 'shapes' ? selectedShape : null,
+    color: selectedColor,
+    onAddElement: (fabricObj) => {
+      const el = {
+        type: 'shape',
+        x: fabricObj.left || 0,
+        y: fabricObj.top || 0,
+        width: fabricObj.width || 100,
+        height: fabricObj.height || 100,
+        color: selectedColor,
+      };
+      onAddElement(el);
+    }
   });
 
   // Set up canvas event handlers

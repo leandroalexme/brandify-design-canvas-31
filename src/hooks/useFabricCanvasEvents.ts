@@ -1,4 +1,3 @@
-
 import { useEffect } from 'react';
 import { Canvas as FabricCanvas } from 'fabric';
 import { DesignElement } from '../types/design';
@@ -50,19 +49,19 @@ export const useFabricCanvasEvents = ({
     };
 
     const handleCanvasClick = (e: any) => {
-      if (!e.target && selectedTool !== 'select') {
+      if (!e.target && selectedTool !== 'select' && selectedTool !== 'shapes') {
         const pointer = fabricCanvas.getPointer(e.e);
-        
         if (selectedTool === 'text') {
           onCreateText(pointer.x, pointer.y);
-        } else if (selectedTool === 'shapes') {
+        }
+        else if (selectedTool === 'pen') {
           onAddElement({
-            type: 'shape',
-            x: pointer.x - 50,
-            y: pointer.y - 50,
+            type: 'drawing',
+            x: pointer.x,
+            y: pointer.y,
             color: selectedColor,
-            width: 100,
-            height: 100,
+            width: 4,
+            height: 4,
           });
         }
       }
