@@ -1,6 +1,5 @@
 
 /* Design System Components - Updated for Unified System */
-@import './unified-design-system.css';
 
 @layer components {
   /* Legacy floating module - mantido para compatibilidade */
