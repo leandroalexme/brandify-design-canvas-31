@@ -1,15 +1,9 @@
 
 import React from 'react';
-import { MousePointer, Pen, Circle, Type } from 'lucide-react';
-import { SimpleSubmenu } from './SimpleSubmenu';
-import { ShapesMenu } from './ShapesMenu';
-import { FontConfigPanel } from './FontConfigPanel';
-import { TextPropertiesSubmenu } from './TextPropertiesSubmenu';
-import { AlignmentConfigPanel } from './AlignmentConfigPanel';
-import { ColorConfigPanel } from './ColorConfigPanel';
-import { GlyphPanel } from './GlyphPanel';
-import { MainToolbarButton } from './MainToolbarButton';
+import { MainToolbarButtons } from './toolbar/MainToolbarButtons';
+import { TextPanelsManager } from './toolbar/TextPanelsManager';
 import { useEditor } from '../contexts/EditorContext';
+import { useToolbarPosition } from '../hooks/useToolbarPosition';
 import { ToolType, MainTool } from '../types/tools';
 import { debug } from '../utils/debug';
 
@@ -33,20 +27,13 @@ export const MainToolbar = ({
   showTextPanel
 }: MainToolbarProps) => {
   const { toggleTextPanel } = useEditor();
+  const { getToolbarCenter } = useToolbarPosition();
   
   // Estados para painéis melhorados com posicionamento otimizado
   const [showAlignmentPanel, setShowAlignmentPanel] = React.useState(false);
   const [showColorPanel, setShowColorPanel] = React.useState(false);
   const [showGlyphPanel, setShowGlyphPanel] = React.useState(false);
   const [showFontPanel, setShowFontPanel] = React.useState(false);
-
-  // Calculate base position from toolbar center
-  const getToolbarCenter = React.useCallback(() => {
-    return {
-      x: window.innerWidth / 2,
-      y: window.innerHeight - 120 // Toolbar is at bottom-6 (24px) + toolbar height
-    };
-  }, []);
 
   // Simplified tool handling
   const handleToolClick = React.useCallback((toolId: MainTool) => {
@@ -115,99 +102,31 @@ export const MainToolbar = ({
     setShowFontPanel(false);
   }, []);
 
-  // Properly typed main tools array with direct icon imports
-  const mainTools: Array<{
-    id: MainTool;
-    icon: any;
-    label: string;
-    hasSubmenu: boolean;
-  }> = [
-    {
-      id: 'select',
-      icon: MousePointer,
-      label: 'Select',
-      hasSubmenu: false
-    },
-    {
-      id: 'pen',
-      icon: Pen,
-      label: 'Pen',
-      hasSubmenu: false
-    },
-    {
-      id: 'shapes',
-      icon: Circle,
-      label: 'Shapes',
-      hasSubmenu: false
-    },
-    {
-      id: 'text',
-      icon: Type,
-      label: 'Text',
-      hasSubmenu: false
-    }
-  ];
-
   return (
     <>
       <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-[400]" data-toolbar>
-        <div className="floating-module rounded-2xl p-3 flex items-center space-x-2">
-          {mainTools.map((tool) => {
-            const isActive = tool.id === 'text' ? showTextPanel : selectedTool === tool.id;
-            
-            return (
-              <MainToolbarButton
-                key={tool.id}
-                tool={tool}
-                isActive={isActive}
-                hasActiveSub={null}
-                hasSelectedShape={tool.id === 'shapes' && !!selectedShape}
-                buttonRef={() => {}}
-                onClick={() => handleToolClick(tool.id)}
-                onRightClick={() => {}}
-                onDoubleClick={() => {}}
-              />
-            );
-          })}
-        </div>
+        <MainToolbarButtons
+          selectedTool={selectedTool}
+          showTextPanel={showTextPanel}
+          selectedShape={selectedShape}
+          onToolClick={handleToolClick}
+        />
       </div>
 
-      {/* Text Properties Submenu - with improved positioning */}
-      <TextPropertiesSubmenu
-        isOpen={showTextPanel}
-        onClose={handleTextPanelClose}
-        onToolSelect={handleTextSubmenuToolSelect}
+      <TextPanelsManager
+        showTextPanel={showTextPanel}
+        showAlignmentPanel={showAlignmentPanel}
+        showColorPanel={showColorPanel}
+        showGlyphPanel={showGlyphPanel}
+        showFontPanel={showFontPanel}
         position={getToolbarCenter()}
+        onTextPanelClose={handleTextPanelClose}
+        onAlignmentPanelClose={handleAlignmentPanelClose}
+        onColorPanelClose={handleColorPanelClose}
+        onGlyphPanelClose={handleGlyphPanelClose}
+        onFontPanelClose={handleFontPanelClose}
+        onTextSubmenuToolSelect={handleTextSubmenuToolSelect}
       />
-
-      {/* Painéis melhorados - só aparecem quando texto está ativo */}
-      {showTextPanel && (
-        <>
-          <FontConfigPanel
-            isOpen={showFontPanel}
-            onClose={handleFontPanelClose}
-            position={getToolbarCenter()}
-          />
-
-          <AlignmentConfigPanel
-            isOpen={showAlignmentPanel}
-            onClose={handleAlignmentPanelClose}
-            position={getToolbarCenter()}
-          />
-
-          <ColorConfigPanel
-            isOpen={showColorPanel}
-            onClose={handleColorPanelClose}
-            position={getToolbarCenter()}
-          />
-
-          <GlyphPanel
-            isOpen={showGlyphPanel}
-            onClose={handleGlyphPanelClose}
-            position={getToolbarCenter()}
-          />
-        </>
-      )}
     </>
   );
 };
