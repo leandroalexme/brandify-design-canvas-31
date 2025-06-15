@@ -2,7 +2,7 @@
 import { useState, useCallback, useEffect, useMemo } from 'react';
 import { ToolType, MainTool, SubTool } from '../types/tools';
 import { SUB_TOOL_TO_MAIN } from '../utils/toolConfig';
-import { logger } from '../utils/validation';
+import { debug } from '../utils/debug';
 
 export interface ToolState {
   currentTool: ToolType;
@@ -41,12 +41,12 @@ export const useToolState = (initialTool: ToolType = 'select') => {
 
   // Selecionar ferramenta principal
   const selectMainTool = useCallback((tool: MainTool) => {
-    logger.debug('Selecting main tool', { tool });
+    debug.log('Selecting main tool', { tool }, 'toolbar');
     
     setState(prev => {
       // Evitar re-render desnecessário se já é a ferramenta atual
       if (prev.currentTool === tool && !prev.activeSubTools[tool]) {
-        logger.debug('Tool already selected, skipping update', { tool });
+        debug.log('Tool already selected, skipping update', { tool }, 'toolbar');
         return prev;
       }
 
@@ -72,13 +72,13 @@ export const useToolState = (initialTool: ToolType = 'select') => {
 
   // Selecionar sub-ferramenta
   const selectSubTool = useCallback((subTool: SubTool) => {
-    logger.debug('Selecting sub-tool', { subTool });
+    debug.log('Selecting sub-tool', { subTool }, 'toolbar');
     
     const mainTool = SUB_TOOL_TO_MAIN[subTool];
     setState(prev => {
       // Evitar re-render desnecessário
       if (prev.currentTool === subTool && prev.activeSubTools[mainTool] === subTool) {
-        logger.debug('Sub-tool already selected, skipping update', { subTool });
+        debug.log('Sub-tool already selected, skipping update', { subTool }, 'toolbar');
         return prev;
       }
 
@@ -104,12 +104,12 @@ export const useToolState = (initialTool: ToolType = 'select') => {
 
   // Retornar para ferramenta principal
   const returnToMainTool = useCallback((mainTool: MainTool) => {
-    logger.debug('Returning to main tool', { mainTool });
+    debug.log('Returning to main tool', { mainTool }, 'toolbar');
     
     setState(prev => {
       // Evitar re-render desnecessário
       if (prev.currentTool === mainTool && !prev.activeSubTools[mainTool]) {
-        logger.debug('Already on main tool, skipping update', { mainTool });
+        debug.log('Already on main tool, skipping update', { mainTool }, 'toolbar');
         return prev;
       }
 
@@ -132,7 +132,7 @@ export const useToolState = (initialTool: ToolType = 'select') => {
 
   // Mostrar/esconder submenu
   const toggleSubmenu = useCallback((toolId: string | null, position?: { x: number; y: number }) => {
-    logger.debug('Toggling submenu', { toolId, position });
+    debug.log('Toggling submenu', { toolId, position }, 'toolbar');
     
     setState(prev => ({
       ...prev,
@@ -150,13 +150,13 @@ export const useToolState = (initialTool: ToolType = 'select') => {
       
       if (!isToolbarClick && !isSubmenuClick) {
         if (state.showSubmenu) {
-          logger.debug('Clicking outside submenu, closing');
+          debug.log('Clicking outside submenu, closing', undefined, 'toolbar');
           setState(prev => ({ ...prev, showSubmenu: null }));
         }
         
         if (isSubTool(state.currentTool)) {
           const mainTool = SUB_TOOL_TO_MAIN[state.currentTool];
-          logger.debug('Clicking outside, returning to main tool', { mainTool });
+          debug.log('Clicking outside, returning to main tool', { mainTool }, 'toolbar');
           returnToMainTool(mainTool);
         }
       }

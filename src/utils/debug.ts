@@ -13,7 +13,7 @@ interface DebugConfig {
 const DEBUG_CONFIG: DebugConfig = {
   enabled: process.env.NODE_ENV === 'development',
   modules: {
-    toolbar: false,
+    toolbar: true, // Habilitado temporariamente para debug
     canvas: false,
     elements: false,
     state: false,

@@ -1,5 +1,7 @@
+
 import { ToolType, MainTool, SubTool } from '../types/tools';
 import { DesignElement } from '../types/design';
+import { debug } from './debug';
 
 // Validação de tipos de ferramenta
 export const isMainTool = (tool: string): tool is MainTool => {
@@ -37,22 +39,4 @@ export const isValidPosition = (position: any): position is { x: number; y: numb
     !isNaN(position.x) &&
     !isNaN(position.y)
   );
-};
-
-// Logger para debugging
-export const logger = {
-  error: (message: string, data?: any) => {
-    console.error(`[Brandify Studio Error]: ${message}`, data);
-  },
-  warn: (message: string, data?: any) => {
-    console.warn(`[Brandify Studio Warning]: ${message}`, data);
-  },
-  info: (message: string, data?: any) => {
-    console.log(`[Brandify Studio Info]: ${message}`, data);
-  },
-  debug: (message: string, data?: any) => {
-    if (process.env.NODE_ENV === 'development') {
-      console.debug(`[Brandify Studio Debug]: ${message}`, data);
-    }
-  }
 };

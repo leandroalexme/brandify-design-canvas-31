@@ -3,7 +3,7 @@ import React, { useRef, useMemo } from 'react';
 import { ToolType, MainTool } from '../types/tools';
 import { TOOL_ICONS, TOOL_LABELS } from '../utils/toolConfig';
 import { SHAPE_ICONS } from '../utils/shapeIcons';
-import { logger } from '../utils/validation';
+import { debug } from '../utils/debug';
 
 interface ToolDefinition {
   id: MainTool;
@@ -28,7 +28,7 @@ export const useMainToolbarState = (
 
   // Definição das ferramentas principais - memoizado para performance
   const mainTools: ToolDefinition[] = useMemo(() => {
-    logger.debug('Recalculating main tools', { activeSubTools, selectedShape });
+    debug.log('Recalculating main tools', { activeSubTools, selectedShape }, 'toolbar');
     
     return [
       {
