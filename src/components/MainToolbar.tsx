@@ -137,7 +137,8 @@ export const MainToolbar = ({
               showTextPanel : 
               (!showTextPanel && getCurrentMainTool() === tool.id);
             
-            const hasActiveSub = !showTextPanel && activeSubTools[tool.id];
+            // Fix: Ensure hasActiveSub is properly typed - only pass SubTool or null
+            const hasActiveSub = !showTextPanel && activeSubTools[tool.id] ? activeSubTools[tool.id] : null;
             const hasSelectedShape = tool.id === 'shapes' && !!selectedShape;
             
             return (
