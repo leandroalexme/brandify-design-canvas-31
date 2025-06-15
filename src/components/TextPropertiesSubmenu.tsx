@@ -1,6 +1,6 @@
 
 import React, { useRef, useEffect } from 'react';
-import { Type, AlignLeft, AlignCenter, AlignRight, Settings, FileType, Columns2, Palette, Sparkles, X } from 'lucide-react';
+import { Type, AlignCenter, Settings, FileType, Columns2, Palette, Sparkles, X } from 'lucide-react';
 
 interface TextPropertiesSubmenuProps {
   isOpen: boolean;
@@ -19,9 +19,7 @@ export const TextPropertiesSubmenu = ({
 
   const textTools = [
     { id: 'typography', icon: Type, label: 'Tipografia' },
-    { id: 'align-left', icon: AlignLeft, label: 'Alinhar à Esquerda' },
-    { id: 'align-center', icon: AlignCenter, label: 'Centralizar' },
-    { id: 'align-right', icon: AlignRight, label: 'Alinhar à Direita' },
+    { id: 'alignment', icon: AlignCenter, label: 'Alinhamento' },
     { id: 'advanced', icon: Settings, label: 'Modo Avançado' },
     { id: 'glyph', icon: FileType, label: 'Glyph' },
     { id: 'columns', icon: Columns2, label: 'Colunas' },

@@ -4,6 +4,7 @@ import { SimpleSubmenu } from './SimpleSubmenu';
 import { ShapesMenu } from './ShapesMenu';
 import { FontConfigPanel } from './FontConfigPanel';
 import { TextPropertiesSubmenu } from './TextPropertiesSubmenu';
+import { AlignmentConfigPanel } from './AlignmentConfigPanel';
 import { MainToolbarButton } from './MainToolbarButton';
 import { useMainToolbar } from '../hooks/useMainToolbar';
 import { ToolType } from '../types/tools';
@@ -28,6 +29,10 @@ export const MainToolbar = ({
   onOpenTextPanel,
   showTextPanel
 }: MainToolbarProps) => {
+  // Estado para o painel de alinhamento
+  const [showAlignmentPanel, setShowAlignmentPanel] = React.useState(false);
+  const [alignmentPanelPosition, setAlignmentPanelPosition] = React.useState({ x: 120, y: 200 });
+
   const {
     mainTools,
     buttonRefs,
@@ -92,11 +97,24 @@ export const MainToolbar = ({
         // Simular o comportamento do submenu existente para abrir o font panel
         handleSubToolSelect('fontConfig');
       }
+    } else if (toolId === 'alignment') {
+      // Abrir o painel de alinhamento
+      console.log('📐 [MAIN TOOLBAR] Opening alignment config panel');
+      
+      const position = { x: 120, y: 200 };
+      setAlignmentPanelPosition(position);
+      setShowAlignmentPanel(true);
     } else {
       // Para outras ferramentas, apenas log por enquanto
       console.log('📝 [MAIN TOOLBAR] Text tool not implemented yet:', toolId);
     }
   }, [handleSubToolSelect, buttonRefs]);
+
+  // Handler para fechar o painel de alinhamento
+  const handleAlignmentPanelClose = React.useCallback(() => {
+    console.log('📐 [MAIN TOOLBAR] Closing alignment panel');
+    setShowAlignmentPanel(false);
+  }, []);
 
   return (
     <>
@@ -135,7 +153,7 @@ export const MainToolbar = ({
         />
       )}
 
-      {/* Novo submenu de propriedades de texto */}
+      {/* Submenu de propriedades de texto */}
       <TextPropertiesSubmenu
         isOpen={showTextPanel}
         onClose={() => onOpenTextPanel()}
@@ -152,11 +170,18 @@ export const MainToolbar = ({
         selectedShape={selectedShape}
       />
 
-      {/* Painel de configuração de fonte - agora vinculado à tipografia */}
+      {/* Painel de configuração de fonte - vinculado à tipografia */}
       <FontConfigPanel
         isOpen={showFontPanel}
         onClose={handleFontPanelClose}
         position={fontPanelPosition}
+      />
+
+      {/* Novo painel de configuração de alinhamento */}
+      <AlignmentConfigPanel
+        isOpen={showAlignmentPanel}
+        onClose={handleAlignmentPanelClose}
+        position={alignmentPanelPosition}
       />
     </>
   );
