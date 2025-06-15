@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { SimpleSubmenu } from './SimpleSubmenu';
 import { ShapesMenu } from './ShapesMenu';
@@ -33,13 +32,16 @@ export const MainToolbar = ({
 }: MainToolbarProps) => {
   // Estados para painéis melhorados com posicionamento otimizado
   const [showAlignmentPanel, setShowAlignmentPanel] = React.useState(false);
-  const [alignmentPanelPosition, setAlignmentPanelPosition] = React.useState({ x: 200, y: 200 });
-
   const [showColorPanel, setShowColorPanel] = React.useState(false);
-  const [colorPanelPosition, setColorPanelPosition] = React.useState({ x: 350, y: 200 });
-
   const [showGlyphPanel, setShowGlyphPanel] = React.useState(false);
-  const [glyphPanelPosition, setGlyphPanelPosition] = React.useState({ x: 500, y: 200 });
+
+  // Calculate base position from toolbar center
+  const getToolbarCenter = React.useCallback(() => {
+    return {
+      x: window.innerWidth / 2,
+      y: window.innerHeight - 120 // Toolbar is at bottom-6 (24px) + toolbar height
+    };
+  }, []);
 
   const {
     mainTools,
@@ -77,41 +79,43 @@ export const MainToolbar = ({
     }
   }, [handleTextToolClick, handleToolClick]);
 
-  // Handler melhorado para ferramentas do submenu de texto
+  // Enhanced handler for text submenu tools with intelligent positioning
   const handleTextSubmenuToolSelect = React.useCallback((toolId: string) => {
     console.log('📝 [MAIN TOOLBAR] Text submenu tool selected:', toolId);
     
-    // Calcular posições baseadas na posição do submenu
-    const baseX = 250;
-    const baseY = 120;
+    const toolbarCenter = getToolbarCenter();
     
-    if (toolId === 'typography') {
-      console.log('📝 [MAIN TOOLBAR] Opening font config panel from typography tool');
-      
-      const fontPanelButton = buttonRefs.current['text'];
-      if (fontPanelButton) {
-        const rect = fontPanelButton.getBoundingClientRect();
-        const buttonPosition = {
-          x: rect.left + rect.width / 2,
-          y: rect.top
-        };
-        
-        handleSubToolSelect('fontConfig');
+    // Close all panels first to avoid conflicts
+    setShowAlignmentPanel(false);
+    setShowColorPanel(false);
+    setShowGlyphPanel(false);
+    
+    // Small delay to ensure clean transitions
+    setTimeout(() => {
+      if (toolId === 'typography') {
+        console.log('📝 [MAIN TOOLBAR] Opening font config panel');
+        const fontPanelButton = buttonRefs.current['text'];
+        if (fontPanelButton) {
+          const rect = fontPanelButton.getBoundingClientRect();
+          const buttonPosition = {
+            x: rect.left + rect.width / 2,
+            y: rect.top
+          };
+          
+          handleSubToolSelect('fontConfig');
+        }
+      } else if (toolId === 'alignment') {
+        console.log('📐 [MAIN TOOLBAR] Opening alignment config panel');
+        setShowAlignmentPanel(true);
+      } else if (toolId === 'color') {
+        console.log('🎨 [MAIN TOOLBAR] Opening color config panel');  
+        setShowColorPanel(true);
+      } else if (toolId === 'glyph') {
+        console.log('🔤 [MAIN TOOLBAR] Opening glyph panel');
+        setShowGlyphPanel(true);
       }
-    } else if (toolId === 'alignment') {
-      console.log('📐 [MAIN TOOLBAR] Opening alignment config panel');
-      setAlignmentPanelPosition({ x: baseX, y: baseY });
-      setShowAlignmentPanel(true);
-    } else if (toolId === 'color') {
-      console.log('🎨 [MAIN TOOLBAR] Opening color config panel');
-      setColorPanelPosition({ x: baseX + 150, y: baseY });
-      setShowColorPanel(true);
-    } else if (toolId === 'glyph') {
-      console.log('🔤 [MAIN TOOLBAR] Opening glyph panel');
-      setGlyphPanelPosition({ x: baseX + 300, y: baseY });
-      setShowGlyphPanel(true);
-    }
-  }, [handleSubToolSelect, buttonRefs]);
+    }, 100);
+  }, [handleSubToolSelect, buttonRefs, getToolbarCenter]);
 
   // Handlers para fechar painéis
   const handleAlignmentPanelClose = React.useCallback(() => {
@@ -176,12 +180,12 @@ export const MainToolbar = ({
         />
       )}
 
-      {/* Submenu de propriedades de texto - melhorado */}
+      {/* Text Properties Submenu - with improved positioning */}
       <TextPropertiesSubmenu
         isOpen={showTextPanel}
         onClose={handleTextPanelClose}
         onToolSelect={handleTextSubmenuToolSelect}
-        position={{ x: 50, y: 120 }}
+        position={getToolbarCenter()}
       />
 
       {/* Menu de formas */}
@@ -201,25 +205,25 @@ export const MainToolbar = ({
           <FontConfigPanel
             isOpen={showFontPanel}
             onClose={handleFontPanelClose}
-            position={fontPanelPosition}
+            position={getToolbarCenter()}
           />
 
           <AlignmentConfigPanel
             isOpen={showAlignmentPanel}
             onClose={handleAlignmentPanelClose}
-            position={alignmentPanelPosition}
+            position={getToolbarCenter()}
           />
 
           <ColorConfigPanel
             isOpen={showColorPanel}
             onClose={handleColorPanelClose}
-            position={colorPanelPosition}
+            position={getToolbarCenter()}
           />
 
           <GlyphPanel
             isOpen={showGlyphPanel}
             onClose={handleGlyphPanelClose}
-            position={glyphPanelPosition}
+            position={getToolbarCenter()}
           />
         </>
       )}

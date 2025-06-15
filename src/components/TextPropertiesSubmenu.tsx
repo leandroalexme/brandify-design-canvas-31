@@ -13,11 +13,10 @@ export const TextPropertiesSubmenu = ({
   isOpen, 
   onClose, 
   onToolSelect,
-  position = { x: 32, y: 120 }
+  position = { x: 0, y: 0 }
 }: TextPropertiesSubmenuProps) => {
   const menuRef = useRef<HTMLDivElement>(null);
 
-  // Ferramentas funcionais do submenu de texto
   const textTools = [
     { id: 'typography', icon: Type, label: 'Tipografia' },
     { id: 'alignment', icon: AlignCenter, label: 'Alinhamento' },
@@ -52,57 +51,56 @@ export const TextPropertiesSubmenu = ({
 
   if (!isOpen) return null;
 
+  // Calculate optimal position centered on the toolbar
+  const optimalPosition = {
+    x: position.x - 140, // Center the 280px wide panel
+    y: position.y - 80   // Position above toolbar with spacing
+  };
+
   return (
     <div 
       ref={menuRef}
-      className="fixed z-[450] animate-scale-in-60fps"
+      className="text-panel-container animate-scale-in-60fps"
       style={{
-        left: position.x,
-        top: position.y
+        left: Math.max(16, Math.min(optimalPosition.x, window.innerWidth - 296)),
+        top: Math.max(16, optimalPosition.y)
       }}
       data-text-submenu
     >
-      <div className="floating-module rounded-2xl p-2">
-        {/* Header minimalista */}
-        <div className="flex items-center justify-between mb-3 px-2">
-          <div className="w-1 h-4 bg-blue-500 rounded-full" />
-          <button
-            onClick={onClose}
-            className="w-6 h-6 rounded-lg bg-slate-700/60 hover:bg-red-500/80 
-                     flex items-center justify-center text-slate-400 hover:text-white 
-                     transition-all duration-100 hover:scale-105 active:scale-95"
-            title="Fechar"
-          >
-            <X className="w-3 h-3" />
-          </button>
-        </div>
-
-        {/* Tools em layout horizontal */}
-        <div className="flex items-center gap-2">
-          {textTools.map((tool, index) => {
-            const Icon = tool.icon;
-            
-            return (
-              <button
-                key={tool.id}
-                className="w-12 h-12 rounded-xl bg-slate-700/40 hover:bg-slate-600/60 
-                         border border-slate-600/40 hover:border-blue-500/60
-                         flex items-center justify-center text-slate-300 hover:text-white 
-                         transition-all duration-100 hover:scale-105 active:scale-95
-                         animate-stagger-fade"
-                style={{ 
-                  animationDelay: `${index * 0.05}s`,
-                  animationFillMode: 'both'
-                }}
-                onClick={() => handleToolClick(tool.id)}
-                title={tool.label}
-              >
-                <Icon className="w-6 h-6" />
-              </button>
-            );
-          })}
-        </div>
+      <div className="text-panel-header">
+        <div className="text-panel-indicator" />
+        <Type className="w-5 h-5 text-blue-400" />
+        <span className="panel-title-text">Texto</span>
       </div>
+
+      <div className="text-panel-tools">
+        {textTools.map((tool, index) => {
+          const Icon = tool.icon;
+          
+          return (
+            <button
+              key={tool.id}
+              className="text-panel-tool-button animate-stagger-fade"
+              style={{ 
+                animationDelay: `${index * 0.05}s`,
+                animationFillMode: 'both'
+              }}
+              onClick={() => handleToolClick(tool.id)}
+              title={tool.label}
+            >
+              <Icon className="w-6 h-6" />
+            </button>
+          );
+        })}
+      </div>
+
+      <button
+        onClick={onClose}
+        className="text-panel-close-button"
+        title="Fechar"
+      >
+        <X className="w-3 h-3" />
+      </button>
     </div>
   );
 };
