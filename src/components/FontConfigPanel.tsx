@@ -1,6 +1,7 @@
 
-import React, { useState, useCallback, useRef, useEffect } from 'react';
-import { ChevronDown, Minus, Plus, Bold, Italic, Underline, X, GripVertical, Type } from 'lucide-react';
+import React, { useState } from 'react';
+import { ChevronDown, Minus, Plus, Bold, Italic, Underline } from 'lucide-react';
+import { PanelContainer } from './ui/PanelContainer';
 
 interface FontConfigPanelProps {
   isOpen: boolean;
@@ -14,81 +15,6 @@ export const FontConfigPanel = ({ isOpen, onClose, position }: FontConfigPanelPr
   const [fontSize, setFontSize] = useState(16);
   const [showFontDropdown, setShowFontDropdown] = useState(false);
   const [showWeightDropdown, setShowWeightDropdown] = useState(false);
-  
-  // Dragging state
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
-  const [panelPosition, setPanelPosition] = useState({ 
-    x: position?.x || window.innerWidth / 2 - 160, 
-    y: position?.y || window.innerHeight / 2 - 200 
-  });
-  
-  const panelRef = useRef<HTMLDivElement>(null);
-  const dragHandleRef = useRef<HTMLDivElement>(null);
-
-  // Update position when prop changes
-  useEffect(() => {
-    if (position && !isDragging) {
-      setPanelPosition({ 
-        x: position.x - 160, 
-        y: position.y - 280 
-      });
-    }
-  }, [position, isDragging]);
-
-  // Dragging handlers
-  const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    if (dragHandleRef.current?.contains(e.target as Node)) {
-      setIsDragging(true);
-      setDragOffset({
-        x: e.clientX - panelPosition.x,
-        y: e.clientY - panelPosition.y,
-      });
-    }
-  }, [panelPosition]);
-
-  const handleMouseMove = useCallback((e: MouseEvent) => {
-    if (isDragging) {
-      const newX = Math.max(16, Math.min(e.clientX - dragOffset.x, window.innerWidth - 336));
-      const newY = Math.max(16, Math.min(e.clientY - dragOffset.y, window.innerHeight - 400));
-      
-      setPanelPosition({ x: newX, y: newY });
-    }
-  }, [isDragging, dragOffset]);
-
-  const handleMouseUp = useCallback(() => {
-    setIsDragging(false);
-  }, []);
-
-  useEffect(() => {
-    if (isDragging) {
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
-      return () => {
-        document.removeEventListener('mousemove', handleMouseMove);
-        document.removeEventListener('mouseup', handleMouseUp);
-      };
-    }
-  }, [isDragging, handleMouseMove, handleMouseUp]);
-
-  // Click outside to close
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (panelRef.current && !panelRef.current.contains(event.target as Node)) {
-        onClose();
-      }
-    };
-
-    if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [isOpen, onClose]);
-
-  if (!isOpen) return null;
 
   const fonts = [
     { name: 'Roboto Sans', category: 'Sans Serif' },
@@ -114,53 +40,31 @@ export const FontConfigPanel = ({ isOpen, onClose, position }: FontConfigPanelPr
   };
 
   return (
-    <div 
-      ref={panelRef}
-      className={`fixed z-[500] animate-scale-in-60fps select-none ${isDragging ? 'cursor-grabbing' : ''}`}
-      style={{ 
-        left: panelPosition.x, 
-        top: panelPosition.y,
-        willChange: 'transform'
-      }}
-      onMouseDown={handleMouseDown}
-      data-font-panel
+    <PanelContainer
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Tipografia"
+      position={position}
+      width={384}
+      height={700}
+      dataAttribute="data-font-panel"
+      isDraggable={true}
     >
-      <div className="floating-module w-80 overflow-hidden">
-        {/* Header redesenhado */}
-        <div 
-          ref={dragHandleRef}
-          className="flex items-center justify-between p-4 border-b border-slate-700/40 cursor-grab active:cursor-grabbing bg-slate-800/60 hover:bg-slate-700/60 transition-colors duration-100"
-        >
-          <div className="flex items-center gap-3">
-            <Type className="w-5 h-5 text-blue-400" />
-            <span className="text-sm font-medium text-slate-200">Tipografia</span>
-          </div>
-          <button
-            onClick={onClose}
-            className="w-6 h-6 rounded-lg bg-slate-700/60 hover:bg-red-500/80 
-                     flex items-center justify-center text-slate-400 hover:text-white 
-                     transition-all duration-100 hover:scale-105 active:scale-95"
-          >
-            <X className="w-3 h-3" />
-          </button>
-        </div>
-
-        <div className="p-6 space-y-6">
-          {/* Font Family com categorias */}
-          <div className="space-y-3">
-            <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider">
-              Família da Fonte
-            </label>
+      <div className="panel-scrollable-unified h-full">
+        <div className="panel-section-unified space-y-6">
+          {/* Font Family */}
+          <div className="space-y-4">
+            <h4 className="panel-section-title-unified">Família da Fonte</h4>
             <div className="relative">
               <button
                 onClick={() => {
                   setShowFontDropdown(!showFontDropdown);
                   setShowWeightDropdown(false);
                 }}
-                className="w-full flex items-center justify-between p-3 rounded-xl bg-slate-700/60 hover:bg-slate-600/80 border border-slate-600/40 hover:border-blue-500/60 text-slate-200 transition-all duration-100"
+                className="input-unified flex items-center justify-between cursor-pointer"
               >
                 <div className="text-left">
-                  <div className="text-sm font-medium">{selectedFont}</div>
+                  <div className="text-sm font-medium text-slate-200">{selectedFont}</div>
                   <div className="text-xs text-slate-400">
                     {fonts.find(f => f.name === selectedFont)?.category}
                   </div>
@@ -169,7 +73,7 @@ export const FontConfigPanel = ({ isOpen, onClose, position }: FontConfigPanelPr
               </button>
               
               {showFontDropdown && (
-                <div className="absolute top-full mt-2 w-full floating-module p-2 animate-fade-in-60fps z-10 max-h-64 overflow-y-auto">
+                <div className="dropdown-unified">
                   {fonts.map((font) => (
                     <button
                       key={font.name}
@@ -177,11 +81,7 @@ export const FontConfigPanel = ({ isOpen, onClose, position }: FontConfigPanelPr
                         setSelectedFont(font.name);
                         setShowFontDropdown(false);
                       }}
-                      className={`w-full text-left p-3 rounded-lg transition-colors duration-100 ${
-                        selectedFont === font.name 
-                          ? 'bg-blue-500/80 text-white' 
-                          : 'text-slate-200 hover:bg-slate-700/50'
-                      }`}
+                      className={`dropdown-item-unified ${selectedFont === font.name ? 'selected' : ''}`}
                       style={{ fontFamily: font.name }}
                     >
                       <div className="text-sm font-medium">{font.name}</div>
@@ -194,24 +94,22 @@ export const FontConfigPanel = ({ isOpen, onClose, position }: FontConfigPanelPr
           </div>
 
           {/* Font Weight */}
-          <div className="space-y-3">
-            <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider">
-              Peso da Fonte
-            </label>
+          <div className="space-y-4">
+            <h4 className="panel-section-title-unified">Peso da Fonte</h4>
             <div className="relative">
               <button
                 onClick={() => {
                   setShowWeightDropdown(!showWeightDropdown);
                   setShowFontDropdown(false);
                 }}
-                className="w-full flex items-center justify-between p-3 rounded-xl bg-slate-700/60 hover:bg-slate-600/80 border border-slate-600/40 hover:border-blue-500/60 text-slate-200 transition-all duration-100"
+                className="input-unified flex items-center justify-between cursor-pointer"
               >
-                <span className="text-sm font-medium">{selectedWeight}</span>
+                <span className="text-sm font-medium text-slate-200">{selectedWeight}</span>
                 <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${showWeightDropdown ? 'rotate-180' : ''}`} />
               </button>
               
               {showWeightDropdown && (
-                <div className="absolute top-full mt-2 w-full floating-module p-2 animate-fade-in-60fps z-10">
+                <div className="dropdown-unified">
                   {weights.map((weight) => (
                     <button
                       key={weight}
@@ -219,11 +117,7 @@ export const FontConfigPanel = ({ isOpen, onClose, position }: FontConfigPanelPr
                         setSelectedWeight(weight);
                         setShowWeightDropdown(false);
                       }}
-                      className={`w-full text-left p-3 rounded-lg text-slate-200 transition-colors duration-100 ${
-                        selectedWeight === weight 
-                          ? 'bg-blue-500/80 text-white' 
-                          : 'hover:bg-slate-700/50'
-                      }`}
+                      className={`dropdown-item-unified ${selectedWeight === weight ? 'selected' : ''}`}
                     >
                       {weight}
                     </button>
@@ -233,22 +127,18 @@ export const FontConfigPanel = ({ isOpen, onClose, position }: FontConfigPanelPr
             </div>
           </div>
 
-          {/* Font Size com presets */}
-          <div className="space-y-3">
-            <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider">
-              Tamanho da Fonte
-            </label>
+          {/* Font Size */}
+          <div className="space-y-4">
+            <h4 className="panel-section-title-unified">Tamanho da Fonte</h4>
             
             {/* Presets rápidos */}
-            <div className="flex gap-2 mb-3">
+            <div className="grid-unified-auto">
               {sizePresets.map((preset) => (
                 <button
                   key={preset.label}
                   onClick={() => setFontSize(preset.size)}
-                  className={`px-3 py-1.5 rounded-lg text-xs transition-all duration-100 ${
-                    fontSize === preset.size
-                      ? 'bg-blue-500/80 text-white'
-                      : 'bg-slate-700/60 text-slate-300 hover:bg-slate-600/80'
+                  className={`button-secondary-unified text-xs ${
+                    fontSize === preset.size ? 'bg-blue-500/80 text-white border-blue-400/60' : ''
                   }`}
                 >
                   {preset.label}
@@ -260,7 +150,7 @@ export const FontConfigPanel = ({ isOpen, onClose, position }: FontConfigPanelPr
             <div className="flex items-center gap-4">
               <button
                 onClick={() => handleFontSizeChange(fontSize - 1)}
-                className="w-10 h-10 rounded-full bg-slate-700/60 hover:bg-slate-600/80 flex items-center justify-center text-slate-300 hover:text-white transition-all duration-100"
+                className="button-icon-unified"
               >
                 <Minus className="w-4 h-4" />
               </button>
@@ -270,7 +160,7 @@ export const FontConfigPanel = ({ isOpen, onClose, position }: FontConfigPanelPr
                   type="number"
                   value={fontSize}
                   onChange={(e) => handleFontSizeChange(parseInt(e.target.value) || fontSize)}
-                  className="w-full text-center text-xl font-bold bg-transparent text-slate-200 border-b border-slate-600 focus:border-blue-500 outline-none py-1"
+                  className="input-unified text-center text-xl font-bold"
                   min="8"
                   max="72"
                 />
@@ -279,7 +169,7 @@ export const FontConfigPanel = ({ isOpen, onClose, position }: FontConfigPanelPr
               
               <button
                 onClick={() => handleFontSizeChange(fontSize + 1)}
-                className="w-10 h-10 rounded-full bg-blue-500/80 hover:bg-blue-400/90 flex items-center justify-center text-white transition-all duration-100"
+                className="button-icon-unified bg-blue-500/80 border-blue-400/60 text-white"
               >
                 <Plus className="w-4 h-4" />
               </button>
@@ -287,11 +177,9 @@ export const FontConfigPanel = ({ isOpen, onClose, position }: FontConfigPanelPr
           </div>
 
           {/* Text Styles */}
-          <div className="space-y-3">
-            <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider">
-              Estilos
-            </label>
-            <div className="flex gap-2">
+          <div className="space-y-4">
+            <h4 className="panel-section-title-unified">Estilos</h4>
+            <div className="grid-unified-3">
               {[
                 { icon: Bold, label: 'Negrito' },
                 { icon: Italic, label: 'Itálico' },
@@ -299,7 +187,7 @@ export const FontConfigPanel = ({ isOpen, onClose, position }: FontConfigPanelPr
               ].map(({ icon: Icon, label }) => (
                 <button 
                   key={label}
-                  className="flex-1 h-10 rounded-lg bg-slate-700/60 hover:bg-slate-600/80 border border-slate-600/40 hover:border-blue-500/60 flex items-center justify-center text-slate-300 hover:text-white transition-all duration-100"
+                  className="button-icon-unified"
                   title={label}
                 >
                   <Icon className="w-5 h-5" />
@@ -308,11 +196,9 @@ export const FontConfigPanel = ({ isOpen, onClose, position }: FontConfigPanelPr
             </div>
           </div>
 
-          {/* Preview melhorado */}
-          <div className="space-y-3">
-            <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider">
-              Visualização
-            </label>
+          {/* Preview */}
+          <div className="space-y-4">
+            <h4 className="panel-section-title-unified">Visualização</h4>
             <div 
               className="p-4 rounded-xl bg-slate-700/30 border border-slate-600/30 min-h-[60px] flex items-center justify-center"
               style={{
@@ -327,6 +213,6 @@ export const FontConfigPanel = ({ isOpen, onClose, position }: FontConfigPanelPr
           </div>
         </div>
       </div>
-    </div>
+    </PanelContainer>
   );
 };

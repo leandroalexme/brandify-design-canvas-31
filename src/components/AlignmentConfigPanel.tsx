@@ -1,6 +1,7 @@
 
-import React, { useRef, useEffect } from 'react';
-import { AlignLeft, AlignCenter, AlignRight, MoveUp, MoveDown, ArrowUpDown, X } from 'lucide-react';
+import React from 'react';
+import { AlignLeft, AlignCenter, AlignRight, MoveUp, MoveDown, ArrowUpDown } from 'lucide-react';
+import { PanelContainer } from './ui/PanelContainer';
 
 interface AlignmentConfigPanelProps {
   isOpen: boolean;
@@ -13,8 +14,6 @@ export const AlignmentConfigPanel = ({
   onClose, 
   position = { x: 120, y: 200 }
 }: AlignmentConfigPanelProps) => {
-  const panelRef = useRef<HTMLDivElement>(null);
-
   const alignmentTools = [
     // Linha 1: Alinhamento horizontal
     { id: 'align-left', icon: AlignLeft, label: 'Alinhar à Esquerda' },
@@ -32,71 +31,29 @@ export const AlignmentConfigPanel = ({
     // Implementar lógica específica para cada ferramenta de alinhamento
   };
 
-  // Handle click outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (panelRef.current && !panelRef.current.contains(event.target as Node)) {
-        onClose();
-      }
-    };
-
-    if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [isOpen, onClose]);
-
-  if (!isOpen) return null;
-
   return (
-    <div 
-      ref={panelRef}
-      className="fixed z-[500] animate-scale-in-60fps"
-      style={{
-        left: position.x,
-        top: position.y
-      }}
-      data-alignment-panel
+    <PanelContainer
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Alinhamento"
+      position={position}
+      width={384}
+      dataAttribute="data-alignment-panel"
+      isDraggable={true}
     >
-      <div className="floating-module w-72 overflow-hidden">
-        {/* Header redesenhado */}
-        <div className="flex items-center justify-between p-4 border-b border-slate-700/40">
-          <div className="flex items-center gap-3">
-            <div className="w-1 h-4 bg-green-500 rounded-full" />
-            <span className="text-sm font-medium text-slate-200">Alinhamento</span>
-          </div>
-          <button
-            onClick={onClose}
-            className="w-6 h-6 rounded-lg bg-slate-700/60 hover:bg-red-500/80 
-                     flex items-center justify-center text-slate-400 hover:text-white 
-                     transition-all duration-100 hover:scale-105 active:scale-95"
-            title="Fechar"
-          >
-            <X className="w-3 h-3" />
-          </button>
-        </div>
-
-        <div className="p-4 space-y-4">
+      <div className="panel-scrollable-unified">
+        <div className="panel-section-unified space-y-6">
           {/* Seção de Alinhamento Horizontal */}
-          <div className="space-y-3">
-            <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider">
-              Alinhamento Horizontal
-            </label>
-            <div className="grid grid-cols-3 gap-2">
+          <div className="space-y-4">
+            <h4 className="panel-section-title-unified">Alinhamento Horizontal</h4>
+            <div className="grid-unified-3">
               {alignmentTools.slice(0, 3).map((tool, index) => {
                 const IconComponent = tool.icon;
                 
                 return (
                   <button
                     key={tool.id}
-                    className="w-full h-12 rounded-xl bg-slate-700/40 hover:bg-slate-600/60 
-                             border border-slate-600/40 hover:border-green-500/60
-                             flex items-center justify-center text-slate-300 hover:text-white 
-                             transition-all duration-100 hover:scale-105 active:scale-95
-                             animate-stagger-fade"
+                    className="button-icon-unified animate-stagger-fade"
                     style={{ 
                       animationDelay: `${index * 0.05}s`,
                       animationFillMode: 'both'
@@ -116,22 +73,16 @@ export const AlignmentConfigPanel = ({
           </div>
 
           {/* Seção de Alinhamento Vertical */}
-          <div className="space-y-3">
-            <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider">
-              Alinhamento Vertical
-            </label>
-            <div className="grid grid-cols-3 gap-2">
+          <div className="space-y-4">
+            <h4 className="panel-section-title-unified">Alinhamento Vertical</h4>
+            <div className="grid-unified-3">
               {alignmentTools.slice(3, 6).map((tool, index) => {
                 const IconComponent = tool.icon;
                 
                 return (
                   <button
                     key={tool.id}
-                    className="w-full h-12 rounded-xl bg-slate-700/40 hover:bg-slate-600/60 
-                             border border-slate-600/40 hover:border-green-500/60
-                             flex items-center justify-center text-slate-300 hover:text-white 
-                             transition-all duration-100 hover:scale-105 active:scale-95
-                             animate-stagger-fade"
+                    className="button-icon-unified animate-stagger-fade"
                     style={{ 
                       animationDelay: `${(index + 3) * 0.05}s`,
                       animationFillMode: 'both'
@@ -151,6 +102,6 @@ export const AlignmentConfigPanel = ({
           </div>
         </div>
       </div>
-    </div>
+    </PanelContainer>
   );
 };

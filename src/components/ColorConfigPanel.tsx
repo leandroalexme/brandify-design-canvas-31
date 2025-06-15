@@ -1,6 +1,6 @@
 
-import React, { useRef, useEffect, useState } from 'react';
-import { X, Palette } from 'lucide-react';
+import React, { useState } from 'react';
+import { PanelContainer } from './ui/PanelContainer';
 import { ColorWheel } from './ColorWheel';
 import { OpacitySlider } from './OpacitySlider';
 import { ColorPreview } from './ColorPreview';
@@ -16,7 +16,6 @@ export const ColorConfigPanel = ({
   onClose, 
   position = { x: 120, y: 200 }
 }: ColorConfigPanelProps) => {
-  const panelRef = useRef<HTMLDivElement>(null);
   const [opacity, setOpacity] = useState(100);
   const [selectedColor, setSelectedColor] = useState('#3B82F6');
   const [hue, setHue] = useState(217);
@@ -92,59 +91,22 @@ export const ColorConfigPanel = ({
     };
   };
 
-  // Handle click outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (panelRef.current && !panelRef.current.contains(event.target as Node)) {
-        onClose();
-      }
-    };
-
-    if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [isOpen, onClose]);
-
-  if (!isOpen) return null;
-
   return (
-    <div 
-      ref={panelRef}
-      className="fixed z-[500] animate-scale-in-60fps"
-      style={{
-        left: position.x,
-        top: position.y
-      }}
-      data-color-panel
+    <PanelContainer
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Cor"
+      position={position}
+      width={384}
+      height={600}
+      dataAttribute="data-color-panel"
+      isDraggable={true}
     >
-      <div className="floating-module w-80 overflow-hidden">
-        {/* Header redesenhado */}
-        <div className="flex items-center justify-between p-4 border-b border-slate-700/40">
-          <div className="flex items-center gap-3">
-            <Palette className="w-5 h-5 text-purple-400" />
-            <span className="text-sm font-medium text-slate-200">Cor</span>
-          </div>
-          <button
-            onClick={onClose}
-            className="w-6 h-6 rounded-lg bg-slate-700/60 hover:bg-red-500/80 
-                     flex items-center justify-center text-slate-400 hover:text-white 
-                     transition-all duration-100 hover:scale-105 active:scale-95"
-            title="Fechar"
-          >
-            <X className="w-3 h-3" />
-          </button>
-        </div>
-
-        <div className="p-4 space-y-6">
-          {/* Color Wheel maior */}
-          <div className="space-y-3">
-            <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider">
-              Seletor de Cor
-            </label>
+      <div className="panel-scrollable-unified h-full">
+        <div className="panel-section-unified space-y-6">
+          {/* Color Wheel */}
+          <div className="space-y-4">
+            <h4 className="panel-section-title-unified">Seletor de Cor</h4>
             <ColorWheel
               hue={hue}
               saturation={saturation}
@@ -154,15 +116,13 @@ export const ColorConfigPanel = ({
           </div>
 
           {/* Cores Recentes */}
-          <div className="space-y-3">
-            <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider">
-              Cores Recentes
-            </label>
-            <div className="grid grid-cols-8 gap-2">
+          <div className="space-y-4">
+            <h4 className="panel-section-title-unified">Cores Recentes</h4>
+            <div className="grid grid-cols-8 gap-3">
               {recentColors.map((color, index) => (
                 <button
                   key={index}
-                  className="w-8 h-8 rounded-lg border-2 border-slate-600/40 hover:border-slate-500/60 transition-all duration-100 hover:scale-110"
+                  className="w-10 h-10 rounded-xl border-2 border-slate-600/40 hover:border-slate-500/60 transition-all duration-150 hover:scale-110"
                   style={{ backgroundColor: color }}
                   onClick={() => handleRecentColorSelect(color)}
                   title={`Usar cor ${color}`}
@@ -172,27 +132,28 @@ export const ColorConfigPanel = ({
           </div>
 
           {/* Opacity Slider */}
-          <div className="space-y-3">
-            <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider">
-              Opacidade
-            </label>
+          <div className="space-y-4">
+            <h4 className="panel-section-title-unified">Opacidade</h4>
             <OpacitySlider
               opacity={opacity}
               onOpacityChange={setOpacity}
             />
           </div>
 
-          {/* Color Preview melhorado */}
-          <ColorPreview
-            selectedColor={selectedColor}
-            opacity={opacity}
-            hue={hue}
-            saturation={saturation}
-            lightness={lightness}
-            onAddToPalette={handleAddToPalette}
-          />
+          {/* Color Preview */}
+          <div className="space-y-4">
+            <h4 className="panel-section-title-unified">Visualização</h4>
+            <ColorPreview
+              selectedColor={selectedColor}
+              opacity={opacity}
+              hue={hue}
+              saturation={saturation}
+              lightness={lightness}
+              onAddToPalette={handleAddToPalette}
+            />
+          </div>
         </div>
       </div>
-    </div>
+    </PanelContainer>
   );
 };

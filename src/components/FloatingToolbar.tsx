@@ -1,7 +1,6 @@
 
 import React, { useState } from 'react';
-import { MousePointer, Type, Circle, Pen, Eraser, Move } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { MousePointer, Type, Circle, Pen, Eraser } from 'lucide-react';
 import { ColorPicker } from './ColorPicker';
 
 interface FloatingToolbarProps {
@@ -61,7 +60,7 @@ export const FloatingToolbar = ({ selectedTool, onToolSelect, selectedColor, onC
 
   return (
     <div
-      className="fixed z-50 floating-module p-4 flex flex-col items-center space-y-3"
+      className="fixed z-[400] panel-container-unified p-4 flex flex-col items-center space-y-3 animate-scale-in-60fps"
       style={{ left: position.x, top: position.y }}
       onMouseDown={handleMouseDown}
     >
@@ -69,26 +68,21 @@ export const FloatingToolbar = ({ selectedTool, onToolSelect, selectedColor, onC
       <div className="w-8 h-1 bg-slate-600 rounded-full cursor-move mb-2" />
       
       {tools.map((tool) => (
-        <Button
+        <button
           key={tool.id}
-          variant={selectedTool === tool.id ? "default" : "ghost"}
-          size="lg"
-          className={`w-12 h-12 rounded-2xl transition-all duration-200 ${
-            selectedTool === tool.id 
-              ? 'bg-gradient-to-br from-blue-500 to-purple-600 text-white shadow-lg shadow-blue-500/25' 
-              : 'hover:bg-slate-700 text-slate-300'
-          }`}
+          className={`tool-button ${selectedTool === tool.id ? 'active' : ''}`}
           onClick={() => onToolSelect(tool.id as any)}
+          title={tool.label}
         >
           <tool.icon className="w-5 h-5" />
-        </Button>
+        </button>
       ))}
       
       <div className="w-full h-px bg-slate-700 my-2" />
       
       <div className="relative">
         <button
-          className="w-12 h-12 rounded-2xl border-4 border-slate-600 shadow-lg transition-transform hover:scale-105"
+          className="w-12 h-12 rounded-xl border-4 border-slate-600 shadow-lg transition-transform hover:scale-105"
           style={{ backgroundColor: selectedColor }}
           onClick={() => setShowColorPicker(!showColorPicker)}
         />

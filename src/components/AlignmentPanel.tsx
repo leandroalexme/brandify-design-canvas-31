@@ -1,7 +1,6 @@
 
 import React, { useState } from 'react';
-import { X, MoreHorizontal } from 'lucide-react';
-import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
+import { PanelContainer } from './ui/PanelContainer';
 import { MarginGuides } from './MarginGuides';
 
 interface AlignmentPanelProps {
@@ -34,51 +33,29 @@ export const AlignmentPanel = ({ onClose }: AlignmentPanelProps) => {
   };
 
   return (
-    <TooltipProvider>
-      <div className="panel-container panel-bottom-right">
-        {/* Header */}
-        <div className="panel-header">
-          <h3 className="panel-title">Guides Grid</h3>
-          <div className="flex items-center gap-2">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button className="panel-action-button">
-                  <MoreHorizontal className="w-4 h-4" />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Mais opções</p>
-              </TooltipContent>
-            </Tooltip>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button onClick={onClose} className="panel-action-button">
-                  <X className="w-4 h-4" />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Fechar painel</p>
-              </TooltipContent>
-            </Tooltip>
-          </div>
-        </div>
-
-        {/* Content */}
-        <div className="panel-content">
-          <div className="panel-section">
-            <MarginGuides
-              marginTop={marginTop}
-              marginRight={marginRight}
-              marginBottom={marginBottom}
-              marginLeft={marginLeft}
-              centerSpacing=""
-              presetEnabled={presetEnabled}
-              onMarginChange={handleMarginChange}
-              onPresetToggle={() => setPresetEnabled(!presetEnabled)}
-            />
-          </div>
+    <PanelContainer
+      isOpen={true}
+      onClose={onClose}
+      title="Guides Grid"
+      position={{ x: window.innerWidth - 384 - 24, y: window.innerHeight - 400 - 100 }}
+      width={384}
+      height={400}
+      isDraggable={true}
+    >
+      <div className="panel-scrollable-unified h-full">
+        <div className="panel-section-unified">
+          <MarginGuides
+            marginTop={marginTop}
+            marginRight={marginRight}
+            marginBottom={marginBottom}
+            marginLeft={marginLeft}
+            centerSpacing=""
+            presetEnabled={presetEnabled}
+            onMarginChange={handleMarginChange}
+            onPresetToggle={() => setPresetEnabled(!presetEnabled)}
+          />
         </div>
       </div>
-    </TooltipProvider>
+    </PanelContainer>
   );
 };
