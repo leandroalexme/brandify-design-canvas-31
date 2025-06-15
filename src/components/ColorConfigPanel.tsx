@@ -14,26 +14,121 @@ export const ColorConfigPanel = ({
   position = { x: 120, y: 200 }
 }: ColorConfigPanelProps) => {
   const panelRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const [opacity, setOpacity] = useState(100);
   const [selectedColor, setSelectedColor] = useState('#000000');
+  const [hue, setHue] = useState(0);
+  const [saturation, setSaturation] = useState(100);
+  const [lightness, setLightness] = useState(50);
 
-  // Paleta de cores predefinidas
-  const colorPalette = [
-    '#000000', '#ffffff', '#ff0000', '#00ff00', '#0000ff', '#ffff00',
-    '#ff00ff', '#00ffff', '#808080', '#800000', '#008000', '#000080',
-    '#808000', '#800080', '#008080', '#c0c0c0', '#ff8000', '#8000ff',
-    '#00ff80', '#ff0080', '#80ff00', '#0080ff', '#ff4000', '#4000ff',
-    '#00ff40', '#ff0040', '#40ff00', '#0040ff', '#ffc0c0', '#c0ffc0',
-    '#c0c0ff', '#ffffc0', '#ffc0ff', '#c0ffff'
-  ];
+  // Desenhar a roda de cores
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
 
-  const handleToolClick = (action: string) => {
-    console.log('🎨 [COLOR PANEL] Action selected:', action);
-  };
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
 
-  const handleColorSelect = (color: string) => {
-    setSelectedColor(color);
-    console.log('🎨 [COLOR PANEL] Color selected:', color);
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+    const outerRadius = 80;
+    const innerRadius = 50;
+
+    // Limpar canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Desenhar roda de cores
+    for (let angle = 0; angle < 360; angle++) {
+      const startAngle = (angle - 1) * Math.PI / 180;
+      const endAngle = angle * Math.PI / 180;
+      
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, outerRadius, startAngle, endAngle);
+      ctx.arc(centerX, centerY, innerRadius, endAngle, startAngle, true);
+      ctx.closePath();
+      
+      const gradient = ctx.createRadialGradient(centerX, centerY, innerRadius, centerX, centerY, outerRadius);
+      gradient.addColorStop(0, `hsl(${angle}, 0%, 50%)`);
+      gradient.addColorStop(1, `hsl(${angle}, 100%, 50%)`);
+      
+      ctx.fillStyle = `hsl(${angle}, 100%, 50%)`;
+      ctx.fill();
+    }
+
+    // Desenhar triângulo central para brilho e saturação
+    ctx.beginPath();
+    const triangleRadius = innerRadius - 5;
+    
+    // Calcular pontos do triângulo
+    const point1X = centerX;
+    const point1Y = centerY - triangleRadius;
+    const point2X = centerX - triangleRadius * Math.cos(Math.PI / 6);
+    const point2Y = centerY + triangleRadius * Math.sin(Math.PI / 6);
+    const point3X = centerX + triangleRadius * Math.cos(Math.PI / 6);
+    const point3Y = centerY + triangleRadius * Math.sin(Math.PI / 6);
+
+    // Criar gradiente para o triângulo
+    const triangleGradient = ctx.createLinearGradient(point1X, point1Y, centerX, point2Y);
+    triangleGradient.addColorStop(0, 'white');
+    triangleGradient.addColorStop(1, `hsl(${hue}, 100%, 50%)`);
+
+    ctx.moveTo(point1X, point1Y);
+    ctx.lineTo(point2X, point2Y);
+    ctx.lineTo(point3X, point3Y);
+    ctx.closePath();
+    
+    ctx.fillStyle = triangleGradient;
+    ctx.fill();
+
+    // Overlay de preto para controlar o brilho
+    const blackOverlay = ctx.createLinearGradient(point2X, point2Y, point3X, point3Y);
+    blackOverlay.addColorStop(0, 'rgba(0,0,0,0.8)');
+    blackOverlay.addColorStop(1, 'rgba(0,0,0,0)');
+    
+    ctx.fillStyle = blackOverlay;
+    ctx.fill();
+
+  }, [hue]);
+
+  // Lidar com cliques na roda de cores
+  const handleCanvasClick = (event: React.MouseEvent<HTMLCanvasElement>) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+    
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+    
+    const dx = x - centerX;
+    const dy = y - centerY;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+    
+    // Se clicou na roda externa (seletor de matiz)
+    if (distance >= 50 && distance <= 80) {
+      const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+      const normalizedAngle = (angle + 360) % 360;
+      setHue(normalizedAngle);
+      
+      // Atualizar cor selecionada
+      const newColor = `hsl(${normalizedAngle}, ${saturation}%, ${lightness}%)`;
+      setSelectedColor(newColor);
+    }
+    
+    // Se clicou no triângulo central (saturação e brilho)
+    if (distance < 50) {
+      // Lógica simplificada para o triângulo
+      const newSaturation = Math.min(100, Math.max(0, (distance / 50) * 100));
+      const newLightness = Math.min(100, Math.max(0, 50 + (dy / 50) * 50));
+      
+      setSaturation(newSaturation);
+      setLightness(newLightness);
+      
+      const newColor = `hsl(${hue}, ${newSaturation}%, ${newLightness}%)`;
+      setSelectedColor(newColor);
+    }
   };
 
   const handleOpacityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -83,37 +178,33 @@ export const ColorConfigPanel = ({
         </div>
 
         <div className="p-4 space-y-4">
-          {/* Gradiente principal */}
-          <div className="relative">
-            <div 
-              className="w-full h-32 rounded-lg relative overflow-hidden"
-              style={{
-                background: `linear-gradient(135deg, 
-                  rgba(0,255,255,1) 0%, 
-                  rgba(0,128,255,1) 25%, 
-                  rgba(128,0,255,1) 50%, 
-                  rgba(255,0,128,1) 75%, 
-                  rgba(255,128,0,1) 100%)`
-              }}
-            >
-              {/* Overlay de brilho */}
+          {/* Roda de cores */}
+          <div className="flex justify-center">
+            <div className="relative">
+              <canvas
+                ref={canvasRef}
+                width={160}
+                height={160}
+                className="cursor-crosshair"
+                onClick={handleCanvasClick}
+              />
+              
+              {/* Indicador de posição na roda */}
               <div 
-                className="absolute inset-0"
+                className="absolute w-4 h-4 border-2 border-white rounded-full shadow-lg pointer-events-none"
                 style={{
-                  background: `linear-gradient(to bottom, 
-                    rgba(255,255,255,0.8) 0%, 
-                    rgba(255,255,255,0) 50%, 
-                    rgba(0,0,0,0) 50%, 
-                    rgba(0,0,0,0.8) 100%)`
+                  left: `${80 + 65 * Math.cos(hue * Math.PI / 180)}px`,
+                  top: `${80 + 65 * Math.sin(hue * Math.PI / 180)}px`,
+                  transform: 'translate(-50%, -50%)'
                 }}
               />
               
-              {/* Seletor circular */}
+              {/* Indicador de posição no triângulo */}
               <div 
-                className="absolute w-6 h-6 border-4 border-white rounded-full shadow-lg"
+                className="absolute w-3 h-3 border-2 border-white rounded-full shadow-lg pointer-events-none"
                 style={{
-                  left: '20px',
-                  top: '20px',
+                  left: `${80 + (saturation / 100) * 30 * Math.cos((hue + 90) * Math.PI / 180)}px`,
+                  top: `${80 + (lightness - 50) / 50 * 30}px`,
                   transform: 'translate(-50%, -50%)'
                 }}
               />
@@ -124,20 +215,17 @@ export const ColorConfigPanel = ({
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <span className="text-sm text-slate-300">Opacidade</span>
-              <span className="text-sm text-slate-300 font-mono">{opacity}</span>
+              <span className="text-sm text-slate-300 font-mono">{opacity}%</span>
             </div>
             
             <div className="relative">
-              {/* Background com padrão xadrez */}
               <div 
                 className="w-full h-6 rounded-full"
                 style={{
-                  background: `repeating-conic-gradient(#808080 0% 25%, transparent 0% 50%) 50% / 8px 8px`,
-                  backgroundClip: 'padding-box'
+                  background: `repeating-conic-gradient(#808080 0% 25%, transparent 0% 50%) 50% / 8px 8px`
                 }}
               />
               
-              {/* Overlay do slider */}
               <div className="absolute inset-0 flex items-center">
                 <input
                   type="range"
@@ -146,15 +234,9 @@ export const ColorConfigPanel = ({
                   value={opacity}
                   onChange={handleOpacityChange}
                   className="w-full h-6 bg-transparent appearance-none cursor-pointer slider-opacity"
-                  style={{
-                    background: `linear-gradient(to right, 
-                      rgba(255,255,255,0) 0%, 
-                      rgba(255,255,255,1) 100%)`
-                  }}
                 />
               </div>
               
-              {/* Indicador circular */}
               <div 
                 className="absolute w-6 h-6 bg-white border-2 border-slate-400 rounded-full shadow-lg pointer-events-none"
                 style={{
@@ -166,10 +248,9 @@ export const ColorConfigPanel = ({
             </div>
           </div>
 
-          {/* Cor atual e código hex */}
+          {/* Cor atual e valores */}
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              {/* Preview da cor com padrão xadrez para transparência */}
               <div className="relative w-12 h-8 rounded">
                 <div 
                   className="absolute inset-0 rounded"
@@ -186,50 +267,19 @@ export const ColorConfigPanel = ({
                 />
               </div>
               
-              {/* Código da cor */}
-              <div className="text-sm font-mono text-slate-300 tracking-wider">
-                {selectedColor.toUpperCase()}
+              <div className="text-xs font-mono text-slate-300 space-y-1">
+                <div>H: {Math.round(hue)}°</div>
+                <div>S: {Math.round(saturation)}%</div>
+                <div>L: {Math.round(lightness)}%</div>
               </div>
             </div>
             
-            {/* Botão de adicionar cor */}
             <button
-              onClick={() => handleToolClick('add-color')}
               className="w-8 h-8 bg-slate-700 hover:bg-slate-600 rounded-full flex items-center justify-center text-slate-300 hover:text-white transition-colors"
               title="Adicionar à paleta"
             >
               <Plus className="w-4 h-4" />
             </button>
-          </div>
-
-          {/* Paleta de cores */}
-          <div className="grid grid-cols-12 gap-1">
-            {colorPalette.map((color, index) => (
-              <button
-                key={index}
-                className={`w-6 h-6 rounded border-2 transition-all hover:scale-110 ${
-                  selectedColor === color 
-                    ? 'border-white ring-2 ring-blue-500' 
-                    : 'border-slate-600 hover:border-slate-400'
-                }`}
-                style={{ backgroundColor: color }}
-                onClick={() => handleColorSelect(color)}
-                title={color}
-              />
-            ))}
-          </div>
-
-          {/* Barra de gradiente arco-íris */}
-          <div className="relative">
-            <div 
-              className="w-full h-4 rounded"
-              style={{
-                background: 'linear-gradient(to right, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000)'
-              }}
-            />
-            
-            {/* Indicador de posição */}
-            <div className="absolute w-0.5 h-6 bg-black -top-1 left-1/4 transform -translate-x-1/2" />
           </div>
         </div>
       </div>
