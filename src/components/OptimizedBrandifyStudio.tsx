@@ -1,6 +1,5 @@
-
 import React, { useRef, useCallback, memo } from 'react';
-import { Canvas } from './Canvas';
+import { ProfessionalCanvas } from './ProfessionalCanvas';
 import { MainToolbar } from './MainToolbar';
 import { FloatingPropertiesPanel } from './FloatingPropertiesPanel';
 import { LayersButton } from './LayersButton';
@@ -17,7 +16,7 @@ import { useIntegratedStudio } from '../hooks/useIntegratedStudio';
 import { useTextCreation } from '../hooks/useTextCreation';
 
 // Memoizar componentes pesados
-const MemoizedCanvas = memo(Canvas);
+const MemoizedProfessionalCanvas = memo(ProfessionalCanvas);
 const MemoizedMainToolbar = memo(MainToolbar);
 const MemoizedFloatingPropertiesPanel = memo(FloatingPropertiesPanel);
 
@@ -35,13 +34,14 @@ export const OptimizedBrandifyStudio = memo(() => {
   // Log de performance otimizado
   React.useEffect(() => {
     if (process.env.NODE_ENV === 'development') {
-      console.log('🚀 [PERFORMANCE] Studio state:', {
+      console.log('🚀 [PROFESSIONAL STUDIO] State:', {
         selectedTool: studio.toolState.selectedTool,
         elementsCount: studio.elementsCount,
         hasAnyPanelOpen: studio.hasAnyPanelOpen,
         currentToolInfo: studio.currentToolInfo,
         interactionMode: studio.interactionMode,
         shortcutsCount: studio.shortcuts.length,
+        fabricEnabled: true,
         timestamp: new Date().toISOString()
       });
     }
@@ -109,13 +109,14 @@ export const OptimizedBrandifyStudio = memo(() => {
 
   const mappedTool = getCanvasToolType(studio.toolState.selectedTool);
 
-  // Loading state (pode ser expandido futuramente)
+  // Loading state
   if (!studio.elements && studio.elementsCount === 0) {
     return (
       <div className="h-screen bg-slate-900 flex items-center justify-center">
         <div className="text-center">
           <LoadingSpinner size="lg" color="white" className="mx-auto mb-4" />
-          <p className="text-slate-300">Carregando Brandify Studio...</p>
+          <p className="text-slate-300">Carregando Editor Profissional...</p>
+          <p className="text-slate-400 text-sm mt-2">Inicializando Fabric.js...</p>
         </div>
       </div>
     );
@@ -129,13 +130,13 @@ export const OptimizedBrandifyStudio = memo(() => {
         {/* Status bar para debug */}
         {process.env.NODE_ENV === 'development' && (
           <div className="absolute top-2 right-2 z-50 text-xs text-slate-400 bg-slate-800/80 p-2 rounded">
-            Modo: {studio.interactionMode} | Selecionados: {studio.selectedCount} | 
+            🎯 Fabric.js | Modo: {studio.interactionMode} | Selecionados: {studio.selectedCount} | 
             Undo: {studio.canUndo ? '✅' : '❌'} | Redo: {studio.canRedo ? '✅' : '❌'}
           </div>
         )}
         
         <div ref={canvasRef}>
-          <MemoizedCanvas
+          <MemoizedProfessionalCanvas
             elements={studio.elements}
             selectedTool={mappedTool}
             selectedColor={studio.toolState.selectedColor}
@@ -143,7 +144,6 @@ export const OptimizedBrandifyStudio = memo(() => {
             onSelectElement={studio.selectElement}
             onUpdateElement={studio.updateElement}
             onCreateText={handleCreateText}
-            setElements={setElements}
           />
         </div>
         
