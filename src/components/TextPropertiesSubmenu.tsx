@@ -1,6 +1,5 @@
-
 import React, { useRef, useEffect } from 'react';
-import { Type, AlignCenter, Settings, FileType, Columns2, Palette, Sparkles, X } from 'lucide-react';
+import { Type, AlignCenter, FileType, Palette, X } from 'lucide-react';
 
 interface TextPropertiesSubmenuProps {
   isOpen: boolean;
@@ -17,14 +16,12 @@ export const TextPropertiesSubmenu = ({
 }: TextPropertiesSubmenuProps) => {
   const menuRef = useRef<HTMLDivElement>(null);
 
+  // Ferramentas funcionais do submenu de texto
   const textTools = [
-    { id: 'typography', icon: Type, label: 'Tipografia' },
+    { id: 'typography', icon: Type, label: 'Configuração de Texto' },
     { id: 'alignment', icon: AlignCenter, label: 'Alinhamento' },
-    { id: 'advanced', icon: Settings, label: 'Modo Avançado' },
-    { id: 'glyph', icon: FileType, label: 'Glyph' },
-    { id: 'columns', icon: Columns2, label: 'Colunas' },
     { id: 'color', icon: Palette, label: 'Cor' },
-    { id: 'effects', icon: Sparkles, label: 'Efeitos' }
+    { id: 'glyph', icon: FileType, label: 'Glyph' }
   ];
 
   const handleToolClick = (toolId: string) => {

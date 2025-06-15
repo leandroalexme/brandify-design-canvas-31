@@ -30,6 +30,9 @@ export const MainToolbarButton = ({
 }: MainToolbarButtonProps) => {
   const Icon = tool.icon;
   
+  // Só mostrar a bolinha para ferramentas que têm sub-ferramenta ativa (não para texto)
+  const shouldShowIndicator = tool.id !== 'text' && (hasActiveSub || hasSelectedShape);
+  
   return (
     <button
       ref={buttonRef}
@@ -40,7 +43,7 @@ export const MainToolbarButton = ({
       title={`${tool.label}${tool.hasSubmenu ? ' (clique direito para submenu)' : ''}`}
     >
       <Icon className="w-5 h-5" />
-      {(hasActiveSub || hasSelectedShape) && (
+      {shouldShowIndicator && (
         <div className="absolute -top-1 -right-1 w-3 h-3 bg-orange-500 rounded-full border-2 border-slate-800" />
       )}
     </button>
