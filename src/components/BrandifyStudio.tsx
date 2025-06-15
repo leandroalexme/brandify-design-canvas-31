@@ -1,4 +1,3 @@
-
 import React, { useRef, useCallback } from 'react';
 import { Canvas } from './Canvas';
 import { MainToolbar } from './MainToolbar';
@@ -11,6 +10,7 @@ import { LayersPanel } from './LayersPanel';
 import { AlignmentPanel } from './AlignmentPanel';
 import { ArtboardsPanel } from './ArtboardsPanel';
 import { TextPropertiesPanel } from './TextPropertiesPanel';
+import { FloatingTextPanel } from './FloatingTextPanel';
 import { ErrorBoundary } from './ErrorBoundary';
 import { ToolType } from '../types/tools';
 import { useDesignElements } from '../hooks/useDesignElements';
@@ -151,7 +151,7 @@ export const BrandifyStudio = () => {
         <GridButton onClick={() => updateUIState({ showAlignmentPanel: !uiState.showAlignmentPanel })} />
         <ArtboardsButton onClick={() => updateUIState({ showArtboardsPanel: !uiState.showArtboardsPanel })} />
         
-        <TextPropertiesPanel
+        <FloatingTextPanel
           isOpen={uiState.showTextPropertiesPanel}
           onClose={handleCloseTextPanel}
         />
