@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { SimpleSubmenu } from './SimpleSubmenu';
 import { ShapesMenu } from './ShapesMenu';
@@ -30,17 +31,15 @@ export const MainToolbar = ({
   onOpenTextPanel,
   showTextPanel
 }: MainToolbarProps) => {
-  // Estado para o painel de alinhamento
+  // Estados para painéis melhorados com posicionamento otimizado
   const [showAlignmentPanel, setShowAlignmentPanel] = React.useState(false);
-  const [alignmentPanelPosition, setAlignmentPanelPosition] = React.useState({ x: 120, y: 200 });
+  const [alignmentPanelPosition, setAlignmentPanelPosition] = React.useState({ x: 200, y: 200 });
 
-  // Estado para o painel de cores
   const [showColorPanel, setShowColorPanel] = React.useState(false);
-  const [colorPanelPosition, setColorPanelPosition] = React.useState({ x: 120, y: 200 });
+  const [colorPanelPosition, setColorPanelPosition] = React.useState({ x: 350, y: 200 });
 
-  // Estado para o painel de glyph
   const [showGlyphPanel, setShowGlyphPanel] = React.useState(false);
-  const [glyphPanelPosition, setGlyphPanelPosition] = React.useState({ x: 120, y: 200 });
+  const [glyphPanelPosition, setGlyphPanelPosition] = React.useState({ x: 500, y: 200 });
 
   const {
     mainTools,
@@ -63,13 +62,11 @@ export const MainToolbar = ({
     handleFontPanelClose
   } = useMainToolbar(selectedTool, onToolSelect, selectedShape, onShapeSelect);
 
-  // Handler específico para o botão de texto - agora abre o submenu de propriedades
   const handleTextToolClick = React.useCallback(() => {
     console.log('📝 [MAIN TOOLBAR] Text tool clicked - Opening text properties submenu');
     onOpenTextPanel();
   }, [onOpenTextPanel]);
 
-  // Handler personalizado que intercepta cliques no botão de texto
   const handleCustomToolClick = React.useCallback((toolId: string) => {
     console.log('🔧 [MAIN TOOLBAR] Custom tool click:', toolId);
     
@@ -80,21 +77,17 @@ export const MainToolbar = ({
     }
   }, [handleTextToolClick, handleToolClick]);
 
-  // Handler para ferramentas do submenu de texto
+  // Handler melhorado para ferramentas do submenu de texto
   const handleTextSubmenuToolSelect = React.useCallback((toolId: string) => {
     console.log('📝 [MAIN TOOLBAR] Text submenu tool selected:', toolId);
     
+    // Calcular posições baseadas na posição do submenu
+    const baseX = 250;
+    const baseY = 120;
+    
     if (toolId === 'typography') {
-      // Abrir o FontConfigPanel quando selecionar tipografia
       console.log('📝 [MAIN TOOLBAR] Opening font config panel from typography tool');
       
-      const centerX = window.innerWidth / 2;
-      const centerY = window.innerHeight / 2;
-      
-      const position = { x: centerX, y: centerY };
-      console.log('📝 [MAIN TOOLBAR] Font panel position:', position);
-      
-      // Usar os handlers existentes do hook
       const fontPanelButton = buttonRefs.current['text'];
       if (fontPanelButton) {
         const rect = fontPanelButton.getBoundingClientRect();
@@ -103,82 +96,55 @@ export const MainToolbar = ({
           y: rect.top
         };
         
-        // Simular o comportamento do submenu existente para abrir o font panel
         handleSubToolSelect('fontConfig');
       }
     } else if (toolId === 'alignment') {
-      // Abrir o painel de alinhamento
       console.log('📐 [MAIN TOOLBAR] Opening alignment config panel');
-      
-      const position = { x: 120, y: 200 };
-      setAlignmentPanelPosition(position);
+      setAlignmentPanelPosition({ x: baseX, y: baseY });
       setShowAlignmentPanel(true);
     } else if (toolId === 'color') {
-      // Abrir o painel de cores
       console.log('🎨 [MAIN TOOLBAR] Opening color config panel');
-      
-      const position = { x: 250, y: 200 };
-      setColorPanelPosition(position);
+      setColorPanelPosition({ x: baseX + 150, y: baseY });
       setShowColorPanel(true);
     } else if (toolId === 'glyph') {
-      // Abrir o painel de glyph
       console.log('🔤 [MAIN TOOLBAR] Opening glyph panel');
-      
-      const position = { x: 380, y: 200 };
-      setGlyphPanelPosition(position);
+      setGlyphPanelPosition({ x: baseX + 300, y: baseY });
       setShowGlyphPanel(true);
-    } else {
-      // Para outras ferramentas, apenas log por enquanto
-      console.log('📝 [MAIN TOOLBAR] Text tool not implemented yet:', toolId);
     }
   }, [handleSubToolSelect, buttonRefs]);
 
-  // Handler para fechar o painel de alinhamento
+  // Handlers para fechar painéis
   const handleAlignmentPanelClose = React.useCallback(() => {
-    console.log('📐 [MAIN TOOLBAR] Closing alignment panel');
     setShowAlignmentPanel(false);
   }, []);
 
-  // Handler para fechar o painel de cores
   const handleColorPanelClose = React.useCallback(() => {
-    console.log('🎨 [MAIN TOOLBAR] Closing color panel');
     setShowColorPanel(false);
   }, []);
 
-  // Handler para fechar o painel de glyph
   const handleGlyphPanelClose = React.useCallback(() => {
-    console.log('🔤 [MAIN TOOLBAR] Closing glyph panel');
     setShowGlyphPanel(false);
   }, []);
 
-  // Handler personalizado para fechar o painel de texto
   const handleTextPanelClose = React.useCallback(() => {
-    console.log('📝 [MAIN TOOLBAR] Closing text panel');
-    onOpenTextPanel(); // Toggle the text panel
+    console.log('📝 [MAIN TOOLBAR] Closing text panel and all subpanels');
+    onOpenTextPanel();
     
-    // Fechar também subpainéis se estiverem abertos
-    if (showAlignmentPanel) {
-      setShowAlignmentPanel(false);
-    }
-    if (showColorPanel) {
-      setShowColorPanel(false);
-    }
-    if (showGlyphPanel) {
-      setShowGlyphPanel(false);
-    }
-  }, [onOpenTextPanel, showAlignmentPanel, showColorPanel, showGlyphPanel]);
+    // Fechar todos os subpainéis
+    setShowAlignmentPanel(false);
+    setShowColorPanel(false);
+    setShowGlyphPanel(false);
+  }, [onOpenTextPanel]);
 
   return (
     <>
       <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-[400]" data-toolbar>
         <div className="floating-module rounded-2xl p-3 flex items-center space-x-2">
           {mainTools.map((tool) => {
-            // Corrigir lógica de estado ativo - apenas texto deve estar ativo quando painel de texto estiver aberto
             const isActive = tool.id === 'text' ? 
               showTextPanel : 
               (!showTextPanel && getCurrentMainTool() === tool.id);
             
-            // Fix: Ensure hasActiveSub is properly typed - only pass SubTool or null
             const hasActiveSub = !showTextPanel && activeSubTools[tool.id] ? activeSubTools[tool.id] : null;
             const hasSelectedShape = tool.id === 'shapes' && !!selectedShape;
             
@@ -199,7 +165,7 @@ export const MainToolbar = ({
         </div>
       </div>
 
-      {/* Submenu para select e pen apenas - não mostrar quando painel de texto estiver aberto */}
+      {/* Submenu para select e pen - otimizado */}
       {!showTextPanel && showSubmenu && showSubmenu !== 'text' && SUB_TOOL_OPTIONS[showSubmenu as keyof typeof SUB_TOOL_OPTIONS] && (
         <SimpleSubmenu
           isOpen={!!showSubmenu}
@@ -210,15 +176,15 @@ export const MainToolbar = ({
         />
       )}
 
-      {/* Submenu de propriedades de texto */}
+      {/* Submenu de propriedades de texto - melhorado */}
       <TextPropertiesSubmenu
         isOpen={showTextPanel}
         onClose={handleTextPanelClose}
         onToolSelect={handleTextSubmenuToolSelect}
-        position={{ x: 32, y: 120 }}
+        position={{ x: 50, y: 120 }}
       />
 
-      {/* Menu específico para shapes - não mostrar quando painel de texto estiver aberto */}
+      {/* Menu de formas */}
       {!showTextPanel && (
         <ShapesMenu
           isOpen={showShapesMenu}
@@ -229,40 +195,33 @@ export const MainToolbar = ({
         />
       )}
 
-      {/* Painel de configuração de fonte - vinculado à tipografia e só aparece quando texto está ativo */}
+      {/* Painéis melhorados - só aparecem quando texto está ativo */}
       {showTextPanel && (
-        <FontConfigPanel
-          isOpen={showFontPanel}
-          onClose={handleFontPanelClose}
-          position={fontPanelPosition}
-        />
-      )}
+        <>
+          <FontConfigPanel
+            isOpen={showFontPanel}
+            onClose={handleFontPanelClose}
+            position={fontPanelPosition}
+          />
 
-      {/* Painel de configuração de alinhamento - só aparece quando texto está ativo */}
-      {showTextPanel && (
-        <AlignmentConfigPanel
-          isOpen={showAlignmentPanel}
-          onClose={handleAlignmentPanelClose}
-          position={alignmentPanelPosition}
-        />
-      )}
+          <AlignmentConfigPanel
+            isOpen={showAlignmentPanel}
+            onClose={handleAlignmentPanelClose}
+            position={alignmentPanelPosition}
+          />
 
-      {/* Painel de configuração de cores - só aparece quando texto está ativo */}
-      {showTextPanel && (
-        <ColorConfigPanel
-          isOpen={showColorPanel}
-          onClose={handleColorPanelClose}
-          position={colorPanelPosition}
-        />
-      )}
+          <ColorConfigPanel
+            isOpen={showColorPanel}
+            onClose={handleColorPanelClose}
+            position={colorPanelPosition}
+          />
 
-      {/* Painel de glyph - só aparece quando texto está ativo */}
-      {showTextPanel && (
-        <GlyphPanel
-          isOpen={showGlyphPanel}
-          onClose={handleGlyphPanelClose}
-          position={glyphPanelPosition}
-        />
+          <GlyphPanel
+            isOpen={showGlyphPanel}
+            onClose={handleGlyphPanelClose}
+            position={glyphPanelPosition}
+          />
+        </>
       )}
     </>
   );

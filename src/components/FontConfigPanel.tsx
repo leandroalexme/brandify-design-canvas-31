@@ -1,6 +1,6 @@
 
 import React, { useState, useCallback, useRef, useEffect } from 'react';
-import { ChevronDown, Minus, Plus, Bold, Italic, Underline, X, GripVertical } from 'lucide-react';
+import { ChevronDown, Minus, Plus, Bold, Italic, Underline, X, GripVertical, Type } from 'lucide-react';
 
 interface FontConfigPanelProps {
   isOpen: boolean;
@@ -10,8 +10,8 @@ interface FontConfigPanelProps {
 
 export const FontConfigPanel = ({ isOpen, onClose, position }: FontConfigPanelProps) => {
   const [selectedFont, setSelectedFont] = useState('Roboto Sans');
-  const [selectedWeight, setSelectedWeight] = useState('Extra Bold');
-  const [fontSize, setFontSize] = useState(15);
+  const [selectedWeight, setSelectedWeight] = useState('Regular');
+  const [fontSize, setFontSize] = useState(16);
   const [showFontDropdown, setShowFontDropdown] = useState(false);
   const [showWeightDropdown, setShowWeightDropdown] = useState(false);
   
@@ -90,15 +90,27 @@ export const FontConfigPanel = ({ isOpen, onClose, position }: FontConfigPanelPr
 
   if (!isOpen) return null;
 
-  const fonts = ['Roboto Sans', 'Inter', 'Arial', 'Helvetica', 'Times New Roman', 'Georgia', 'Playfair Display'];
-  const weights = ['Light', 'Regular', 'Medium', 'Semi Bold', 'Bold', 'Extra Bold', 'Black'];
+  const fonts = [
+    { name: 'Roboto Sans', category: 'Sans Serif' },
+    { name: 'Inter', category: 'Sans Serif' },
+    { name: 'Arial', category: 'Sans Serif' },
+    { name: 'Helvetica', category: 'Sans Serif' },
+    { name: 'Times New Roman', category: 'Serif' },
+    { name: 'Georgia', category: 'Serif' },
+    { name: 'Playfair Display', category: 'Display' }
+  ];
 
-  const handleFontSizeDecrease = () => {
-    setFontSize(prev => Math.max(8, prev - 1));
-  };
+  const weights = ['Light', 'Regular', 'Medium', 'Semi Bold', 'Bold', 'Extra Bold'];
+  const sizePresets = [
+    { label: 'Caption', size: 12 },
+    { label: 'Body', size: 16 },
+    { label: 'Subtitle', size: 20 },
+    { label: 'Title', size: 24 },
+    { label: 'Heading', size: 32 }
+  ];
 
-  const handleFontSizeIncrease = () => {
-    setFontSize(prev => Math.min(72, prev + 1));
+  const handleFontSizeChange = (newSize: number) => {
+    setFontSize(Math.max(8, Math.min(72, newSize)));
   };
 
   return (
@@ -111,16 +123,17 @@ export const FontConfigPanel = ({ isOpen, onClose, position }: FontConfigPanelPr
         willChange: 'transform'
       }}
       onMouseDown={handleMouseDown}
+      data-font-panel
     >
       <div className="floating-module w-80 overflow-hidden">
-        {/* Drag Handle Header */}
+        {/* Header redesenhado */}
         <div 
           ref={dragHandleRef}
           className="flex items-center justify-between p-4 border-b border-slate-700/40 cursor-grab active:cursor-grabbing bg-slate-800/60 hover:bg-slate-700/60 transition-colors duration-100"
         >
-          <div className="flex items-center gap-2">
-            <GripVertical className="w-4 h-4 text-slate-400" />
-            <span className="text-sm font-medium text-slate-200">Configuração de Fonte</span>
+          <div className="flex items-center gap-3">
+            <Type className="w-5 h-5 text-blue-400" />
+            <span className="text-sm font-medium text-slate-200">Tipografia</span>
           </div>
           <button
             onClick={onClose}
@@ -132,157 +145,176 @@ export const FontConfigPanel = ({ isOpen, onClose, position }: FontConfigPanelPr
           </button>
         </div>
 
-        {/* Content */}
-        <div className="p-6 space-y-4">
-          {/* Font Family Dropdown */}
-          <div className="relative">
-            <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-2">
+        <div className="p-6 space-y-6">
+          {/* Font Family com categorias */}
+          <div className="space-y-3">
+            <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider">
               Família da Fonte
             </label>
-            <button
-              onClick={() => {
-                setShowFontDropdown(!showFontDropdown);
-                setShowWeightDropdown(false);
-              }}
-              className="w-full flex items-center justify-between p-3 rounded-xl bg-slate-700/60 hover:bg-slate-600/80 border border-slate-600/40 hover:border-slate-500/60 text-slate-200 transition-all duration-100"
-            >
-              <span className="text-sm font-medium">{selectedFont}</span>
-              <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${showFontDropdown ? 'rotate-180' : ''}`} />
-            </button>
-            
-            {showFontDropdown && (
-              <div className="absolute top-full mt-2 w-full floating-module p-2 animate-fade-in-60fps z-10">
-                {fonts.map((font) => (
-                  <button
-                    key={font}
-                    onClick={() => {
-                      setSelectedFont(font);
-                      setShowFontDropdown(false);
-                    }}
-                    className={`w-full text-left p-3 rounded-lg text-slate-200 transition-colors duration-100 ${
-                      selectedFont === font 
-                        ? 'bg-blue-500/80 text-white' 
-                        : 'hover:bg-slate-700/50'
-                    }`}
-                    style={{ fontFamily: font }}
-                  >
-                    {font}
-                  </button>
-                ))}
-              </div>
-            )}
+            <div className="relative">
+              <button
+                onClick={() => {
+                  setShowFontDropdown(!showFontDropdown);
+                  setShowWeightDropdown(false);
+                }}
+                className="w-full flex items-center justify-between p-3 rounded-xl bg-slate-700/60 hover:bg-slate-600/80 border border-slate-600/40 hover:border-blue-500/60 text-slate-200 transition-all duration-100"
+              >
+                <div className="text-left">
+                  <div className="text-sm font-medium">{selectedFont}</div>
+                  <div className="text-xs text-slate-400">
+                    {fonts.find(f => f.name === selectedFont)?.category}
+                  </div>
+                </div>
+                <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${showFontDropdown ? 'rotate-180' : ''}`} />
+              </button>
+              
+              {showFontDropdown && (
+                <div className="absolute top-full mt-2 w-full floating-module p-2 animate-fade-in-60fps z-10 max-h-64 overflow-y-auto">
+                  {fonts.map((font) => (
+                    <button
+                      key={font.name}
+                      onClick={() => {
+                        setSelectedFont(font.name);
+                        setShowFontDropdown(false);
+                      }}
+                      className={`w-full text-left p-3 rounded-lg transition-colors duration-100 ${
+                        selectedFont === font.name 
+                          ? 'bg-blue-500/80 text-white' 
+                          : 'text-slate-200 hover:bg-slate-700/50'
+                      }`}
+                      style={{ fontFamily: font.name }}
+                    >
+                      <div className="text-sm font-medium">{font.name}</div>
+                      <div className="text-xs opacity-70">{font.category}</div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
-          {/* Font Weight Dropdown */}
-          <div className="relative">
-            <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-2">
+          {/* Font Weight */}
+          <div className="space-y-3">
+            <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider">
               Peso da Fonte
             </label>
-            <button
-              onClick={() => {
-                setShowWeightDropdown(!showWeightDropdown);
-                setShowFontDropdown(false);
-              }}
-              className="w-full flex items-center justify-between p-3 rounded-xl bg-slate-700/60 hover:bg-slate-600/80 border border-slate-600/40 hover:border-slate-500/60 text-slate-200 transition-all duration-100"
-            >
-              <span className="text-sm font-medium">{selectedWeight}</span>
-              <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${showWeightDropdown ? 'rotate-180' : ''}`} />
-            </button>
-            
-            {showWeightDropdown && (
-              <div className="absolute top-full mt-2 w-full floating-module p-2 animate-fade-in-60fps z-10">
-                {weights.map((weight) => (
-                  <button
-                    key={weight}
-                    onClick={() => {
-                      setSelectedWeight(weight);
-                      setShowWeightDropdown(false);
-                    }}
-                    className={`w-full text-left p-3 rounded-lg text-slate-200 transition-colors duration-100 ${
-                      selectedWeight === weight 
-                        ? 'bg-blue-500/80 text-white' 
-                        : 'hover:bg-slate-700/50'
-                    }`}
-                  >
-                    {weight}
-                  </button>
-                ))}
-              </div>
-            )}
+            <div className="relative">
+              <button
+                onClick={() => {
+                  setShowWeightDropdown(!showWeightDropdown);
+                  setShowFontDropdown(false);
+                }}
+                className="w-full flex items-center justify-between p-3 rounded-xl bg-slate-700/60 hover:bg-slate-600/80 border border-slate-600/40 hover:border-blue-500/60 text-slate-200 transition-all duration-100"
+              >
+                <span className="text-sm font-medium">{selectedWeight}</span>
+                <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${showWeightDropdown ? 'rotate-180' : ''}`} />
+              </button>
+              
+              {showWeightDropdown && (
+                <div className="absolute top-full mt-2 w-full floating-module p-2 animate-fade-in-60fps z-10">
+                  {weights.map((weight) => (
+                    <button
+                      key={weight}
+                      onClick={() => {
+                        setSelectedWeight(weight);
+                        setShowWeightDropdown(false);
+                      }}
+                      className={`w-full text-left p-3 rounded-lg text-slate-200 transition-colors duration-100 ${
+                        selectedWeight === weight 
+                          ? 'bg-blue-500/80 text-white' 
+                          : 'hover:bg-slate-700/50'
+                      }`}
+                    >
+                      {weight}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
-          {/* Font Size Controls */}
-          <div>
-            <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-2">
+          {/* Font Size com presets */}
+          <div className="space-y-3">
+            <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider">
               Tamanho da Fonte
             </label>
-            <div className="flex items-center justify-between">
+            
+            {/* Presets rápidos */}
+            <div className="flex gap-2 mb-3">
+              {sizePresets.map((preset) => (
+                <button
+                  key={preset.label}
+                  onClick={() => setFontSize(preset.size)}
+                  className={`px-3 py-1.5 rounded-lg text-xs transition-all duration-100 ${
+                    fontSize === preset.size
+                      ? 'bg-blue-500/80 text-white'
+                      : 'bg-slate-700/60 text-slate-300 hover:bg-slate-600/80'
+                  }`}
+                >
+                  {preset.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Controles de tamanho */}
+            <div className="flex items-center gap-4">
               <button
-                onClick={handleFontSizeDecrease}
-                className="w-12 h-12 rounded-full bg-slate-700/60 hover:bg-slate-600/80 border border-slate-600/40 hover:border-slate-500/60 flex items-center justify-center text-slate-300 hover:text-white transition-all duration-100 hover:scale-105 active:scale-95"
+                onClick={() => handleFontSizeChange(fontSize - 1)}
+                className="w-10 h-10 rounded-full bg-slate-700/60 hover:bg-slate-600/80 flex items-center justify-center text-slate-300 hover:text-white transition-all duration-100"
               >
-                <Minus className="w-5 h-5" />
+                <Minus className="w-4 h-4" />
               </button>
               
-              <div className="flex flex-col items-center">
-                <span className="text-2xl font-bold text-slate-200 min-w-[80px] text-center">
-                  {fontSize}
-                </span>
-                <span className="text-xs text-slate-400">pixels</span>
+              <div className="flex-1 text-center">
+                <input
+                  type="number"
+                  value={fontSize}
+                  onChange={(e) => handleFontSizeChange(parseInt(e.target.value) || fontSize)}
+                  className="w-full text-center text-xl font-bold bg-transparent text-slate-200 border-b border-slate-600 focus:border-blue-500 outline-none py-1"
+                  min="8"
+                  max="72"
+                />
+                <div className="text-xs text-slate-400 mt-1">pixels</div>
               </div>
               
               <button
-                onClick={handleFontSizeIncrease}
-                className="w-12 h-12 rounded-full bg-blue-500/80 hover:bg-blue-400/90 border border-blue-400/60 hover:border-blue-300/80 flex items-center justify-center text-white transition-all duration-100 hover:scale-105 active:scale-95"
+                onClick={() => handleFontSizeChange(fontSize + 1)}
+                className="w-10 h-10 rounded-full bg-blue-500/80 hover:bg-blue-400/90 flex items-center justify-center text-white transition-all duration-100"
               >
-                <Plus className="w-5 h-5" />
+                <Plus className="w-4 h-4" />
               </button>
             </div>
           </div>
 
-          {/* Text Style Controls */}
-          <div>
-            <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-2">
-              Estilos de Texto
+          {/* Text Styles */}
+          <div className="space-y-3">
+            <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider">
+              Estilos
             </label>
-            <div className="flex items-center justify-between">
-              <button 
-                className="w-12 h-12 rounded-full bg-slate-700/60 hover:bg-slate-600/80 border border-slate-600/40 hover:border-slate-500/60 flex items-center justify-center text-slate-300 hover:text-white transition-all duration-100 hover:scale-105 active:scale-95"
-                title="Negrito"
-              >
-                <Bold className="w-5 h-5" />
-              </button>
-              
-              <button 
-                className="w-12 h-12 rounded-full bg-slate-700/60 hover:bg-slate-600/80 border border-slate-600/40 hover:border-slate-500/60 flex items-center justify-center text-slate-300 hover:text-white transition-all duration-100 hover:scale-105 active:scale-95"
-                title="Itálico"
-              >
-                <Italic className="w-5 h-5" />
-              </button>
-              
-              <button 
-                className="w-12 h-12 rounded-full bg-slate-700/60 hover:bg-slate-600/80 border border-slate-600/40 hover:border-slate-500/60 flex items-center justify-center text-slate-300 hover:text-white transition-all duration-100 hover:scale-105 active:scale-95"
-                title="Sublinhado"
-              >
-                <Underline className="w-5 h-5" />
-              </button>
-              
-              <button 
-                className="w-12 h-12 rounded-full bg-slate-700/60 hover:bg-slate-600/80 border border-slate-600/40 hover:border-slate-500/60 flex items-center justify-center text-slate-300 hover:text-white transition-all duration-100 hover:scale-105 active:scale-95"
-                title="Maiúsculas"
-              >
-                <span className="text-sm font-bold">AB</span>
-              </button>
+            <div className="flex gap-2">
+              {[
+                { icon: Bold, label: 'Negrito' },
+                { icon: Italic, label: 'Itálico' },
+                { icon: Underline, label: 'Sublinhado' }
+              ].map(({ icon: Icon, label }) => (
+                <button 
+                  key={label}
+                  className="flex-1 h-10 rounded-lg bg-slate-700/60 hover:bg-slate-600/80 border border-slate-600/40 hover:border-blue-500/60 flex items-center justify-center text-slate-300 hover:text-white transition-all duration-100"
+                  title={label}
+                >
+                  <Icon className="w-5 h-5" />
+                </button>
+              ))}
             </div>
           </div>
 
-          {/* Preview */}
-          <div className="border-t border-slate-700/40 pt-4">
-            <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-2">
+          {/* Preview melhorado */}
+          <div className="space-y-3">
+            <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider">
               Visualização
             </label>
             <div 
-              className="p-4 rounded-xl bg-slate-700/30 border border-slate-600/30"
+              className="p-4 rounded-xl bg-slate-700/30 border border-slate-600/30 min-h-[60px] flex items-center justify-center"
               style={{
                 fontFamily: selectedFont,
                 fontWeight: selectedWeight.toLowerCase().replace(' ', ''),
@@ -290,7 +322,7 @@ export const FontConfigPanel = ({ isOpen, onClose, position }: FontConfigPanelPr
                 color: '#f1f5f9'
               }}
             >
-              O texto ficará assim
+              <span contentEditable className="outline-none">O texto ficará assim</span>
             </div>
           </div>
         </div>

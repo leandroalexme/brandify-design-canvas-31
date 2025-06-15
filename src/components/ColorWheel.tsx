@@ -16,7 +16,7 @@ export const ColorWheel = ({
 }: ColorWheelProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  // Draw the color wheel
+  // Draw the color wheel with improved size
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -26,8 +26,8 @@ export const ColorWheel = ({
 
     const centerX = canvas.width / 2;
     const centerY = canvas.height / 2;
-    const outerRadius = 80;
-    const innerRadius = 50;
+    const outerRadius = 100; // Increased from 80
+    const innerRadius = 65;  // Increased from 50
 
     // Clear canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -42,17 +42,13 @@ export const ColorWheel = ({
       ctx.arc(centerX, centerY, innerRadius, endAngle, startAngle, true);
       ctx.closePath();
       
-      const gradient = ctx.createRadialGradient(centerX, centerY, innerRadius, centerX, centerY, outerRadius);
-      gradient.addColorStop(0, `hsl(${angle}, 0%, 50%)`);
-      gradient.addColorStop(1, `hsl(${angle}, 100%, 50%)`);
-      
       ctx.fillStyle = `hsl(${angle}, 100%, 50%)`;
       ctx.fill();
     }
 
     // Draw central triangle for brightness and saturation
     ctx.beginPath();
-    const triangleRadius = innerRadius - 5;
+    const triangleRadius = innerRadius - 8;
     
     // Calculate triangle points
     const point1X = centerX;
@@ -85,7 +81,7 @@ export const ColorWheel = ({
 
   }, [hue]);
 
-  // Handle canvas clicks
+  // Handle canvas clicks with improved precision
   const handleCanvasClick = (event: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -102,17 +98,16 @@ export const ColorWheel = ({
     const distance = Math.sqrt(dx * dx + dy * dy);
     
     // If clicked on outer wheel (hue selector)
-    if (distance >= 50 && distance <= 80) {
+    if (distance >= 65 && distance <= 100) {
       const angle = Math.atan2(dy, dx) * 180 / Math.PI;
       const normalizedAngle = (angle + 360) % 360;
       onColorChange(normalizedAngle, saturation, lightness);
     }
     
     // If clicked on central triangle (saturation and brightness)
-    if (distance < 50) {
-      // Simplified logic for triangle
-      const newSaturation = Math.min(100, Math.max(0, (distance / 50) * 100));
-      const newLightness = Math.min(100, Math.max(0, 50 + (dy / 50) * 50));
+    if (distance < 65) {
+      const newSaturation = Math.min(100, Math.max(0, (distance / 65) * 100));
+      const newLightness = Math.min(100, Math.max(0, 50 + (dy / 65) * 50));
       
       onColorChange(hue, newSaturation, newLightness);
     }
@@ -123,28 +118,28 @@ export const ColorWheel = ({
       <div className="relative">
         <canvas
           ref={canvasRef}
-          width={160}
-          height={160}
-          className="cursor-crosshair"
+          width={200}  // Increased from 160
+          height={200} // Increased from 160
+          className="cursor-crosshair rounded-lg"
           onClick={handleCanvasClick}
         />
         
-        {/* Position indicator on wheel */}
+        {/* Position indicator on wheel - improved visibility */}
         <div 
-          className="absolute w-4 h-4 border-2 border-white rounded-full shadow-lg pointer-events-none"
+          className="absolute w-5 h-5 border-3 border-white rounded-full shadow-lg pointer-events-none bg-white/20"
           style={{
-            left: `${80 + 65 * Math.cos(hue * Math.PI / 180)}px`,
-            top: `${80 + 65 * Math.sin(hue * Math.PI / 180)}px`,
+            left: `${100 + 82 * Math.cos(hue * Math.PI / 180)}px`,
+            top: `${100 + 82 * Math.sin(hue * Math.PI / 180)}px`,
             transform: 'translate(-50%, -50%)'
           }}
         />
         
-        {/* Position indicator on triangle */}
+        {/* Position indicator on triangle - improved visibility */}
         <div 
-          className="absolute w-3 h-3 border-2 border-white rounded-full shadow-lg pointer-events-none"
+          className="absolute w-4 h-4 border-2 border-white rounded-full shadow-lg pointer-events-none bg-white/20"
           style={{
-            left: `${80 + (saturation / 100) * 30 * Math.cos((hue + 90) * Math.PI / 180)}px`,
-            top: `${80 + (lightness - 50) / 50 * 30}px`,
+            left: `${100 + (saturation / 100) * 40 * Math.cos((hue + 90) * Math.PI / 180)}px`,
+            top: `${100 + (lightness - 50) / 50 * 40}px`,
             transform: 'translate(-50%, -50%)'
           }}
         />

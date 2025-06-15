@@ -1,6 +1,6 @@
 
 import React, { useRef, useEffect } from 'react';
-import { AlignLeft, AlignCenter, AlignRight, AlignJustify, X, MoveUp, MoveDown, ArrowUpDown } from 'lucide-react';
+import { AlignLeft, AlignCenter, AlignRight, MoveUp, MoveDown, ArrowUpDown, X } from 'lucide-react';
 
 interface AlignmentConfigPanelProps {
   isOpen: boolean;
@@ -16,23 +16,15 @@ export const AlignmentConfigPanel = ({
   const panelRef = useRef<HTMLDivElement>(null);
 
   const alignmentTools = [
-    // Row 1: Text alignment
+    // Linha 1: Alinhamento horizontal
     { id: 'align-left', icon: AlignLeft, label: 'Alinhar à Esquerda' },
     { id: 'align-center', icon: AlignCenter, label: 'Centralizar' },
     { id: 'align-right', icon: AlignRight, label: 'Alinhar à Direita' },
-    { id: 'align-justify', icon: AlignJustify, label: 'Justificar' },
     
-    // Row 2: Text height and spacing controls
-    { id: 'text-height', icon: () => <div className="text-sm font-bold text-slate-300">A</div>, label: 'Altura do Texto', custom: true },
-    { id: 'line-height-30', icon: () => <div className="text-xs font-bold text-slate-300">30%</div>, label: 'Altura da Linha 30%', custom: true },
-    { id: 'text-spacing', icon: () => <div className="text-xs font-bold text-slate-300">|A|</div>, label: 'Espaçamento do Texto', custom: true },
-    { id: 'line-height-10', icon: () => <div className="text-xs font-bold text-slate-300">10%</div>, label: 'Altura da Linha 10%', custom: true },
-    
-    // Row 3: Vertical alignment
+    // Linha 2: Alinhamento vertical
     { id: 'align-top', icon: MoveUp, label: 'Alinhar ao Topo' },
-    { id: 'align-middle', icon: () => <ArrowUpDown className="w-4 h-4 rotate-90" />, label: 'Alinhar ao Centro', custom: true },
+    { id: 'align-middle', icon: () => <ArrowUpDown className="w-5 h-5 rotate-90" />, label: 'Centralizar Verticalmente', custom: true },
     { id: 'align-bottom', icon: MoveDown, label: 'Alinhar à Base' },
-    { id: 'align-stretch', icon: ArrowUpDown, label: 'Esticar' },
   ];
 
   const handleToolClick = (toolId: string) => {
@@ -69,44 +61,93 @@ export const AlignmentConfigPanel = ({
       }}
       data-alignment-panel
     >
-      <div className="text-panel-container w-80">
-        {/* Header com estilo consistente */}
-        <div className="text-panel-header">
-          <div className="text-panel-indicator" />
+      <div className="floating-module w-72 overflow-hidden">
+        {/* Header redesenhado */}
+        <div className="flex items-center justify-between p-4 border-b border-slate-700/40">
+          <div className="flex items-center gap-3">
+            <div className="w-1 h-4 bg-green-500 rounded-full" />
+            <span className="text-sm font-medium text-slate-200">Alinhamento</span>
+          </div>
           <button
             onClick={onClose}
-            className="text-panel-close-button"
+            className="w-6 h-6 rounded-lg bg-slate-700/60 hover:bg-red-500/80 
+                     flex items-center justify-center text-slate-400 hover:text-white 
+                     transition-all duration-100 hover:scale-105 active:scale-95"
             title="Fechar"
           >
             <X className="w-3 h-3" />
           </button>
         </div>
 
-        {/* Grid de ferramentas - 4 colunas x 3 linhas */}
-        <div className="p-4">
-          <div className="grid grid-cols-4 gap-2">
-            {alignmentTools.map((tool, index) => {
-              const IconComponent = tool.icon;
-              
-              return (
-                <button
-                  key={tool.id}
-                  className="text-panel-tool-button w-16 h-16 animate-stagger-fade"
-                  style={{ 
-                    animationDelay: `${index * 0.03}s`,
-                    animationFillMode: 'both'
-                  }}
-                  onClick={() => handleToolClick(tool.id)}
-                  title={tool.label}
-                >
-                  {tool.custom ? (
-                    <IconComponent />
-                  ) : (
-                    <IconComponent className="w-5 h-5" />
-                  )}
-                </button>
-              );
-            })}
+        <div className="p-4 space-y-4">
+          {/* Seção de Alinhamento Horizontal */}
+          <div className="space-y-3">
+            <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider">
+              Alinhamento Horizontal
+            </label>
+            <div className="grid grid-cols-3 gap-2">
+              {alignmentTools.slice(0, 3).map((tool, index) => {
+                const IconComponent = tool.icon;
+                
+                return (
+                  <button
+                    key={tool.id}
+                    className="w-full h-12 rounded-xl bg-slate-700/40 hover:bg-slate-600/60 
+                             border border-slate-600/40 hover:border-green-500/60
+                             flex items-center justify-center text-slate-300 hover:text-white 
+                             transition-all duration-100 hover:scale-105 active:scale-95
+                             animate-stagger-fade"
+                    style={{ 
+                      animationDelay: `${index * 0.05}s`,
+                      animationFillMode: 'both'
+                    }}
+                    onClick={() => handleToolClick(tool.id)}
+                    title={tool.label}
+                  >
+                    {tool.custom ? (
+                      <IconComponent />
+                    ) : (
+                      <IconComponent className="w-5 h-5" />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Seção de Alinhamento Vertical */}
+          <div className="space-y-3">
+            <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider">
+              Alinhamento Vertical
+            </label>
+            <div className="grid grid-cols-3 gap-2">
+              {alignmentTools.slice(3, 6).map((tool, index) => {
+                const IconComponent = tool.icon;
+                
+                return (
+                  <button
+                    key={tool.id}
+                    className="w-full h-12 rounded-xl bg-slate-700/40 hover:bg-slate-600/60 
+                             border border-slate-600/40 hover:border-green-500/60
+                             flex items-center justify-center text-slate-300 hover:text-white 
+                             transition-all duration-100 hover:scale-105 active:scale-95
+                             animate-stagger-fade"
+                    style={{ 
+                      animationDelay: `${(index + 3) * 0.05}s`,
+                      animationFillMode: 'both'
+                    }}
+                    onClick={() => handleToolClick(tool.id)}
+                    title={tool.label}
+                  >
+                    {tool.custom ? (
+                      <IconComponent />
+                    ) : (
+                      <IconComponent className="w-5 h-5" />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
       </div>
