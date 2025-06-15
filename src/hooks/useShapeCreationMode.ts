@@ -1,10 +1,10 @@
 
 import { useRef, useState, useEffect, useCallback } from 'react';
-import { FabricObject } from 'fabric';
+import { Canvas as FabricCanvas, FabricObject } from 'fabric';
 import { createEnhancedShape, ShapeType } from '../utils/enhancedShapeFactory';
 
 interface UseShapeCreationModeParams {
-  fabricCanvas: fabric.Canvas | null;
+  fabricCanvas: FabricCanvas | null;
   selectedShape: ShapeType | null;
   color: string;
   onAddElement: (fabricObj: FabricObject) => void;
@@ -32,8 +32,8 @@ export const useShapeCreationMode = ({
     const preview = createEnhancedShape(selectedShape, pointer.x, pointer.y, color, 1);
     if (preview) {
       preview.set({ selectable: false, evented: false, opacity: 0.5 });
-      fabricCanvas.add(preview);
-      previewShapeRef.current = preview;
+      fabricCanvas.add(preview as FabricObject);
+      previewShapeRef.current = preview as FabricObject;
     }
   }, [fabricCanvas, selectedShape, color]);
 
@@ -52,7 +52,6 @@ export const useShapeCreationMode = ({
       previewShapeRef.current.set({ left, top, width, height, rx: undefined, ry: undefined });
     }
     if (selectedShape === 'ellipse') {
-      // Ellipse especificamente usa rx/ry em vez de width/height
       (previewShapeRef.current as any).set({ rx: width/2, ry: height/2, left, top });
     }
     if (selectedShape === 'circle') {
@@ -91,7 +90,7 @@ export const useShapeCreationMode = ({
       // Cria a shape com tamanho final
       const newShape = createEnhancedShape(selectedShape, left + width/2, top + height/2, color, Math.max(width, height));
       if (newShape) {
-        onAddElement(newShape);
+        onAddElement(newShape as FabricObject);
       }
     }
 

@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { DesignElement } from '../types/design';
 import { useFabricCanvas } from '../hooks/useFabricCanvas';
@@ -5,6 +6,8 @@ import { useFabricCanvasEvents } from '../hooks/useFabricCanvasEvents';
 import { createFabricObject } from '../utils/fabricObjectFactory';
 import { useShapeCreationMode } from '../hooks/useShapeCreationMode';
 import { ShapeType } from '../utils/enhancedShapeFactory';
+// Use explicit import for fabric types
+import { Canvas as FabricCanvas, FabricObject } from 'fabric';
 
 interface FabricCanvasProps {
   elements: DesignElement[];
@@ -29,6 +32,7 @@ export const FabricCanvasComponent = ({
   artboardColor = '#ffffff',
   selectedShape = null,
 }: FabricCanvasProps) => {
+  // Type is fabric.Canvas!
   const { canvasRef, fabricCanvas, elementMapRef } = useFabricCanvas({
     selectedTool,
     selectedColor,
@@ -37,11 +41,12 @@ export const FabricCanvasComponent = ({
 
   // "Arrastar para criar shape" só para ferramenta shapes ativa
   useShapeCreationMode({
-    fabricCanvas,
+    fabricCanvas: fabricCanvas as FabricCanvas | null,
     selectedShape: selectedTool === 'shapes' ? selectedShape : null,
     color: selectedColor,
-    onAddElement: (fabricObj) => {
-      const el = {
+    onAddElement: (fabricObj: FabricObject) => {
+      // Ensure the correct type for 'type'
+      const el: Omit<DesignElement, 'id' | 'selected'> = {
         type: 'shape',
         x: fabricObj.left || 0,
         y: fabricObj.top || 0,
@@ -55,7 +60,7 @@ export const FabricCanvasComponent = ({
 
   // Set up canvas event handlers
   useFabricCanvasEvents({
-    fabricCanvas,
+    fabricCanvas: fabricCanvas as FabricCanvas | null,
     selectedTool,
     selectedColor,
     elements,
