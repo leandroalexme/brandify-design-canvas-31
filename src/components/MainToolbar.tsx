@@ -14,13 +14,15 @@ interface MainToolbarProps {
   onColorSelect: (color: string) => void;
   selectedShape: string | null;
   onShapeSelect: (shape: string | null) => void;
+  onOpenTextPanel: () => void;
 }
 
 export const MainToolbar = ({ 
   selectedTool, 
   onToolSelect, 
   selectedShape, 
-  onShapeSelect 
+  onShapeSelect,
+  onOpenTextPanel
 }: MainToolbarProps) => {
   const {
     mainTools,
@@ -40,6 +42,23 @@ export const MainToolbar = ({
     handleShapesMenuClose
   } = useMainToolbar(selectedTool, onToolSelect, selectedShape, onShapeSelect);
 
+  // Handler específico para o botão de texto
+  const handleTextToolClick = React.useCallback(() => {
+    console.log('📝 [MAIN TOOLBAR] Text tool clicked');
+    onOpenTextPanel();
+  }, [onOpenTextPanel]);
+
+  // Handler personalizado que intercepta cliques no botão de texto
+  const handleCustomToolClick = React.useCallback((toolId: string) => {
+    console.log('🔧 [MAIN TOOLBAR] Custom tool click:', toolId);
+    
+    if (toolId === 'text') {
+      handleTextToolClick();
+    } else {
+      handleToolClick(toolId as any);
+    }
+  }, [handleTextToolClick, handleToolClick]);
+
   return (
     <>
       <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-[400]" data-toolbar>
@@ -57,7 +76,7 @@ export const MainToolbar = ({
                 hasActiveSub={hasActiveSub}
                 hasSelectedShape={hasSelectedShape}
                 buttonRef={el => buttonRefs.current[tool.id] = el}
-                onClick={() => handleToolClick(tool.id)}
+                onClick={() => handleCustomToolClick(tool.id)}
                 onRightClick={(e) => handleToolRightClick(e, tool.id)}
                 onDoubleClick={() => handleToolDoubleClick(tool.id)}
               />

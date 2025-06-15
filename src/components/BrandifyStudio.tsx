@@ -45,7 +45,7 @@ export const BrandifyStudio = () => {
   const canvasRef = useRef<HTMLDivElement>(null);
   const debouncedUpdateElement = useDebounce(updateElement, 100);
 
-  // Log para debug
+  // Log para debug detalhado
   React.useEffect(() => {
     console.log('📊 [BRANDIFY] Current state:', {
       selectedTool: toolState.selectedTool,
@@ -53,16 +53,6 @@ export const BrandifyStudio = () => {
       showTextPanel: uiState.showTextPropertiesPanel
     });
   }, [toolState.selectedTool, elements.length, uiState.showTextPropertiesPanel]);
-
-  // Controlar painel de texto baseado na ferramenta selecionada
-  React.useEffect(() => {
-    const shouldShowPanel = toolState.selectedTool === 'text';
-    
-    if (shouldShowPanel !== uiState.showTextPropertiesPanel) {
-      console.log('🎛️ [BRANDIFY] Updating text panel visibility:', shouldShowPanel);
-      updateUIState({ showTextPropertiesPanel: shouldShowPanel });
-    }
-  }, [toolState.selectedTool, uiState.showTextPropertiesPanel, updateUIState]);
 
   // Mapear ferramentas para o Canvas
   const getCanvasToolType = useCallback((tool: ToolType): 'select' | 'pen' | 'shapes' | 'text' => {
@@ -103,10 +93,22 @@ export const BrandifyStudio = () => {
     createTextElement(x, y);
   }, [createTextElement]);
 
+  // Nova função específica para abrir o painel de texto
+  const handleOpenTextPanel = useCallback(() => {
+    console.log('🎛️ [BRANDIFY] Opening text panel manually');
+    console.log('🎛️ [BRANDIFY] Current tool before:', toolState.selectedTool);
+    
+    // Selecionar ferramenta de texto e abrir painel
+    updateToolState({ selectedTool: 'text' });
+    updateUIState({ showTextPropertiesPanel: true });
+    
+    console.log('🎛️ [BRANDIFY] Text panel opened, tool set to text');
+  }, [updateToolState, updateUIState, toolState.selectedTool]);
+
   const handleCloseTextPanel = useCallback(() => {
     console.log('🚪 [BRANDIFY] Closing text panel');
     updateUIState({ showTextPropertiesPanel: false });
-    // Voltar para ferramenta de seleção quando fechar o painel
+    // Voltar para ferramenta de seleção ao fechar o painel
     updateToolState({ selectedTool: 'select' });
   }, [updateUIState, updateToolState]);
 
@@ -136,6 +138,7 @@ export const BrandifyStudio = () => {
           onColorSelect={handleColorSelect}
           selectedShape={uiState.selectedShape}
           onShapeSelect={handleShapeSelect}
+          onOpenTextPanel={handleOpenTextPanel}
         />
         
         <LayersButton onClick={() => updateUIState({ showLayersPanel: !uiState.showLayersPanel })} />
