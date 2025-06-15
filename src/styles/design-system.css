@@ -42,3 +42,44 @@
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 }
+
+/* Estilos para o slider de opacidade */
+.slider-opacity {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.slider-opacity::-webkit-slider-track {
+  background: transparent;
+  height: 100%;
+}
+
+.slider-opacity::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 24px;
+  width: 24px;
+  border-radius: 50%;
+  background: white;
+  border: 2px solid #94a3b8;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.slider-opacity::-moz-range-track {
+  background: transparent;
+  height: 100%;
+  border: none;
+}
+
+.slider-opacity::-moz-range-thumb {
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  background: white;
+  border: 2px solid #94a3b8;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}

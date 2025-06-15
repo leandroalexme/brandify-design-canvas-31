@@ -5,6 +5,7 @@ import { ShapesMenu } from './ShapesMenu';
 import { FontConfigPanel } from './FontConfigPanel';
 import { TextPropertiesSubmenu } from './TextPropertiesSubmenu';
 import { AlignmentConfigPanel } from './AlignmentConfigPanel';
+import { ColorConfigPanel } from './ColorConfigPanel';
 import { MainToolbarButton } from './MainToolbarButton';
 import { useMainToolbar } from '../hooks/useMainToolbar';
 import { ToolType } from '../types/tools';
