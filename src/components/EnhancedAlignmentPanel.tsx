@@ -2,8 +2,8 @@
 import React from 'react';
 import { 
   AlignLeft, AlignCenter, AlignRight, 
-  AlignTop, AlignMiddle, AlignBottom,
-  DistributeHorizontal, DistributeVertical,
+  AlignStartVertical, AlignCenterVertical, AlignEndVertical,
+  AlignHorizontalDistributeCenter, AlignVerticalDistributeCenter,
   Grid, Move
 } from 'lucide-react';
 import { PanelContainer } from './ui/PanelContainer';
@@ -117,7 +117,7 @@ export const EnhancedAlignmentPanel = ({
                 disabled={!hasMultipleSelected}
                 title="Alinhar ao topo"
               >
-                <AlignTop className="w-4 h-4" />
+                <AlignStartVertical className="w-4 h-4" />
               </button>
               <button
                 className="button-unified p-2 flex items-center justify-center"
@@ -125,7 +125,7 @@ export const EnhancedAlignmentPanel = ({
                 disabled={!hasMultipleSelected}
                 title="Alinhar ao meio"
               >
-                <AlignMiddle className="w-4 h-4" />
+                <AlignCenterVertical className="w-4 h-4" />
               </button>
               <button
                 className="button-unified p-2 flex items-center justify-center"
@@ -133,7 +133,7 @@ export const EnhancedAlignmentPanel = ({
                 disabled={!hasMultipleSelected}
                 title="Alinhar embaixo"
               >
-                <AlignBottom className="w-4 h-4" />
+                <AlignEndVertical className="w-4 h-4" />
               </button>
             </div>
           </div>
@@ -151,7 +151,7 @@ export const EnhancedAlignmentPanel = ({
               disabled={selectedElements.length < 3}
               title="Distribuir horizontalmente"
             >
-              <DistributeHorizontal className="w-4 h-4" />
+              <AlignHorizontalDistributeCenter className="w-4 h-4" />
               Horizontal
             </button>
             <button
@@ -160,7 +160,7 @@ export const EnhancedAlignmentPanel = ({
               disabled={selectedElements.length < 3}
               title="Distribuir verticalmente"
             >
-              <DistributeVertical className="w-4 h-4" />
+              <AlignVerticalDistributeCenter className="w-4 h-4" />
               Vertical
             </button>
           </div>
