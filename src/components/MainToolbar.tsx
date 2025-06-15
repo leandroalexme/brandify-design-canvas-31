@@ -92,7 +92,7 @@ export const MainToolbar = ({
         </div>
       </div>
 
-      {/* Submenu para select e pen */}
+      {/* Submenu para select, pen e text */}
       {showSubmenu && SUB_TOOL_OPTIONS[showSubmenu as keyof typeof SUB_TOOL_OPTIONS] && (
         <SimpleSubmenu
           isOpen={!!showSubmenu}

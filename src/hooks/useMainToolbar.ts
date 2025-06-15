@@ -178,21 +178,30 @@ export const useMainToolbar = (
     
     // Se for o ícone de texto, abrir o painel de configuração
     if (subToolId === 'text') {
-      const button = buttonRefs.current['text'];
-      if (button) {
-        const rect = button.getBoundingClientRect();
+      console.log('📝 [MAIN TOOLBAR] Opening font panel for text tool');
+      
+      // Usar a posição do botão de texto da toolbar principal
+      const textButton = buttonRefs.current['text'];
+      if (textButton) {
+        const rect = textButton.getBoundingClientRect();
         const position = {
           x: rect.left + rect.width / 2,
           y: rect.top
         };
+        console.log('📝 [MAIN TOOLBAR] Font panel position:', position);
         setFontPanelPosition(position);
         setShowFontPanel(true);
-        toggleSubmenu(null); // Fechar submenu
       }
+      
+      // Fechar submenu
+      toggleSubmenu(null);
+      
+      // Selecionar ferramenta de texto
+      onToolSelect('text');
     } else {
       selectSubTool(subToolId as any);
     }
-  }, [selectSubTool, toggleSubmenu]);
+  }, [selectSubTool, toggleSubmenu, onToolSelect]);
 
   const handleSubmenuClose = useCallback(() => {
     logger.debug('Closing submenu');
@@ -212,7 +221,7 @@ export const useMainToolbar = (
   }, [onShapeSelect]);
 
   const handleFontPanelClose = useCallback(() => {
-    logger.debug('Closing font panel');
+    console.log('📝 [MAIN TOOLBAR] Closing font panel');
     setShowFontPanel(false);
   }, []);
 

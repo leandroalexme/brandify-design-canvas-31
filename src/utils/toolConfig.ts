@@ -58,5 +58,8 @@ export const SUB_TOOL_OPTIONS = {
   pen: [
     { id: 'brush', icon: Brush, label: 'Pincel' },
     { id: 'pencil', icon: Pencil, label: 'Lápis' }
+  ],
+  text: [
+    { id: 'text', icon: Type, label: 'Configurar Fonte' }
   ]
 };
