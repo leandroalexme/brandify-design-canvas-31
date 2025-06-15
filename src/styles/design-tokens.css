@@ -1,0 +1,19 @@
+
+/* DESIGN TOKENS - Core Variables and Z-Index System */
+@layer components {
+  /* Z-Index System - Global Hierarchy */
+  :root {
+    --z-toolbar: 400;
+    --z-submenu: 450;
+    --z-panel: 500;
+    --z-modal: 600;
+    --z-tooltip: 700;
+  }
+
+  /* Spacing System - Grid based on 4px */
+  .spacing-xs { @apply p-2; }    /* 8px */
+  .spacing-sm { @apply p-3; }    /* 12px */
+  .spacing-md { @apply p-4; }    /* 16px */
+  .spacing-lg { @apply p-6; }    /* 24px */
+  .spacing-xl { @apply p-8; }    /* 32px */
+}

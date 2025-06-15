@@ -1,0 +1,72 @@
+
+/* PANEL SYSTEM - Unified Panel Components */
+@layer components {
+  /* Panel Container System - Unified */
+  .panel-container-unified {
+    @apply bg-slate-800/95 backdrop-blur-xl border border-slate-700/60 rounded-2xl shadow-2xl overflow-hidden;
+    box-shadow: 
+      0px 12px 48px -12px rgba(0, 0, 0, 0.6),
+      0px 4px 16px -4px rgba(0, 0, 0, 0.4),
+      inset 0px 1px 0px rgba(255, 255, 255, 0.05);
+    will-change: transform, opacity;
+  }
+
+  /* Panel Header System */
+  .panel-header-unified {
+    @apply flex items-center justify-between px-6 py-4 border-b border-slate-700/60 bg-slate-800/50;
+    backdrop-filter: blur(12px);
+  }
+
+  .panel-title-unified {
+    @apply text-system-title flex items-center gap-3;
+  }
+
+  .panel-title-unified::before {
+    content: '';
+    @apply w-1 h-6 bg-blue-500 rounded-full;
+    box-shadow: 0px 2px 8px rgba(59, 130, 246, 0.5);
+  }
+
+  .panel-close-button-unified {
+    @apply w-8 h-8 rounded-xl bg-slate-700/60 hover:bg-red-500/80 
+           flex items-center justify-center text-slate-400 hover:text-white 
+           transition-all duration-150 hover:scale-105 active:scale-95;
+    will-change: transform, background-color;
+  }
+
+  /* Panel Content System */
+  .panel-content-unified {
+    @apply flex-1 overflow-hidden;
+  }
+
+  .panel-section-unified {
+    @apply spacing-md space-y-4;
+  }
+
+  .panel-section-title-unified {
+    @apply text-system-caption mb-3;
+  }
+
+  .panel-scrollable-unified {
+    @apply overflow-y-auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(148, 163, 184, 0.3) transparent;
+  }
+
+  .panel-scrollable-unified::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .panel-scrollable-unified::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .panel-scrollable-unified::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, 0.3);
+    border-radius: 3px;
+  }
+
+  .panel-scrollable-unified::-webkit-scrollbar-thumb:hover {
+    background: rgba(148, 163, 184, 0.5);
+  }
+}

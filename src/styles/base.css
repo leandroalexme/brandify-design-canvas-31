@@ -3,7 +3,12 @@
 @tailwind components;
 @tailwind utilities;
 
-@import './unified-design-system.css';
+@import './design-tokens.css';
+@import './typography.css';
+@import './panels.css';
+@import './buttons.css';
+@import './inputs.css';
+@import './layout.css';
 
 @layer base {
   * {

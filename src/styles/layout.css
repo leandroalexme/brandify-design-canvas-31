@@ -1,0 +1,62 @@
+
+/* LAYOUT SYSTEM - Grid and Responsive Layout */
+@layer components {
+  /* Grid System - Responsive */
+  .grid-unified-2 {
+    @apply grid grid-cols-2 gap-3;
+  }
+
+  .grid-unified-3 {
+    @apply grid grid-cols-3 gap-3;
+  }
+
+  .grid-unified-4 {
+    @apply grid grid-cols-4 gap-3;
+  }
+
+  .grid-unified-auto {
+    @apply grid gap-3;
+    grid-template-columns: repeat(auto-fill, minmax(48px, 1fr));
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .panel-container-unified {
+      @apply rounded-t-2xl rounded-b-none;
+      position: fixed !important;
+      bottom: 0 !important;
+      left: 8px !important;
+      right: 8px !important;
+      top: auto !important;
+      width: auto !important;
+      max-height: 80vh;
+    }
+
+    .grid-unified-4 {
+      @apply grid-cols-3;
+    }
+
+    .grid-unified-3 {
+      @apply grid-cols-2;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .panel-header-unified {
+      @apply px-4 py-3;
+    }
+
+    .panel-section-unified {
+      @apply p-3;
+    }
+
+    .grid-unified-4,
+    .grid-unified-3 {
+      @apply grid-cols-2;
+    }
+
+    .grid-unified-2 {
+      @apply grid-cols-1;
+    }
+  }
+}

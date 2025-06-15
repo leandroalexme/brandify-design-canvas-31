@@ -1,0 +1,25 @@
+
+/* TYPOGRAPHY SYSTEM - Inter Font and Text Styles */
+@layer components {
+  /* Typography System - Inter as main font */
+  .text-system-title {
+    @apply text-lg font-semibold text-slate-200;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  .text-system-subtitle {
+    @apply text-sm font-medium text-slate-300;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  .text-system-body {
+    @apply text-sm text-slate-400;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  .text-system-caption {
+    @apply text-xs font-medium text-slate-500 uppercase tracking-wider;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+}

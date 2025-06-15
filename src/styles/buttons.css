@@ -1,0 +1,31 @@
+
+/* BUTTON SYSTEM - Unified Button Components */
+@layer components {
+  /* Button System - Unified */
+  .button-primary-unified {
+    @apply px-4 py-2 bg-blue-500/90 hover:bg-blue-500 text-white rounded-xl
+           transition-all duration-150 hover:scale-105 active:scale-95
+           font-medium text-sm;
+    box-shadow: 0px 4px 16px -4px rgba(59, 130, 246, 0.4);
+  }
+
+  .button-secondary-unified {
+    @apply px-4 py-2 bg-slate-700/60 hover:bg-slate-600/80 text-slate-300 hover:text-white
+           rounded-xl border border-slate-600/40 hover:border-slate-500/60
+           transition-all duration-150 hover:scale-105 active:scale-95
+           font-medium text-sm;
+  }
+
+  .button-icon-unified {
+    @apply w-10 h-10 rounded-xl bg-slate-700/60 hover:bg-slate-600/80 
+           border border-slate-600/40 hover:border-slate-500/60
+           flex items-center justify-center text-slate-300 hover:text-white
+           transition-all duration-150 hover:scale-105 active:scale-95;
+    will-change: transform, background-color, border-color;
+  }
+
+  .button-icon-unified.selected {
+    @apply bg-blue-500/80 border-blue-400/60 text-white;
+    box-shadow: 0px 4px 16px -4px rgba(59, 130, 246, 0.4);
+  }
+}
