@@ -117,10 +117,11 @@ export const FabricCanvasComponent = ({
   // Convert Fabric object to DesignElement
   const createDesignElement = useCallback((fabricObj: FabricObject, type: DesignElement['type']): Omit<DesignElement, 'id' | 'selected'> => {
     // Helper function to ensure color is always a string
-    const getColorAsString = (fill: string | number | undefined): string => {
+    const getColorAsString = (fill: any): string => {
       if (typeof fill === 'string') {
         return fill;
       }
+      // For non-string fills (gradients, patterns, etc.), return the selected color as fallback
       return selectedColor;
     };
 
