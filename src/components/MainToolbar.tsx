@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { SimpleSubmenu } from './SimpleSubmenu';
 import { ShapesMenu } from './ShapesMenu';
@@ -10,6 +11,7 @@ import { MainToolbarButton } from './MainToolbarButton';
 import { useMainToolbar } from '../hooks/useMainToolbar';
 import { ToolType } from '../types/tools';
 import { SUB_TOOL_OPTIONS } from '../utils/toolConfig';
+import { debug } from '../utils/debug';
 
 interface MainToolbarProps {
   selectedTool: ToolType;
@@ -65,12 +67,12 @@ export const MainToolbar = ({
   } = useMainToolbar(selectedTool, onToolSelect, selectedShape, onShapeSelect);
 
   const handleTextToolClick = React.useCallback(() => {
-    console.log('📝 [MAIN TOOLBAR] Text tool clicked - Opening text properties submenu');
+    debug.log('Text tool clicked - Opening text properties submenu', undefined, 'toolbar');
     onOpenTextPanel();
   }, [onOpenTextPanel]);
 
   const handleCustomToolClick = React.useCallback((toolId: string) => {
-    console.log('🔧 [MAIN TOOLBAR] Custom tool click:', toolId);
+    debug.log('Custom tool click', { toolId }, 'toolbar');
     
     if (toolId === 'text') {
       handleTextToolClick();
@@ -81,7 +83,7 @@ export const MainToolbar = ({
 
   // Enhanced handler for text submenu tools with intelligent positioning
   const handleTextSubmenuToolSelect = React.useCallback((toolId: string) => {
-    console.log('📝 [MAIN TOOLBAR] Text submenu tool selected:', toolId);
+    debug.log('Text submenu tool selected', { toolId }, 'toolbar');
     
     const toolbarCenter = getToolbarCenter();
     
@@ -93,7 +95,7 @@ export const MainToolbar = ({
     // Small delay to ensure clean transitions
     setTimeout(() => {
       if (toolId === 'typography') {
-        console.log('📝 [MAIN TOOLBAR] Opening font config panel');
+        debug.log('Opening font config panel', undefined, 'toolbar');
         const fontPanelButton = buttonRefs.current['text'];
         if (fontPanelButton) {
           const rect = fontPanelButton.getBoundingClientRect();
@@ -105,13 +107,13 @@ export const MainToolbar = ({
           handleSubToolSelect('fontConfig');
         }
       } else if (toolId === 'alignment') {
-        console.log('📐 [MAIN TOOLBAR] Opening alignment config panel');
+        debug.log('Opening alignment config panel', undefined, 'toolbar');
         setShowAlignmentPanel(true);
       } else if (toolId === 'color') {
-        console.log('🎨 [MAIN TOOLBAR] Opening color config panel');  
+        debug.log('Opening color config panel', undefined, 'toolbar');
         setShowColorPanel(true);
       } else if (toolId === 'glyph') {
-        console.log('🔤 [MAIN TOOLBAR] Opening glyph panel');
+        debug.log('Opening glyph panel', undefined, 'toolbar');
         setShowGlyphPanel(true);
       }
     }, 100);
@@ -131,7 +133,7 @@ export const MainToolbar = ({
   }, []);
 
   const handleTextPanelClose = React.useCallback(() => {
-    console.log('📝 [MAIN TOOLBAR] Closing text panel and all subpanels');
+    debug.log('Closing text panel and all subpanels', undefined, 'toolbar');
     onOpenTextPanel();
     
     // Fechar todos os subpainéis

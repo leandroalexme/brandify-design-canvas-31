@@ -1,5 +1,5 @@
 
-import React, { useRef, useState, useCallback } from 'react';
+import React, { useRef, useState, useCallback, useMemo } from 'react';
 import { Copy, Plus } from 'lucide-react';
 import { DesignElement } from '../types/design';
 import { useEventListener } from '../hooks/useEventListener';
@@ -14,7 +14,63 @@ interface CanvasProps {
   onCreateText: (x: number, y: number) => void;
 }
 
-export const Canvas = ({ 
+const CanvasElement = React.memo(({ 
+  element, 
+  onClick 
+}: { 
+  element: DesignElement; 
+  onClick: (e: React.MouseEvent, id: string) => void;
+}) => {
+  const handleClick = useCallback((e: React.MouseEvent) => {
+    onClick(e, element.id);
+  }, [onClick, element.id]);
+
+  const elementStyle = useMemo(() => ({
+    left: element.x,
+    top: element.y,
+    transform: `rotate(${element.rotation || 0}deg)`,
+  }), [element.x, element.y, element.rotation]);
+
+  return (
+    <div
+      className={`absolute cursor-pointer transition-all duration-200 ${
+        element.selected ? 'ring-2 ring-blue-500 ring-offset-2 ring-offset-white' : ''
+      }`}
+      style={elementStyle}
+      onClick={handleClick}
+    >
+      {element.type === 'text' && (
+        <div
+          className="select-none min-w-[100px] min-h-[30px] bg-transparent p-1"
+          style={{
+            color: element.color || '#000000',
+            fontSize: `${element.fontSize || 24}px`,
+            fontFamily: element.fontFamily || 'Inter',
+            fontWeight: element.fontWeight || 'normal',
+            lineHeight: '1.2',
+          }}
+        >
+          {element.content || 'Texto vazio'}
+        </div>
+      )}
+      
+      {element.type === 'shape' && (
+        <div
+          className="rounded-2xl"
+          style={{
+            backgroundColor: element.color,
+            width: element.width || 100,
+            height: element.height || 100,
+          }}
+        />
+      )}
+    </div>
+  );
+});
+
+CanvasElement.displayName = 'CanvasElement';
+
+export const Canvas = React.memo(({ 
   elements, 
   selectedTool, 
   selectedColor, 
@@ -35,35 +91,21 @@ export const Canvas = ({
   }, [showColorPicker]));
 
   const handleArtboardClick = useCallback((e: React.MouseEvent) => {
-    console.log('🎯 [CANVAS] Artboard clicked');
-    console.log('🔧 [CANVAS] Current tool:', selectedTool);
-    console.log('📊 [CANVAS] Elements count:', elements.length);
-    
-    if (!artboardRef.current) {
-      console.error('❌ [CANVAS] Artboard ref is null');
-      return;
-    }
+    if (!artboardRef.current) return;
     
     const rect = artboardRef.current.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
-    console.log('📍 [CANVAS] Click coordinates:', { x, y });
-
     // Validar coordenadas
-    if (x < 0 || y < 0 || x > rect.width || y > rect.height) {
-      console.warn('⚠️ [CANVAS] Click outside artboard bounds');
-      return;
-    }
+    if (x < 0 || y < 0 || x > rect.width || y > rect.height) return;
 
     // Limpar seleções primeiro
     onSelectElement(null);
 
     if (selectedTool === 'text') {
-      console.log('📝 [CANVAS] Creating text element');
       onCreateText(x, y);
     } else if (selectedTool === 'shapes') {
-      console.log('🔷 [CANVAS] Creating shape element');
       onAddElement({
         type: 'shape',
         x,
@@ -73,27 +115,33 @@ export const Canvas = ({
         height: 100,
       });
     }
-  }, [artboardRef, onSelectElement, selectedTool, onCreateText, onAddElement, selectedColor, elements.length]);
+  }, [artboardRef, onSelectElement, selectedTool, onCreateText, onAddElement, selectedColor]);
 
   const handleElementClick = useCallback((e: React.MouseEvent, elementId: string) => {
     e.stopPropagation();
-    console.log('🎯 [CANVAS] Element clicked:', elementId);
     onSelectElement(elementId);
   }, [onSelectElement]);
 
   const handleColorChange = useCallback((color: string) => {
     setArtboardColor(color);
     setShowColorPicker(false);
-    console.log('🎨 [CANVAS] Artboard color changed:', color);
   }, []);
 
-  // Debug log para elementos
-  React.useEffect(() => {
-    console.log('📊 [CANVAS] Elements updated:', {
-      count: elements.length,
-      elements: elements.map(el => ({ id: el.id, type: el.type, x: el.x, y: el.y }))
-    });
-  }, [elements]);
+  const colorOptions = useMemo(() => 
+    ['#ffffff', '#f8fafc', '#e2e8f0', '#cbd5e1', '#94a3b8', '#64748b', '#475569', '#334155'],
+    []
+  );
+
+  const renderedElements = useMemo(() => 
+    elements.map((element) => (
+      <CanvasElement
+        key={element.id}
+        element={element}
+        onClick={handleElementClick}
+      />
+    )),
+    [elements, handleElementClick]
+  );
 
   return (
     <div className="h-screen flex items-center justify-center relative">
@@ -113,7 +161,7 @@ export const Canvas = ({
             {showColorPicker && (
               <div className="absolute top-8 left-0 z-50 p-3 bg-slate-800 rounded-xl border border-slate-700 shadow-2xl">
                 <div className="grid grid-cols-4 gap-2">
-                  {['#ffffff', '#f8fafc', '#e2e8f0', '#cbd5e1', '#94a3b8', '#64748b', '#475569', '#334155'].map((color) => (
+                  {colorOptions.map((color) => (
                     <button
                       key={color}
                       className="w-8 h-8 rounded-lg border-2 border-slate-600/60 hover:scale-110 transition-transform"
@@ -158,52 +206,11 @@ export const Canvas = ({
           </div>
           
           {/* Render elements */}
-          {elements.map((element) => {
-            console.log('🎨 [CANVAS] Rendering element:', element);
-            
-            return (
-              <div
-                key={element.id}
-                className={`absolute cursor-pointer transition-all duration-200 ${
-                  element.selected ? 'ring-2 ring-blue-500 ring-offset-2 ring-offset-white' : ''
-                }`}
-                style={{
-                  left: element.x,
-                  top: element.y,
-                  transform: `rotate(${element.rotation || 0}deg)`,
-                }}
-                onClick={(e) => handleElementClick(e, element.id)}
-              >
-                {element.type === 'text' && (
-                  <div
-                    className="select-none min-w-[100px] min-h-[30px] bg-transparent p-1"
-                    style={{
-                      color: element.color || '#000000',
-                      fontSize: `${element.fontSize || 24}px`,
-                      fontFamily: element.fontFamily || 'Inter',
-                      fontWeight: element.fontWeight || 'normal',
-                      lineHeight: '1.2',
-                    }}
-                  >
-                    {element.content || 'Texto vazio'}
-                  </div>
-                )}
-                
-                {element.type === 'shape' && (
-                  <div
-                    className="rounded-2xl"
-                    style={{
-                      backgroundColor: element.color,
-                      width: element.width || 100,
-                      height: element.height || 100,
-                    }}
-                  />
-                )}
-              </div>
-            );
-          })}
+          {renderedElements}
         </div>
       </div>
     </div>
   );
-};
+});
+
+Canvas.displayName = 'Canvas';
