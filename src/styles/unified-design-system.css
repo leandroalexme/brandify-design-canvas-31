@@ -1,0 +1,227 @@
+
+/* UNIFIED DESIGN SYSTEM - Sistema Global Padronizado */
+@layer components {
+  /* Z-Index System - Hierarquia Global */
+  :root {
+    --z-toolbar: 400;
+    --z-submenu: 450;
+    --z-panel: 500;
+    --z-modal: 600;
+    --z-tooltip: 700;
+  }
+
+  /* Typography System - Inter como fonte principal */
+  .text-system-title {
+    @apply text-lg font-semibold text-slate-200;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  .text-system-subtitle {
+    @apply text-sm font-medium text-slate-300;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  .text-system-body {
+    @apply text-sm text-slate-400;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  .text-system-caption {
+    @apply text-xs font-medium text-slate-500 uppercase tracking-wider;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  /* Spacing System - Grid baseado em 4px */
+  .spacing-xs { @apply p-2; }    /* 8px */
+  .spacing-sm { @apply p-3; }    /* 12px */
+  .spacing-md { @apply p-4; }    /* 16px */
+  .spacing-lg { @apply p-6; }    /* 24px */
+  .spacing-xl { @apply p-8; }    /* 32px */
+
+  /* Panel Container System - Unificado */
+  .panel-container-unified {
+    @apply bg-slate-800/95 backdrop-blur-xl border border-slate-700/60 rounded-2xl shadow-2xl overflow-hidden;
+    box-shadow: 
+      0px 12px 48px -12px rgba(0, 0, 0, 0.6),
+      0px 4px 16px -4px rgba(0, 0, 0, 0.4),
+      inset 0px 1px 0px rgba(255, 255, 255, 0.05);
+    will-change: transform, opacity;
+  }
+
+  /* Panel Header System */
+  .panel-header-unified {
+    @apply flex items-center justify-between px-6 py-4 border-b border-slate-700/60 bg-slate-800/50;
+    backdrop-filter: blur(12px);
+  }
+
+  .panel-title-unified {
+    @apply text-system-title flex items-center gap-3;
+  }
+
+  .panel-title-unified::before {
+    content: '';
+    @apply w-1 h-6 bg-blue-500 rounded-full;
+    box-shadow: 0px 2px 8px rgba(59, 130, 246, 0.5);
+  }
+
+  .panel-close-button-unified {
+    @apply w-8 h-8 rounded-xl bg-slate-700/60 hover:bg-red-500/80 
+           flex items-center justify-center text-slate-400 hover:text-white 
+           transition-all duration-150 hover:scale-105 active:scale-95;
+    will-change: transform, background-color;
+  }
+
+  /* Panel Content System */
+  .panel-content-unified {
+    @apply flex-1 overflow-hidden;
+  }
+
+  .panel-section-unified {
+    @apply spacing-md space-y-4;
+  }
+
+  .panel-section-title-unified {
+    @apply text-system-caption mb-3;
+  }
+
+  .panel-scrollable-unified {
+    @apply overflow-y-auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(148, 163, 184, 0.3) transparent;
+  }
+
+  .panel-scrollable-unified::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .panel-scrollable-unified::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .panel-scrollable-unified::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, 0.3);
+    border-radius: 3px;
+  }
+
+  .panel-scrollable-unified::-webkit-scrollbar-thumb:hover {
+    background: rgba(148, 163, 184, 0.5);
+  }
+
+  /* Button System - Unificado */
+  .button-primary-unified {
+    @apply px-4 py-2 bg-blue-500/90 hover:bg-blue-500 text-white rounded-xl
+           transition-all duration-150 hover:scale-105 active:scale-95
+           font-medium text-sm;
+    box-shadow: 0px 4px 16px -4px rgba(59, 130, 246, 0.4);
+  }
+
+  .button-secondary-unified {
+    @apply px-4 py-2 bg-slate-700/60 hover:bg-slate-600/80 text-slate-300 hover:text-white
+           rounded-xl border border-slate-600/40 hover:border-slate-500/60
+           transition-all duration-150 hover:scale-105 active:scale-95
+           font-medium text-sm;
+  }
+
+  .button-icon-unified {
+    @apply w-10 h-10 rounded-xl bg-slate-700/60 hover:bg-slate-600/80 
+           border border-slate-600/40 hover:border-slate-500/60
+           flex items-center justify-center text-slate-300 hover:text-white
+           transition-all duration-150 hover:scale-105 active:scale-95;
+    will-change: transform, background-color, border-color;
+  }
+
+  .button-icon-unified.selected {
+    @apply bg-blue-500/80 border-blue-400/60 text-white;
+    box-shadow: 0px 4px 16px -4px rgba(59, 130, 246, 0.4);
+  }
+
+  /* Input System - Unificado */
+  .input-unified {
+    @apply w-full px-3 py-2 bg-slate-700/60 border border-slate-600/60 rounded-xl
+           text-sm text-slate-200 placeholder-slate-400
+           focus:outline-none focus:ring-2 focus:ring-blue-500/60 focus:border-transparent
+           transition-all duration-150;
+  }
+
+  .input-search-unified {
+    @apply input-unified pl-10;
+  }
+
+  /* Dropdown System - Unificado */
+  .dropdown-unified {
+    @apply absolute top-full left-0 right-0 mt-2 bg-slate-800/95 backdrop-blur-xl
+           border border-slate-700/60 rounded-xl shadow-2xl overflow-hidden z-50;
+    box-shadow: 
+      0px 8px 32px -8px rgba(0, 0, 0, 0.4),
+      0px 2px 8px -2px rgba(0, 0, 0, 0.2);
+  }
+
+  .dropdown-item-unified {
+    @apply px-4 py-3 text-sm text-slate-300 hover:text-white hover:bg-slate-700/60
+           transition-colors duration-150 cursor-pointer;
+  }
+
+  .dropdown-item-unified.selected {
+    @apply bg-blue-500/20 text-blue-300;
+  }
+
+  /* Grid System - Responsivo */
+  .grid-unified-2 {
+    @apply grid grid-cols-2 gap-3;
+  }
+
+  .grid-unified-3 {
+    @apply grid grid-cols-3 gap-3;
+  }
+
+  .grid-unified-4 {
+    @apply grid grid-cols-4 gap-3;
+  }
+
+  .grid-unified-auto {
+    @apply grid gap-3;
+    grid-template-columns: repeat(auto-fill, minmax(48px, 1fr));
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .panel-container-unified {
+      @apply rounded-t-2xl rounded-b-none;
+      position: fixed !important;
+      bottom: 0 !important;
+      left: 8px !important;
+      right: 8px !important;
+      top: auto !important;
+      width: auto !important;
+      max-height: 80vh;
+    }
+
+    .grid-unified-4 {
+      @apply grid-cols-3;
+    }
+
+    .grid-unified-3 {
+      @apply grid-cols-2;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .panel-header-unified {
+      @apply px-4 py-3;
+    }
+
+    .panel-section-unified {
+      @apply p-3;
+    }
+
+    .grid-unified-4,
+    .grid-unified-3 {
+      @apply grid-cols-2;
+    }
+
+    .grid-unified-2 {
+      @apply grid-cols-1;
+    }
+  }
+}

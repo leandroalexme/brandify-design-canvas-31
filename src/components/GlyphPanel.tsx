@@ -1,6 +1,6 @@
 
-import React, { useRef, useEffect, useState } from 'react';
-import { GlyphPanelHeader } from './glyph/GlyphPanelHeader';
+import React from 'react';
+import { PanelContainer } from './ui/PanelContainer';
 import { FontSelector } from './glyph/FontSelector';
 import { CategorySelector, categoryData } from './glyph/CategorySelector';
 import { GlyphSearch } from './glyph/GlyphSearch';
@@ -17,14 +17,13 @@ export const GlyphPanel = ({
   onClose, 
   position = { x: 500, y: 200 }
 }: GlyphPanelProps) => {
-  const panelRef = useRef<HTMLDivElement>(null);
-  const [selectedFont, setSelectedFont] = useState('Inter');
-  const [selectedWeight, setSelectedWeight] = useState('Regular');
-  const [selectedCategory, setSelectedCategory] = useState('All');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [showFontDropdown, setShowFontDropdown] = useState(false);
-  const [showWeightDropdown, setShowWeightDropdown] = useState(false);
-  const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
+  const [selectedFont, setSelectedFont] = React.useState('Inter');
+  const [selectedWeight, setSelectedWeight] = React.useState('Regular');
+  const [selectedCategory, setSelectedCategory] = React.useState('All');
+  const [searchTerm, setSearchTerm] = React.useState('');
+  const [showFontDropdown, setShowFontDropdown] = React.useState(false);
+  const [showWeightDropdown, setShowWeightDropdown] = React.useState(false);
+  const [showCategoryDropdown, setShowCategoryDropdown] = React.useState(false);
 
   const handleGlyphSelect = (glyph: string) => {
     console.log('🔤 [GLYPH PANEL] Glyph selected:', glyph, 'Font:', selectedFont, 'Weight:', selectedWeight);
@@ -70,39 +69,19 @@ export const GlyphPanel = ({
     setShowCategoryDropdown(false);
   };
 
-  // Handle click outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (panelRef.current && !panelRef.current.contains(event.target as Node)) {
-        onClose();
-      }
-    };
-
-    if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [isOpen, onClose]);
-
-  if (!isOpen) return null;
-
   return (
-    <div 
-      ref={panelRef}
-      className="fixed z-[500] animate-scale-in"
-      style={{
-        left: position.x,
-        top: position.y
-      }}
-      data-glyph-panel
+    <PanelContainer
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Glyphs"
+      position={position}
+      width={384}
+      height={600}
+      dataAttribute="data-glyph-panel"
+      isDraggable={true}
     >
-      <div className="floating-module w-96 overflow-hidden">
-        <GlyphPanelHeader onClose={onClose} />
-        
-        <div className="p-5 space-y-6">
+      <div className="panel-scrollable-unified h-full">
+        <div className="panel-section-unified space-y-6">
           <FontSelector
             selectedFont={selectedFont}
             selectedWeight={selectedWeight}
@@ -134,6 +113,6 @@ export const GlyphPanel = ({
           />
         </div>
       </div>
-    </div>
+    </PanelContainer>
   );
 };
