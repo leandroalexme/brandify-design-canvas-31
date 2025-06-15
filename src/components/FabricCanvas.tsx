@@ -1,8 +1,7 @@
 
 import React, { useRef, useEffect, useState, useCallback } from 'react';
-import { Canvas as FabricCanvas, Object as FabricObject, Circle, Rect, IText } from 'fabric';
+import { Canvas as FabricCanvas, FabricObject, Circle, Rect, IText } from 'fabric';
 import { DesignElement } from '../types/design';
-import { ToolType } from '../types/tools';
 
 interface FabricCanvasProps {
   elements: DesignElement[];
@@ -73,7 +72,8 @@ export const FabricCanvasComponent = ({
   // Update artboard color
   useEffect(() => {
     if (!fabricCanvas) return;
-    fabricCanvas.setBackgroundColor(artboardColor, fabricCanvas.renderAll.bind(fabricCanvas));
+    fabricCanvas.set('backgroundColor', artboardColor);
+    fabricCanvas.renderAll();
   }, [artboardColor, fabricCanvas]);
 
   // Convert DesignElement to Fabric object
@@ -163,7 +163,7 @@ export const FabricCanvasComponent = ({
 
     // Clear existing objects
     fabricCanvas.clear();
-    fabricCanvas.setBackgroundColor(artboardColor, () => {});
+    fabricCanvas.set('backgroundColor', artboardColor);
     elementMapRef.current.clear();
 
     // Add elements to canvas
