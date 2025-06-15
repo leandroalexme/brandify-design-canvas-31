@@ -1,4 +1,5 @@
-import React, { useRef, useCallback, memo } from 'react';
+
+import React, { useRef, useCallback, memo, useState } from 'react';
 import { ProfessionalCanvas } from './ProfessionalCanvas';
 import { MainToolbar } from './MainToolbar';
 import { FloatingPropertiesPanel } from './FloatingPropertiesPanel';
@@ -6,14 +7,15 @@ import { LayersButton } from './LayersButton';
 import { GridButton } from './GridButton';
 import { ArtboardsButton } from './ArtboardsButton';
 import { ZoomIndicator } from './ZoomIndicator';
-import { LayersPanel } from './LayersPanel';
-import { AlignmentPanel } from './AlignmentPanel';
+import { EnhancedLayersPanel } from './EnhancedLayersPanel';
+import { EnhancedAlignmentPanel } from './EnhancedAlignmentPanel';
 import { ArtboardsPanel } from './ArtboardsPanel';
 import { ErrorBoundary } from './ErrorBoundary';
 import { LoadingSpinner } from './LoadingSpinner';
 import { ToolType } from '../types/tools';
 import { useIntegratedStudio } from '../hooks/useIntegratedStudio';
 import { useTextCreation } from '../hooks/useTextCreation';
+import { useProfessionalCanvas } from '../hooks/useProfessionalCanvas';
 
 // Memoizar componentes pesados
 const MemoizedProfessionalCanvas = memo(ProfessionalCanvas);
@@ -22,6 +24,12 @@ const MemoizedFloatingPropertiesPanel = memo(FloatingPropertiesPanel);
 
 export const OptimizedBrandifyStudio = memo(() => {
   const studio = useIntegratedStudio();
+  const [showEnhancedLayers, setShowEnhancedLayers] = useState(false);
+  const [showEnhancedAlignment, setShowEnhancedAlignment] = useState(false);
+  const [gridEnabled, setGridEnabled] = useState(false);
+  const [snapEnabled, setSnapEnabled] = useState(false);
+  
+  const professionalCanvas = useProfessionalCanvas();
   
   const { createTextElement } = useTextCreation({
     selectedTool: studio.toolState.selectedTool,
@@ -34,7 +42,7 @@ export const OptimizedBrandifyStudio = memo(() => {
   // Log de performance otimizado
   React.useEffect(() => {
     if (process.env.NODE_ENV === 'development') {
-      console.log('🚀 [PROFESSIONAL STUDIO] State:', {
+      console.log('🚀 [ENHANCED STUDIO] State:', {
         selectedTool: studio.toolState.selectedTool,
         elementsCount: studio.elementsCount,
         hasAnyPanelOpen: studio.hasAnyPanelOpen,
@@ -42,6 +50,7 @@ export const OptimizedBrandifyStudio = memo(() => {
         interactionMode: studio.interactionMode,
         shortcutsCount: studio.shortcuts.length,
         fabricEnabled: true,
+        enhancedFeaturesEnabled: true,
         timestamp: new Date().toISOString()
       });
     }
@@ -84,14 +93,14 @@ export const OptimizedBrandifyStudio = memo(() => {
     studio.togglePanel('showTextPropertiesPanel');
   }, [studio]);
 
-  // Handlers para painéis otimizados
+  // Enhanced handlers
   const handleLayersToggle = useCallback(() => {
-    studio.togglePanel('showLayersPanel');
-  }, [studio]);
+    setShowEnhancedLayers(!showEnhancedLayers);
+  }, [showEnhancedLayers]);
 
   const handleAlignmentToggle = useCallback(() => {
-    studio.togglePanel('showAlignmentPanel');
-  }, [studio]);
+    setShowEnhancedAlignment(!showEnhancedAlignment);
+  }, [showEnhancedAlignment]);
 
   const handleArtboardsToggle = useCallback(() => {
     studio.togglePanel('showArtboardsPanel');
@@ -101,13 +110,35 @@ export const OptimizedBrandifyStudio = memo(() => {
     studio.setSelectedElement(null);
   }, [studio]);
 
-  // Função para definir elementos (necessária para undo/redo)
-  const setElements = useCallback((newElements: typeof studio.elements) => {
-    // Esta funcionalidade será implementada quando integrarmos com estado global avançado
-    console.log('🔄 [STUDIO] Set elements called:', newElements.length);
-  }, [studio.elements]);
+  // Professional canvas handlers
+  const handleAlign = useCallback((alignment: 'left' | 'center' | 'right' | 'top' | 'middle' | 'bottom') => {
+    const selectedIds = studio.elements.filter(el => el.selected).map(el => el.id);
+    if (selectedIds.length >= 2) {
+      const updates = professionalCanvas.alignElements(selectedIds, studio.elements, alignment);
+      updates.forEach(update => {
+        if (update.id) {
+          studio.updateElement(update.id, update);
+        }
+      });
+      studio.saveState(`Align ${alignment}`);
+    }
+  }, [studio, professionalCanvas]);
+
+  const handleDistribute = useCallback((direction: 'horizontal' | 'vertical') => {
+    const selectedIds = studio.elements.filter(el => el.selected).map(el => el.id);
+    if (selectedIds.length >= 3) {
+      const updates = professionalCanvas.distributeElements(selectedIds, studio.elements, direction);
+      updates.forEach(update => {
+        if (update.id) {
+          studio.updateElement(update.id, update);
+        }
+      });
+      studio.saveState(`Distribute ${direction}`);
+    }
+  }, [studio, professionalCanvas]);
 
   const mappedTool = getCanvasToolType(studio.toolState.selectedTool);
+  const selectedElementIds = studio.elements.filter(el => el.selected).map(el => el.id);
 
   // Loading state
   if (!studio.elements && studio.elementsCount === 0) {
@@ -116,7 +147,7 @@ export const OptimizedBrandifyStudio = memo(() => {
         <div className="text-center">
           <LoadingSpinner size="lg" color="white" className="mx-auto mb-4" />
           <p className="text-slate-300">Carregando Editor Profissional...</p>
-          <p className="text-slate-400 text-sm mt-2">Inicializando Fabric.js...</p>
+          <p className="text-slate-400 text-sm mt-2">Inicializando recursos avançados...</p>
         </div>
       </div>
     );
@@ -130,8 +161,9 @@ export const OptimizedBrandifyStudio = memo(() => {
         {/* Status bar para debug */}
         {process.env.NODE_ENV === 'development' && (
           <div className="absolute top-2 right-2 z-50 text-xs text-slate-400 bg-slate-800/80 p-2 rounded">
-            🎯 Fabric.js | Modo: {studio.interactionMode} | Selecionados: {studio.selectedCount} | 
-            Undo: {studio.canUndo ? '✅' : '❌'} | Redo: {studio.canRedo ? '✅' : '❌'}
+            🎯 Enhanced Studio | Modo: {studio.interactionMode} | Selecionados: {studio.selectedCount} | 
+            Undo: {studio.canUndo ? '✅' : '❌'} | Redo: {studio.canRedo ? '✅' : '❌'} |
+            Grid: {gridEnabled ? '✅' : '❌'} | Snap: {snapEnabled ? '✅' : '❌'}
           </div>
         )}
         
@@ -162,19 +194,27 @@ export const OptimizedBrandifyStudio = memo(() => {
         <GridButton onClick={handleAlignmentToggle} />
         <ArtboardsButton onClick={handleArtboardsToggle} />
         
-        {studio.uiState.showLayersPanel && (
-          <LayersPanel
+        {showEnhancedLayers && (
+          <EnhancedLayersPanel
             elements={studio.elements}
             onSelectElement={studio.selectElement}
             onUpdateElement={studio.updateElement}
             onDeleteElement={studio.deleteElement}
-            onClose={() => studio.updateUIState({ showLayersPanel: false })}
+            onAddElement={studio.addElement}
+            onClose={() => setShowEnhancedLayers(false)}
           />
         )}
         
-        {studio.uiState.showAlignmentPanel && (
-          <AlignmentPanel 
-            onClose={() => studio.updateUIState({ showAlignmentPanel: false })} 
+        {showEnhancedAlignment && (
+          <EnhancedAlignmentPanel
+            onClose={() => setShowEnhancedAlignment(false)}
+            selectedElements={selectedElementIds}
+            onAlign={handleAlign}
+            onDistribute={handleDistribute}
+            onToggleGrid={() => setGridEnabled(!gridEnabled)}
+            onToggleSnap={() => setSnapEnabled(!snapEnabled)}
+            gridEnabled={gridEnabled}
+            snapEnabled={snapEnabled}
           />
         )}
         
