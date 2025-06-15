@@ -13,6 +13,7 @@ interface UseKonvaCanvasEventsProps {
   onUpdateElement: (id: string, updates: Partial<DesignElement>) => void;
   onCreateText: (x: number, y: number) => void;
   onAddElement: (element: Omit<DesignElement, 'id' | 'selected'>) => void;
+  enabled: boolean; // Nova prop para controlar quando está ativo
 }
 
 export const useKonvaCanvasEvents = ({
@@ -25,9 +26,12 @@ export const useKonvaCanvasEvents = ({
   onUpdateElement,
   onCreateText,
   onAddElement,
+  enabled,
 }: UseKonvaCanvasEventsProps) => {
   useEffect(() => {
-    if (!stage || !layer) return;
+    if (!stage || !layer || !enabled) return;
+
+    console.log('🎯 [CANVAS EVENTS] Registering events for tool:', selectedTool);
 
     const handleStageClick = (e: Konva.KonvaEventObject<MouseEvent>) => {
       const clickedOnEmpty = e.target === stage;
@@ -37,8 +41,10 @@ export const useKonvaCanvasEvents = ({
         if (!pos) return;
 
         if (selectedTool === 'text') {
+          console.log('🎯 [CANVAS EVENTS] Creating text at:', pos);
           onCreateText(pos.x, pos.y);
         } else if (selectedTool === 'pen') {
+          console.log('🎯 [CANVAS EVENTS] Creating drawing at:', pos);
           onAddElement({
             type: 'drawing',
             x: pos.x,
@@ -50,7 +56,7 @@ export const useKonvaCanvasEvents = ({
         }
       }
       
-      if (clickedOnEmpty) {
+      if (clickedOnEmpty && selectedTool === 'select') {
         onSelectElement(null);
       }
     };
@@ -60,6 +66,7 @@ export const useKonvaCanvasEvents = ({
         const shape = e.target;
         const elementId = shape.getAttr('elementId');
         if (elementId) {
+          console.log('🎯 [CANVAS EVENTS] Selecting element:', elementId);
           onSelectElement(elementId);
         }
       }
@@ -69,6 +76,7 @@ export const useKonvaCanvasEvents = ({
       const shape = e.target;
       const elementId = shape.getAttr('elementId');
       if (elementId) {
+        console.log('🎯 [CANVAS EVENTS] Element dragged:', elementId);
         onUpdateElement(elementId, {
           x: shape.x(),
           y: shape.y(),
@@ -81,9 +89,10 @@ export const useKonvaCanvasEvents = ({
     stage.on('dragend', handleShapeDragEnd);
 
     return () => {
+      console.log('🎯 [CANVAS EVENTS] Removing events');
       stage.off('click', handleStageClick);
       stage.off('click', handleShapeClick);
       stage.off('dragend', handleShapeDragEnd);
     };
-  }, [stage, layer, selectedTool, selectedColor, elements, onSelectElement, onUpdateElement, onCreateText, onAddElement]);
+  }, [stage, layer, selectedTool, selectedColor, elements, onSelectElement, onUpdateElement, onCreateText, onAddElement, enabled]);
 };

@@ -9,6 +9,7 @@ interface UseKonvaShapeCreationParams {
   selectedShape: ShapeType | null;
   color: string;
   onAddElement: (element: any) => void;
+  enabled: boolean; // Nova prop para controlar quando está ativo
 }
 
 export const useKonvaShapeCreation = ({
@@ -17,6 +18,7 @@ export const useKonvaShapeCreation = ({
   selectedShape,
   color,
   onAddElement,
+  enabled,
 }: UseKonvaShapeCreationParams) => {
   const [isDrawing, setIsDrawing] = useState(false);
   const [shiftPressed, setShiftPressed] = useState(false);
@@ -48,13 +50,16 @@ export const useKonvaShapeCreation = ({
 
   // MouseDown: inicia criação da forma
   const handleMouseDown = useCallback((e: Konva.KonvaEventObject<MouseEvent>) => {
-    if (!stage || !layer || !selectedShape) return;
+    if (!stage || !layer || !selectedShape || !enabled) return;
 
-    // Ignorar se clicou em um objeto existente
-    if (e.target !== stage) return;
+    // Só criar forma se clicou no stage (fundo) e não em um objeto existente
+    const clickedOnEmpty = e.target === stage;
+    if (!clickedOnEmpty) return;
 
     const pos = stage.getPointerPosition();
     if (!pos) return;
+
+    console.log('🎯 [SHAPE CREATION] Starting shape creation:', { selectedShape, pos, color });
 
     startPoint.current = { x: pos.x, y: pos.y };
     setIsDrawing(true);
@@ -68,11 +73,11 @@ export const useKonvaShapeCreation = ({
       previewShapeRef.current = preview;
       layer.draw();
     }
-  }, [stage, layer, selectedShape, color]);
+  }, [stage, layer, selectedShape, color, enabled]);
 
   // MouseMove: redimensiona preview durante arraste
   const handleMouseMove = useCallback((e: Konva.KonvaEventObject<MouseEvent>) => {
-    if (!stage || !layer || !isDrawing || !startPoint.current || !selectedShape || !previewShapeRef.current) return;
+    if (!stage || !layer || !isDrawing || !startPoint.current || !selectedShape || !previewShapeRef.current || !enabled) return;
     
     const pos = stage.getPointerPosition();
     if (!pos) return;
@@ -148,11 +153,11 @@ export const useKonvaShapeCreation = ({
     } catch (error) {
       console.warn('Error updating preview shape:', error);
     }
-  }, [stage, layer, isDrawing, selectedShape, shiftPressed]);
+  }, [stage, layer, isDrawing, selectedShape, shiftPressed, enabled]);
 
   // MouseUp: finaliza criação da forma
   const handleMouseUp = useCallback((e: Konva.KonvaEventObject<MouseEvent>) => {
-    if (!stage || !layer || !isDrawing || !startPoint.current || !selectedShape || !previewShapeRef.current) return;
+    if (!stage || !layer || !isDrawing || !startPoint.current || !selectedShape || !previewShapeRef.current || !enabled) return;
 
     // Remover preview
     previewShapeRef.current.destroy();
@@ -171,7 +176,7 @@ export const useKonvaShapeCreation = ({
     }
 
     // Só criar se for maior que tamanho mínimo
-    if (width > 10 && height > 10) {
+    if (width > 5 && height > 5) {
       const centerX = startPoint.current.x + (pos.x - startPoint.current.x) / 2;
       const centerY = startPoint.current.y + (pos.y - startPoint.current.y) / 2;
       
@@ -183,17 +188,16 @@ export const useKonvaShapeCreation = ({
         newShape.draggable(true);
         newShape.opacity(1);
         
-        // Adicionar eventos de transformação
-        newShape.on('dragend', () => {
-          const element = createDesignElementFromKonvaShape(newShape, selectedShape, color);
-          console.log('Shape moved:', element);
-        });
+        // Adicionar ID único
+        const elementId = `shape_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        newShape.setAttr('elementId', elementId);
 
         layer.add(newShape);
         layer.draw();
         
         // Converter para DesignElement e adicionar ao estado
         const element = createDesignElementFromKonvaShape(newShape, selectedShape, color);
+        console.log('🎯 [SHAPE CREATION] Shape created:', element);
         onAddElement(element);
       }
     }
@@ -202,22 +206,25 @@ export const useKonvaShapeCreation = ({
     setIsDrawing(false);
     startPoint.current = null;
     previewShapeRef.current = null;
-  }, [stage, layer, isDrawing, selectedShape, onAddElement, color, shiftPressed]);
+  }, [stage, layer, isDrawing, selectedShape, onAddElement, color, shiftPressed, enabled]);
 
-  // Configurar eventos do mouse
+  // Configurar eventos do mouse apenas quando ativo
   useEffect(() => {
-    if (!stage || !selectedShape) return;
+    if (!stage || !enabled || !selectedShape) return;
+
+    console.log('🎯 [SHAPE CREATION] Registering events for:', selectedShape);
 
     stage.on('mousedown', handleMouseDown);
     stage.on('mousemove', handleMouseMove);
     stage.on('mouseup', handleMouseUp);
 
     return () => {
+      console.log('🎯 [SHAPE CREATION] Removing events');
       stage.off('mousedown', handleMouseDown);
       stage.off('mousemove', handleMouseMove);
       stage.off('mouseup', handleMouseUp);
     };
-  }, [stage, selectedShape, handleMouseDown, handleMouseMove, handleMouseUp]);
+  }, [stage, selectedShape, enabled, handleMouseDown, handleMouseMove, handleMouseUp]);
 
   return { 
     isDrawing,

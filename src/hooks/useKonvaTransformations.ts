@@ -1,123 +1,82 @@
 
-import { useEffect, useCallback, useState } from 'react';
+import { useRef, useCallback } from 'react';
 import Konva from 'konva';
 
 interface UseKonvaTransformationsParams {
   stage: Konva.Stage | null;
   layer: Konva.Layer | null;
-  selectedTool: string;
-  onUpdateElement: (id: string, updates: any) => void;
+  selectedTool: 'select' | 'pen' | 'shapes' | 'text';
+  onUpdateElement: (id: string, updates: Partial<any>) => void;
+  enabled: boolean; // Nova prop para controlar quando está ativo
 }
 
 export const useKonvaTransformations = ({
   stage,
   layer,
   selectedTool,
-  onUpdateElement
+  onUpdateElement,
+  enabled,
 }: UseKonvaTransformationsParams) => {
-  const [transformer, setTransformer] = useState<Konva.Transformer | null>(null);
-  const [selectedShape, setSelectedShape] = useState<Konva.Shape | null>(null);
+  const transformerRef = useRef<Konva.Transformer | null>(null);
+  const selectedShapeRef = useRef<Konva.Shape | null>(null);
 
-  // Criar transformer
-  useEffect(() => {
-    if (!layer) return;
-
-    const tr = new Konva.Transformer({
-      keepRatio: false,
-      enabledAnchors: [
-        'top-left', 'top-center', 'top-right',
-        'middle-right', 'middle-left',
-        'bottom-left', 'bottom-center', 'bottom-right'
-      ],
-      boundBoxFunc: (oldBox, newBox) => {
-        // Limitar tamanho mínimo
-        if (newBox.width < 10 || newBox.height < 10) {
-          return oldBox;
-        }
-        return newBox;
-      }
-    });
-
-    layer.add(tr);
-    setTransformer(tr);
-
-    return () => {
-      tr.destroy();
-    };
-  }, [layer]);
-
-  // Selecionar objeto para transformação
   const selectShape = useCallback((shape: Konva.Shape | null) => {
-    if (!transformer) return;
+    if (!layer || !enabled) return;
+
+    // Remover transformer existente
+    if (transformerRef.current) {
+      transformerRef.current.destroy();
+      transformerRef.current = null;
+    }
+
+    selectedShapeRef.current = shape;
 
     if (shape && selectedTool === 'select') {
-      setSelectedShape(shape);
-      transformer.nodes([shape]);
-      transformer.show();
-      transformer.getLayer()?.draw();
-    } else {
-      setSelectedShape(null);
-      transformer.nodes([]);
-      transformer.hide();
-      transformer.getLayer()?.draw();
-    }
-  }, [transformer, selectedTool]);
-
-  // Gerenciar eventos de transformação
-  useEffect(() => {
-    if (!transformer || !stage) return;
-
-    const handleTransformEnd = () => {
-      if (!selectedShape) return;
+      console.log('🎯 [TRANSFORMATIONS] Selecting shape for transformation');
       
-      const elementId = selectedShape.getAttr('elementId');
-      if (elementId) {
-        onUpdateElement(elementId, {
-          x: selectedShape.x(),
-          y: selectedShape.y(),
-          width: selectedShape.width() * selectedShape.scaleX(),
-          height: selectedShape.height() * selectedShape.scaleY(),
-          rotation: selectedShape.rotation()
-        });
+      // Criar novo transformer
+      const transformer = new Konva.Transformer({
+        rotateEnabled: true,
+        enabledAnchors: ['top-left', 'top-right', 'bottom-left', 'bottom-right'],
+        boundBoxFunc: (oldBox, newBox) => {
+          // Limitar tamanho mínimo
+          if (newBox.width < 10 || newBox.height < 10) {
+            return oldBox;
+          }
+          return newBox;
+        },
+      });
 
-        // Reset scale para evitar problemas
-        selectedShape.scaleX(1);
-        selectedShape.scaleY(1);
-      }
-    };
+      layer.add(transformer);
+      transformer.nodes([shape]);
+      
+      transformerRef.current = transformer;
 
-    const handleStageClick = (e: Konva.KonvaEventObject<MouseEvent>) => {
-      // Se clicou no stage vazio, deselecionar
-      if (e.target === stage) {
-        selectShape(null);
-        return;
-      }
+      // Eventos de transformação
+      transformer.on('transformend', () => {
+        const elementId = shape.getAttr('elementId');
+        if (elementId) {
+          console.log('🎯 [TRANSFORMATIONS] Shape transformed:', elementId);
+          onUpdateElement(elementId, {
+            x: shape.x(),
+            y: shape.y(),
+            width: shape.width() * shape.scaleX(),
+            height: shape.height() * shape.scaleY(),
+            rotation: shape.rotation(),
+          });
+          
+          // Reset scale após aplicar ao width/height
+          shape.scaleX(1);
+          shape.scaleY(1);
+        }
+      });
 
-      // Se clicou em uma forma e está no modo select
-      if (selectedTool === 'select' && e.target !== stage) {
-        selectShape(e.target as Konva.Shape);
-      }
-    };
-
-    transformer.on('transformend', handleTransformEnd);
-    stage.on('click', handleStageClick);
-
-    return () => {
-      transformer.off('transformend', handleTransformEnd);
-      stage.off('click', handleStageClick);
-    };
-  }, [transformer, stage, selectedShape, selectedTool, selectShape, onUpdateElement]);
-
-  // Limpar seleção quando mudar de ferramenta
-  useEffect(() => {
-    if (selectedTool !== 'select') {
-      selectShape(null);
+      layer.draw();
     }
-  }, [selectedTool, selectShape]);
+  }, [layer, selectedTool, onUpdateElement, enabled]);
 
   return {
     selectShape,
-    selectedShape,
-    transformer
+    selectedShape: selectedShapeRef.current,
   };
 };

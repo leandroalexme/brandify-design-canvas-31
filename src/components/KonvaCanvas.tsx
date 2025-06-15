@@ -54,21 +54,23 @@ export const KonvaCanvasComponent = ({
     }
   }, [initializeCanvas]);
 
-  // Hook de criação de formas com arraste
+  // Hook de criação de formas com arraste - apenas ativo quando ferramenta shapes está selecionada
   const { isDrawing, shiftPressed } = useKonvaShapeCreation({
     stage: stageRef.current,
     layer: layerRef.current,
     selectedShape: selectedTool === 'shapes' ? selectedShape : null,
     color: selectedColor,
     onAddElement: onAddElement,
+    enabled: selectedTool === 'shapes' && !!selectedShape,
   });
 
-  // Hook de transformações (seleção, escala, rotação)
+  // Hook de transformações (seleção, escala, rotação) - apenas ativo quando ferramenta select está selecionada
   const { selectShape, selectedShape: transformSelectedShape } = useKonvaTransformations({
     stage: stageRef.current,
     layer: layerRef.current,
     selectedTool,
-    onUpdateElement
+    onUpdateElement,
+    enabled: selectedTool === 'select',
   });
 
   // Hook de atalhos de teclado
@@ -81,7 +83,7 @@ export const KonvaCanvasComponent = ({
     onPasteElement
   });
 
-  // Eventos do canvas (texto, desenho com caneta)
+  // Eventos do canvas (texto, desenho com caneta) - apenas para ferramentas específicas
   useKonvaCanvasEvents({
     stage: stageRef.current,
     layer: layerRef.current,
@@ -92,11 +94,14 @@ export const KonvaCanvasComponent = ({
     onUpdateElement,
     onCreateText,
     onAddElement,
+    enabled: selectedTool === 'text' || selectedTool === 'pen',
   });
 
   // Sincronizar elementos do estado para o canvas
   useEffect(() => {
     if (!stageRef.current || !layerRef.current || !isReady) return;
+
+    console.log('🎯 [KONVA CANVAS] Syncing elements:', elements.length);
 
     // Limpar objetos existentes (exceto transformer)
     const children = layerRef.current.children.filter(child => child.className !== 'Transformer');
@@ -136,8 +141,11 @@ export const KonvaCanvasComponent = ({
     <div className="flex items-center justify-center relative">
       <div 
         ref={containerRef}
-        className="border border-slate-300 rounded-lg shadow-lg cursor-crosshair"
-        style={{ backgroundColor: artboardColor }}
+        className="border border-slate-300 rounded-lg shadow-lg"
+        style={{ 
+          backgroundColor: artboardColor,
+          cursor: selectedTool === 'shapes' && selectedShape ? 'crosshair' : 'default'
+        }}
       />
       
       {/* Indicadores visuais */}
@@ -149,7 +157,13 @@ export const KonvaCanvasComponent = ({
       
       {selectedTool === 'shapes' && selectedShape && (
         <div className="absolute top-4 right-4 bg-slate-800 text-white px-3 py-1 rounded-lg text-sm">
-          Forma: {selectedShape}
+          Forma: {selectedShape} - Clique e arraste no canvas
+        </div>
+      )}
+
+      {selectedTool === 'shapes' && !selectedShape && (
+        <div className="absolute top-4 right-4 bg-orange-600 text-white px-3 py-1 rounded-lg text-sm">
+          Selecione uma forma primeiro
         </div>
       )}
     </div>
