@@ -1,4 +1,3 @@
-
 import React, { useRef, useCallback } from 'react';
 import { Canvas } from './Canvas';
 import { MainToolbar } from './MainToolbar';
@@ -92,7 +91,7 @@ export const BrandifyStudio = () => {
     createTextElement(x, y);
   }, [createTextElement]);
 
-  // Função de toggle para o painel de texto unificado - agora usa o novo FontConfigPanel
+  // Função de toggle para o painel de texto unificado - corrigida
   const handleToggleTextPanel = useCallback(() => {
     const isCurrentlyOpen = uiState.showTextPropertiesPanel;
     console.log('🎛️ [BRANDIFY] Toggling unified text panel. Current state:', isCurrentlyOpen);
