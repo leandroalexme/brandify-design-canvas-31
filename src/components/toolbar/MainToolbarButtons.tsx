@@ -1,25 +1,41 @@
 
 import React from 'react';
 import { MainToolbarButton } from '../MainToolbarButton';
-import { MAIN_TOOLS } from './MainToolbarConfig';
 import { ToolType, MainTool } from '../../types/tools';
+
+interface MainToolConfig {
+  id: MainTool;
+  icon: any;
+  label: string;
+  hasSubmenu: boolean;
+}
 
 interface MainToolbarButtonsProps {
   selectedTool: ToolType;
   showTextPanel: boolean;
   selectedShape: string | null;
+  mainTools: MainToolConfig[];
+  buttonRefs: React.MutableRefObject<Record<string, HTMLButtonElement | null>>;
+  activeSubTools: Record<MainTool, any>;
   onToolClick: (toolId: MainTool) => void;
+  onToolRightClick: (e: React.MouseEvent, toolId: MainTool) => void;
+  onToolDoubleClick: (toolId: MainTool) => void;
 }
 
 export const MainToolbarButtons = ({
   selectedTool,
   showTextPanel,
   selectedShape,
-  onToolClick
+  mainTools,
+  buttonRefs,
+  activeSubTools,
+  onToolClick,
+  onToolRightClick,
+  onToolDoubleClick
 }: MainToolbarButtonsProps) => {
   return (
     <div className="floating-module rounded-2xl p-3 flex items-center space-x-2">
-      {MAIN_TOOLS.map((tool) => {
+      {mainTools.map((tool) => {
         const isActive = tool.id === 'text' ? showTextPanel : selectedTool === tool.id;
         
         return (
@@ -27,12 +43,12 @@ export const MainToolbarButtons = ({
             key={tool.id}
             tool={tool}
             isActive={isActive}
-            hasActiveSub={null}
+            hasActiveSub={activeSubTools[tool.id]}
             hasSelectedShape={tool.id === 'shapes' && !!selectedShape}
-            buttonRef={() => {}}
+            buttonRef={(el) => { buttonRefs.current[tool.id] = el; }}
             onClick={() => onToolClick(tool.id)}
-            onRightClick={() => {}}
-            onDoubleClick={() => {}}
+            onRightClick={(e) => onToolRightClick(e, tool.id)}
+            onDoubleClick={() => onToolDoubleClick(tool.id)}
           />
         );
       })}
