@@ -11,11 +11,10 @@ import { LayersPanel } from './LayersPanel';
 import { AlignmentPanel } from './AlignmentPanel';
 import { ArtboardsPanel } from './ArtboardsPanel';
 import { ErrorBoundary } from './ErrorBoundary';
+import { LoadingSpinner } from './LoadingSpinner';
 import { ToolType } from '../types/tools';
-import { useDesignElements } from '../hooks/useDesignElements';
-import { useOptimizedAppState } from '../hooks/useOptimizedAppState';
+import { useIntegratedStudio } from '../hooks/useIntegratedStudio';
 import { useTextCreation } from '../hooks/useTextCreation';
-import { useOptimizedDebounce } from '../hooks/useOptimizedDebounce';
 
 // Memoizar componentes pesados
 const MemoizedCanvas = memo(Canvas);
@@ -23,56 +22,30 @@ const MemoizedMainToolbar = memo(MainToolbar);
 const MemoizedFloatingPropertiesPanel = memo(FloatingPropertiesPanel);
 
 export const OptimizedBrandifyStudio = memo(() => {
-  const {
-    elements,
-    selectedElement,
-    selectedElementData,
-    elementsCount,
-    addElement,
-    updateElement,
-    selectElement,
-    deleteElement,
-    setSelectedElement
-  } = useDesignElements();
-
-  const {
-    toolState,
-    uiState,
-    hasAnyPanelOpen,
-    currentToolInfo,
-    updateToolState,
-    updateUIState,
-    closeAllPanels,
-    togglePanel
-  } = useOptimizedAppState();
-
+  const studio = useIntegratedStudio();
+  
   const { createTextElement } = useTextCreation({
-    selectedTool: toolState.selectedTool,
-    selectedColor: toolState.selectedColor,
-    addElement
+    selectedTool: studio.toolState.selectedTool,
+    selectedColor: studio.toolState.selectedColor,
+    addElement: studio.addElement
   });
 
   const canvasRef = useRef<HTMLDivElement>(null);
-
-  // Debounce otimizado para updates de elementos
-  const debouncedUpdateElement = useOptimizedDebounce(
-    updateElement, 
-    100, 
-    { trailing: true, maxWait: 300 }
-  );
 
   // Log de performance otimizado
   React.useEffect(() => {
     if (process.env.NODE_ENV === 'development') {
       console.log('🚀 [PERFORMANCE] Studio state:', {
-        selectedTool: toolState.selectedTool,
-        elementsCount,
-        hasAnyPanelOpen,
-        currentToolInfo,
+        selectedTool: studio.toolState.selectedTool,
+        elementsCount: studio.elementsCount,
+        hasAnyPanelOpen: studio.hasAnyPanelOpen,
+        currentToolInfo: studio.currentToolInfo,
+        interactionMode: studio.interactionMode,
+        shortcutsCount: studio.shortcuts.length,
         timestamp: new Date().toISOString()
       });
     }
-  }, [toolState.selectedTool, elementsCount, hasAnyPanelOpen, currentToolInfo]);
+  }, [studio.toolState.selectedTool, studio.elementsCount, studio.hasAnyPanelOpen, studio.currentToolInfo, studio.interactionMode, studio.shortcuts.length]);
 
   // Mapear ferramentas para o Canvas com cache
   const getCanvasToolType = useCallback((tool: ToolType): 'select' | 'pen' | 'shapes' | 'text' => {
@@ -94,111 +67,128 @@ export const OptimizedBrandifyStudio = memo(() => {
   }, []);
 
   // Handlers otimizados com useCallback
-  const handleToolSelect = useCallback((tool: ToolType) => {
-    updateToolState({ selectedTool: tool });
-  }, [updateToolState]);
-
   const handleColorSelect = useCallback((color: string) => {
-    updateToolState({ selectedColor: color });
-  }, [updateToolState]);
+    studio.updateToolState({ selectedColor: color });
+  }, [studio]);
 
   const handleShapeSelect = useCallback((shape: string | null) => {
-    updateUIState({ selectedShape: shape });
-  }, [updateUIState]);
+    studio.updateUIState({ selectedShape: shape });
+  }, [studio]);
 
   const handleCreateText = useCallback((x: number, y: number) => {
     createTextElement(x, y);
-  }, [createTextElement]);
+    studio.saveState('Create text');
+  }, [createTextElement, studio]);
 
   const handleToggleTextPanel = useCallback(() => {
-    togglePanel('showTextPropertiesPanel');
-  }, [togglePanel]);
+    studio.togglePanel('showTextPropertiesPanel');
+  }, [studio]);
 
   // Handlers para painéis otimizados
   const handleLayersToggle = useCallback(() => {
-    togglePanel('showLayersPanel');
-  }, [togglePanel]);
+    studio.togglePanel('showLayersPanel');
+  }, [studio]);
 
   const handleAlignmentToggle = useCallback(() => {
-    togglePanel('showAlignmentPanel');
-  }, [togglePanel]);
+    studio.togglePanel('showAlignmentPanel');
+  }, [studio]);
 
   const handleArtboardsToggle = useCallback(() => {
-    togglePanel('showArtboardsPanel');
-  }, [togglePanel]);
+    studio.togglePanel('showArtboardsPanel');
+  }, [studio]);
 
   const handleCloseFloatingPanel = useCallback(() => {
-    setSelectedElement(null);
-  }, [setSelectedElement]);
+    studio.setSelectedElement(null);
+  }, [studio]);
 
   // Função para definir elementos (necessária para undo/redo)
-  const setElements = useCallback((newElements: typeof elements) => {
-    // Esta função será implementada quando integrarmos com o estado global
+  const setElements = useCallback((newElements: typeof studio.elements) => {
+    // Esta funcionalidade será implementada quando integrarmos com estado global avançado
     console.log('🔄 [STUDIO] Set elements called:', newElements.length);
-  }, []);
+  }, [studio.elements]);
 
-  const mappedTool = getCanvasToolType(toolState.selectedTool);
+  const mappedTool = getCanvasToolType(studio.toolState.selectedTool);
+
+  // Loading state (pode ser expandido futuramente)
+  if (!studio.elements && studio.elementsCount === 0) {
+    return (
+      <div className="h-screen bg-slate-900 flex items-center justify-center">
+        <div className="text-center">
+          <LoadingSpinner size="lg" color="white" className="mx-auto mb-4" />
+          <p className="text-slate-300">Carregando Brandify Studio...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <ErrorBoundary>
       <div className="h-screen bg-slate-900 overflow-hidden relative">
-        <ZoomIndicator zoom={toolState.zoom} />
+        <ZoomIndicator zoom={studio.toolState.zoom} />
+        
+        {/* Status bar para debug */}
+        {process.env.NODE_ENV === 'development' && (
+          <div className="absolute top-2 right-2 z-50 text-xs text-slate-400 bg-slate-800/80 p-2 rounded">
+            Modo: {studio.interactionMode} | Selecionados: {studio.selectedCount} | 
+            Undo: {studio.canUndo ? '✅' : '❌'} | Redo: {studio.canRedo ? '✅' : '❌'}
+          </div>
+        )}
         
         <div ref={canvasRef}>
           <MemoizedCanvas
-            elements={elements}
+            elements={studio.elements}
             selectedTool={mappedTool}
-            selectedColor={toolState.selectedColor}
-            onAddElement={addElement}
-            onSelectElement={selectElement}
-            onUpdateElement={debouncedUpdateElement}
+            selectedColor={studio.toolState.selectedColor}
+            onAddElement={studio.addElement}
+            onSelectElement={studio.selectElement}
+            onUpdateElement={studio.updateElement}
             onCreateText={handleCreateText}
             setElements={setElements}
           />
         </div>
         
         <MemoizedMainToolbar 
-          selectedTool={toolState.selectedTool}
-          onToolSelect={handleToolSelect}
-          selectedColor={toolState.selectedColor}
+          selectedTool={studio.toolState.selectedTool}
+          onToolSelect={studio.handleToolSelect}
+          selectedColor={studio.toolState.selectedColor}
           onColorSelect={handleColorSelect}
-          selectedShape={uiState.selectedShape}
+          selectedShape={studio.uiState.selectedShape}
           onShapeSelect={handleShapeSelect}
           onOpenTextPanel={handleToggleTextPanel}
-          showTextPanel={uiState.showTextPropertiesPanel}
+          showTextPanel={studio.uiState.showTextPropertiesPanel}
         />
         
         <LayersButton onClick={handleLayersToggle} />
         <GridButton onClick={handleAlignmentToggle} />
         <ArtboardsButton onClick={handleArtboardsToggle} />
         
-        {uiState.showLayersPanel && (
+        {studio.uiState.showLayersPanel && (
           <LayersPanel
-            elements={elements}
-            onSelectElement={selectElement}
-            onUpdateElement={updateElement}
-            onDeleteElement={deleteElement}
-            onClose={() => updateUIState({ showLayersPanel: false })}
+            elements={studio.elements}
+            onSelectElement={studio.selectElement}
+            onUpdateElement={studio.updateElement}
+            onDeleteElement={studio.deleteElement}
+            onClose={() => studio.updateUIState({ showLayersPanel: false })}
           />
         )}
         
-        {uiState.showAlignmentPanel && (
+        {studio.uiState.showAlignmentPanel && (
           <AlignmentPanel 
-            onClose={() => updateUIState({ showAlignmentPanel: false })} 
+            onClose={() => studio.updateUIState({ showAlignmentPanel: false })} 
           />
         )}
         
-        {uiState.showArtboardsPanel && (
+        {studio.uiState.showArtboardsPanel && (
           <ArtboardsPanel 
-            onClose={() => updateUIState({ showArtboardsPanel: false })} 
+            onClose={() => studio.updateUIState({ showArtboardsPanel: false })} 
           />
         )}
         
-        {selectedElementData && (
+        {studio.selectedElementData && (
           <MemoizedFloatingPropertiesPanel
-            selectedElement={selectedElementData}
-            onUpdateElement={updateElement}
-            onDeleteElement={deleteElement}
+            selectedElement={studio.selectedElementData}
+            onUpdateElement={studio.updateElement}
+            onDeleteElement={studio.deleteElement}
             onClose={handleCloseFloatingPanel}
           />
         )}

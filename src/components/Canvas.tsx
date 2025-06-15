@@ -74,11 +74,10 @@ export const Canvas = ({
       onSelectElement(null);
 
       if (selectedTool === 'text') {
-        console.log('📝 [CANVAS] Creating text element');
+        console.log('📝 [CANVAS] Creating text element at:', { x, y });
         onCreateText(x, y);
-        interactions.autoSaveState('Create text');
       } else if (selectedTool === 'shapes') {
-        console.log('🔷 [CANVAS] Creating shape element');
+        console.log('🔷 [CANVAS] Creating shape element at:', { x, y });
         onAddElement({
           type: 'shape',
           x,
@@ -87,7 +86,16 @@ export const Canvas = ({
           width: 100,
           height: 100,
         });
-        interactions.autoSaveState('Create shape');
+      } else if (selectedTool === 'pen') {
+        console.log('✏️ [CANVAS] Creating drawing element at:', { x, y });
+        onAddElement({
+          type: 'drawing',
+          x,
+          y,
+          color: selectedColor,
+          width: 2,
+          height: 2,
+        });
       }
     }
   }, [selectedTool, selectedColor, onAddElement, onCreateText, onSelectElement, interactions]);
@@ -123,7 +131,7 @@ export const Canvas = ({
 
   const handleElementClick = useCallback((e: React.MouseEvent, elementId: string) => {
     e.stopPropagation();
-    console.log('🎯 [CANVAS] Element clicked:', elementId);
+    console.log('🎯 [CANVAS] Element clicked:', elementId, 'Tool:', selectedTool);
     
     if (selectedTool === 'select') {
       interactions.handleElementMouseDown(elementId, e);
@@ -138,13 +146,17 @@ export const Canvas = ({
     console.log('🎨 [CANVAS] Artboard color changed:', color);
   }, []);
 
-  // Debug log para elementos
+  // Debug log para elementos otimizado
   React.useEffect(() => {
-    console.log('📊 [CANVAS] Elements updated:', {
-      count: elements.length,
-      elements: elements.map(el => ({ id: el.id, type: el.type, x: el.x, y: el.y }))
-    });
-  }, [elements]);
+    if (process.env.NODE_ENV === 'development') {
+      console.log('📊 [CANVAS] Elements updated:', {
+        count: elements.length,
+        selected: elements.filter(el => el.selected).length,
+        multiSelected: interactions.selectedCount,
+        interactionMode: interactions.interactionMode
+      });
+    }
+  }, [elements.length, interactions.selectedCount, interactions.interactionMode]);
 
   return (
     <div className="h-screen flex items-center justify-center relative">
@@ -200,19 +212,24 @@ export const Canvas = ({
       >
         <div
           ref={artboardRef}
-          className={`w-full h-full relative rounded-2xl overflow-hidden ${
+          className={`w-full h-full relative rounded-2xl overflow-hidden transition-all duration-200 ${
             selectedTool === 'select' ? 'cursor-default' : 'cursor-crosshair'
+          } ${
+            interactions.isDragging ? 'cursor-grabbing' : ''
           }`}
           onMouseDown={handleArtboardMouseDown}
           onMouseMove={handleArtboardMouseMove}
           onMouseUp={handleArtboardMouseUp}
         >
-          {/* Debug info */}
-          <div className="absolute top-2 left-2 text-xs text-slate-400 bg-slate-800/50 px-2 py-1 rounded z-10">
-            Elementos: {elements.length} | Ferramenta: {selectedTool} | Modo: {interactions.interactionMode}
-            {interactions.canUndo && <span> | Undo disponível</span>}
-            {interactions.canRedo && <span> | Redo disponível</span>}
-          </div>
+          {/* Enhanced debug info */}
+          {process.env.NODE_ENV === 'development' && (
+            <div className="absolute top-2 left-2 text-xs text-slate-400 bg-slate-800/50 px-2 py-1 rounded z-10">
+              Elementos: {elements.length} | Ferramenta: {selectedTool} | Modo: {interactions.interactionMode}
+              {interactions.selectedCount > 0 && <span> | Selecionados: {interactions.selectedCount}</span>}
+              {interactions.canUndo && <span> | Undo ✅</span>}
+              {interactions.canRedo && <span> | Redo ✅</span>}
+            </div>
+          )}
           
           {/* Selection box */}
           {selectionBox && (
@@ -235,14 +252,14 @@ export const Canvas = ({
             return (
               <div
                 key={element.id}
-                className={`absolute transition-all duration-100 ${
+                className={`absolute transition-all duration-150 ${
                   selectedTool === 'select' ? 'cursor-move' : 'cursor-pointer'
                 } ${
                   element.selected || isMultiSelected 
                     ? 'ring-2 ring-blue-500 ring-offset-2 ring-offset-white' 
-                    : ''
+                    : 'hover:ring-1 hover:ring-slate-400/50'
                 } ${
-                  isDragTarget ? 'opacity-80 scale-105' : ''
+                  isDragTarget ? 'opacity-80 scale-105 z-50' : ''
                 } ${
                   isMultiSelected && interactions.selectedCount > 1 
                     ? 'ring-green-500' 
@@ -283,6 +300,17 @@ export const Canvas = ({
                       backgroundColor: element.color,
                       width: element.width || 100,
                       height: element.height || 100,
+                    }}
+                  />
+                )}
+
+                {element.type === 'drawing' && (
+                  <div
+                    className="bg-current rounded-full"
+                    style={{
+                      color: element.color,
+                      width: element.width || 4,
+                      height: element.height || 4,
                     }}
                   />
                 )}
