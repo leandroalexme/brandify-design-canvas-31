@@ -116,11 +116,18 @@ export const useKonvaShapeCreation = ({
 
         case 'triangle':
         case 'polygon':
-        case 'star':
-          const size = Math.max(width, height);
+          const polygonSize = Math.max(width, height);
           previewShapeRef.current.x(startPoint.current.x);
           previewShapeRef.current.y(startPoint.current.y);
-          (previewShapeRef.current as Konva.RegularPolygon | Konva.Star).radius?.(size / 2);
+          (previewShapeRef.current as Konva.RegularPolygon).radius(polygonSize / 2);
+          break;
+
+        case 'star':
+          const starSize = Math.max(width, height);
+          previewShapeRef.current.x(startPoint.current.x);
+          previewShapeRef.current.y(startPoint.current.y);
+          (previewShapeRef.current as Konva.Star).outerRadius(starSize / 2);
+          (previewShapeRef.current as Konva.Star).innerRadius(starSize / 4);
           break;
 
         case 'line':

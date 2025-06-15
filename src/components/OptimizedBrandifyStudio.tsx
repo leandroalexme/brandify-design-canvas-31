@@ -1,4 +1,3 @@
-
 import React, { useRef, useCallback, memo, useState } from 'react';
 import { ProfessionalCanvas } from './ProfessionalCanvas';
 import { MainToolbar } from './MainToolbar';
@@ -137,6 +136,21 @@ export const OptimizedBrandifyStudio = memo(() => {
     }
   }, [studio, professionalCanvas]);
 
+  const handleDeleteElement = useCallback((id: string) => {
+    studio.deleteElement(id);
+    studio.saveState('Delete element');
+  }, [studio]);
+
+  const handleCopyElement = useCallback((id: string) => {
+    // This will be handled by ProfessionalCanvas internally
+    console.log('Copy element:', id);
+  }, []);
+
+  const handlePasteElement = useCallback(() => {
+    // This will be handled by ProfessionalCanvas internally
+    console.log('Paste element');
+  }, []);
+
   const mappedTool = getCanvasToolType(studio.toolState.selectedTool);
   const selectedElementIds = studio.elements.filter(el => el.selected).map(el => el.id);
 
@@ -175,7 +189,11 @@ export const OptimizedBrandifyStudio = memo(() => {
             onAddElement={studio.addElement}
             onSelectElement={studio.selectElement}
             onUpdateElement={studio.updateElement}
+            onDeleteElement={handleDeleteElement}
+            onCopyElement={handleCopyElement}
+            onPasteElement={handlePasteElement}
             onCreateText={handleCreateText}
+            selectedShape={studio.uiState.selectedShape}
           />
         </div>
         
