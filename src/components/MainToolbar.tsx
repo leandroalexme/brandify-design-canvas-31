@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { SimpleSubmenu } from './SimpleSubmenu';
 import { ShapesMenu } from './ShapesMenu';
@@ -6,6 +5,7 @@ import { FontConfigPanel } from './FontConfigPanel';
 import { TextPropertiesSubmenu } from './TextPropertiesSubmenu';
 import { AlignmentConfigPanel } from './AlignmentConfigPanel';
 import { ColorConfigPanel } from './ColorConfigPanel';
+import { GlyphPanel } from './GlyphPanel';
 import { MainToolbarButton } from './MainToolbarButton';
 import { useMainToolbar } from '../hooks/useMainToolbar';
 import { ToolType } from '../types/tools';
@@ -37,6 +37,10 @@ export const MainToolbar = ({
   // Estado para o painel de cores
   const [showColorPanel, setShowColorPanel] = React.useState(false);
   const [colorPanelPosition, setColorPanelPosition] = React.useState({ x: 120, y: 200 });
+
+  // Estado para o painel de glyph
+  const [showGlyphPanel, setShowGlyphPanel] = React.useState(false);
+  const [glyphPanelPosition, setGlyphPanelPosition] = React.useState({ x: 120, y: 200 });
 
   const {
     mainTools,
@@ -116,6 +120,13 @@ export const MainToolbar = ({
       const position = { x: 250, y: 200 };
       setColorPanelPosition(position);
       setShowColorPanel(true);
+    } else if (toolId === 'glyph') {
+      // Abrir o painel de glyph
+      console.log('🔤 [MAIN TOOLBAR] Opening glyph panel');
+      
+      const position = { x: 380, y: 200 };
+      setGlyphPanelPosition(position);
+      setShowGlyphPanel(true);
     } else {
       // Para outras ferramentas, apenas log por enquanto
       console.log('📝 [MAIN TOOLBAR] Text tool not implemented yet:', toolId);
@@ -134,6 +145,12 @@ export const MainToolbar = ({
     setShowColorPanel(false);
   }, []);
 
+  // Handler para fechar o painel de glyph
+  const handleGlyphPanelClose = React.useCallback(() => {
+    console.log('🔤 [MAIN TOOLBAR] Closing glyph panel');
+    setShowGlyphPanel(false);
+  }, []);
+
   // Handler personalizado para fechar o painel de texto
   const handleTextPanelClose = React.useCallback(() => {
     console.log('📝 [MAIN TOOLBAR] Closing text panel');
@@ -146,7 +163,10 @@ export const MainToolbar = ({
     if (showColorPanel) {
       setShowColorPanel(false);
     }
-  }, [onOpenTextPanel, showAlignmentPanel, showColorPanel]);
+    if (showGlyphPanel) {
+      setShowGlyphPanel(false);
+    }
+  }, [onOpenTextPanel, showAlignmentPanel, showColorPanel, showGlyphPanel]);
 
   return (
     <>
@@ -233,6 +253,15 @@ export const MainToolbar = ({
           isOpen={showColorPanel}
           onClose={handleColorPanelClose}
           position={colorPanelPosition}
+        />
+      )}
+
+      {/* Painel de glyph - só aparece quando texto está ativo */}
+      {showTextPanel && (
+        <GlyphPanel
+          isOpen={showGlyphPanel}
+          onClose={handleGlyphPanelClose}
+          position={glyphPanelPosition}
         />
       )}
     </>
