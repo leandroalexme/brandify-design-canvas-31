@@ -1,7 +1,7 @@
 
 import React, { useState, useCallback } from 'react';
 import { Copy, Plus } from 'lucide-react';
-import { FabricCanvasComponent } from './FabricCanvas';
+import { KonvaCanvasComponent } from './KonvaCanvas';
 import { DesignElement } from '../types/design';
 
 interface ProfessionalCanvasProps {
@@ -97,12 +97,12 @@ export const ProfessionalCanvas = ({
           <div>Elementos: {elements.length}</div>
           <div>Ferramenta: {selectedTool}</div>
           <div>Cor: {selectedColor}</div>
-          <div>🎯 Fabric.js Canvas Ativo</div>
+          <div>🎯 Konva.js Canvas Ativo</div>
         </div>
       )}
 
-      {/* Fabric.js Canvas */}
-      <FabricCanvasComponent
+      {/* Konva.js Canvas */}
+      <KonvaCanvasComponent
         elements={elements}
         selectedTool={selectedTool}
         selectedColor={selectedColor}

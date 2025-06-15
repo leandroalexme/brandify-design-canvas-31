@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Square, Circle, Triangle, Ellipsis, Minus, Pentagon, Star } from 'lucide-react';
-import { ShapeType } from '../utils/enhancedShapeFactory';
+import { ShapeType } from '../utils/konvaShapeFactory';
 
 interface EnhancedShapesMenuProps {
   onShapeSelect: (shape: ShapeType) => void;
