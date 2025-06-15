@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -286,147 +287,6 @@
            border border-slate-700/60 text-xs font-medium text-slate-300;
     box-shadow: 0px 4px 12px -4px rgba(0, 0, 0, 0.3);
   }
-  
-  /* Floating Text Panel - Modern Horizontal Design */
-  .floating-text-panel {
-    @apply floating-module flex items-center;
-    min-width: 520px;
-    height: 56px;
-    padding: 8px 12px;
-    border-radius: 28px;
-    will-change: transform, box-shadow;
-    transition: all 0.16s cubic-bezier(0.23, 1, 0.32, 1);
-    cursor: default;
-    user-select: none;
-    animation: floating-text-panel-enter-60fps 0.2s cubic-bezier(0.23, 1, 0.32, 1);
-  }
-  
-  .floating-text-panel.dragging {
-    box-shadow: 
-      0px 16px 64px -16px rgba(0, 0, 0, 0.6),
-      0px 8px 32px -8px rgba(0, 0, 0, 0.4),
-      inset 0px 1px 0px rgba(255, 255, 255, 0.1);
-    transform: scale(1.02) !important;
-  }
-  
-  .floating-text-panel.repulsion {
-    animation: repulsion-bounce-60fps 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-  }
-  
-  .floating-text-panel-drag-handle {
-    @apply flex items-center justify-center mr-3 cursor-grab;
-    width: 24px;
-    height: 40px;
-    border-radius: 8px;
-    transition: background-color 0.1s ease;
-  }
-  
-  .floating-text-panel-drag-handle:hover {
-    @apply bg-slate-700/40;
-  }
-  
-  .floating-text-panel-drag-handle:active {
-    @apply cursor-grabbing;
-  }
-  
-  .drag-indicator {
-    width: 4px;
-    height: 16px;
-    border-radius: 2px;
-    background: linear-gradient(to bottom, 
-      rgba(148, 163, 184, 0.4) 0%,
-      rgba(148, 163, 184, 0.6) 50%,
-      rgba(148, 163, 184, 0.4) 100%);
-    position: relative;
-  }
-  
-  .drag-indicator::before,
-  .drag-indicator::after {
-    content: '';
-    position: absolute;
-    width: 4px;
-    height: 16px;
-    border-radius: 2px;
-    background: inherit;
-    top: 0;
-  }
-  
-  .drag-indicator::before {
-    left: -6px;
-  }
-  
-  .drag-indicator::after {
-    left: 6px;
-  }
-  
-  .floating-text-panel-content {
-    @apply flex items-center flex-1 gap-2;
-  }
-  
-  .text-controls-section {
-    @apply flex items-center gap-1;
-  }
-  
-  .text-dropdown-button {
-    @apply flex items-center justify-between gap-2 px-3 py-2 rounded-lg
-           bg-slate-800/60 hover:bg-slate-700/80 border border-slate-700/40
-           text-slate-300 hover:text-slate-100 text-sm font-medium
-           transition-all duration-100 hover:scale-105 active:scale-95;
-    min-width: 120px;
-    height: 36px;
-    will-change: transform, background-color;
-  }
-  
-  .text-dropdown-label {
-    @apply truncate;
-  }
-  
-  .text-dropdown-arrow {
-    @apply text-slate-400 flex-shrink-0;
-    transition: transform 0.1s ease;
-  }
-  
-  .text-dropdown-button:hover .text-dropdown-arrow {
-    @apply text-slate-300;
-  }
-  
-  .text-action-button {
-    @apply w-9 h-9 rounded-lg bg-slate-800/60 hover:bg-slate-700/80
-           border border-slate-700/40 hover:border-slate-600/60
-           flex items-center justify-center text-slate-300 hover:text-slate-100
-           transition-all duration-100 hover:scale-105 active:scale-95;
-    will-change: transform, background-color, border-color;
-  }
-  
-  .text-action-button.selected {
-    @apply bg-blue-500/80 border-blue-400/60 text-white;
-    box-shadow: 0px 4px 16px -4px rgba(59, 130, 246, 0.4);
-  }
-  
-  .text-color-button {
-    @apply w-9 h-9 rounded-lg bg-slate-800/60 hover:bg-slate-700/80
-           border border-slate-700/40 hover:border-slate-600/60
-           flex items-center justify-center
-           transition-all duration-100 hover:scale-105 active:scale-95;
-    will-change: transform, background-color, border-color;
-  }
-  
-  .color-indicator {
-    @apply w-5 h-5 rounded-full;
-    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-    border: 2px solid rgba(255, 255, 255, 0.2);
-  }
-  
-  .text-panel-separator {
-    @apply w-px h-6 bg-slate-700/40 mx-1;
-  }
-  
-  .floating-text-panel-close {
-    @apply w-8 h-8 rounded-lg bg-slate-700/60 hover:bg-slate-600/80
-           flex items-center justify-center text-slate-400 hover:text-slate-200
-           transition-all duration-100 hover:scale-105 active:scale-95 ml-2;
-    will-change: transform, background-color;
-  }
 }
 
 /* Custom scrollbar */
@@ -579,33 +439,6 @@
   }
 }
 
-/* New Floating Text Panel Animations */
-@keyframes floating-text-panel-enter-60fps {
-  from {
-    opacity: 0;
-    transform: translateY(12px) scale(0.96);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-@keyframes repulsion-bounce-60fps {
-  0% { 
-    transform: scale(1);
-  }
-  30% { 
-    transform: scale(1.05);
-  }
-  60% { 
-    transform: scale(0.98);
-  }
-  100% { 
-    transform: scale(1);
-  }
-}
-
 /* Animation Classes - 60FPS Optimized */
 .animate-fade-in-60fps {
   animation: fade-in-60fps 0.16s cubic-bezier(0.23, 1, 0.32, 1);
@@ -704,12 +537,4 @@
 
 .smooth-transform {
   transition: transform 0.13s cubic-bezier(0.23, 1, 0.32, 1);
-}
-
-.animate-floating-text-enter-60fps {
-  animation: floating-text-panel-enter-60fps 0.2s cubic-bezier(0.23, 1, 0.32, 1);
-}
-
-.animate-repulsion-bounce-60fps {
-  animation: repulsion-bounce-60fps 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
