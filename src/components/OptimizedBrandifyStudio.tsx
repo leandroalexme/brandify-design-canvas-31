@@ -1,5 +1,7 @@
+
 import React, { useRef, useCallback, memo, useState } from 'react';
 import { ProfessionalCanvas } from './ProfessionalCanvas';
+import { SvgEditor } from './SvgEditor';
 import { MainToolbar } from './MainToolbar';
 import { FloatingPropertiesPanel } from './FloatingPropertiesPanel';
 import { LayersButton } from './LayersButton';
@@ -18,6 +20,7 @@ import { useProfessionalCanvas } from '../hooks/useProfessionalCanvas';
 
 // Memoizar componentes pesados
 const MemoizedProfessionalCanvas = memo(ProfessionalCanvas);
+const MemoizedSvgEditor = memo(SvgEditor);
 const MemoizedMainToolbar = memo(MainToolbar);
 const MemoizedFloatingPropertiesPanel = memo(FloatingPropertiesPanel);
 
@@ -27,6 +30,7 @@ export const OptimizedBrandifyStudio = memo(() => {
   const [showEnhancedAlignment, setShowEnhancedAlignment] = useState(false);
   const [gridEnabled, setGridEnabled] = useState(false);
   const [snapEnabled, setSnapEnabled] = useState(false);
+  const [editorMode, setEditorMode] = useState<'konva' | 'svg'>('konva');
   
   const professionalCanvas = useProfessionalCanvas();
   
@@ -44,6 +48,7 @@ export const OptimizedBrandifyStudio = memo(() => {
       console.log('🚀 [ENHANCED STUDIO] State:', {
         selectedTool: studio.toolState.selectedTool,
         elementsCount: studio.elementsCount,
+        editorMode,
         hasAnyPanelOpen: studio.hasAnyPanelOpen,
         currentToolInfo: studio.currentToolInfo,
         interactionMode: studio.interactionMode,
@@ -53,7 +58,7 @@ export const OptimizedBrandifyStudio = memo(() => {
         timestamp: new Date().toISOString()
       });
     }
-  }, [studio.toolState.selectedTool, studio.elementsCount, studio.hasAnyPanelOpen, studio.currentToolInfo, studio.interactionMode, studio.shortcuts.length]);
+  }, [studio.toolState.selectedTool, studio.elementsCount, editorMode, studio.hasAnyPanelOpen, studio.currentToolInfo, studio.interactionMode, studio.shortcuts.length]);
 
   // Mapear ferramentas para o Canvas com cache
   const getCanvasToolType = useCallback((tool: ToolType): 'select' | 'pen' | 'shapes' | 'text' => {
@@ -142,12 +147,10 @@ export const OptimizedBrandifyStudio = memo(() => {
   }, [studio]);
 
   const handleCopyElement = useCallback((id: string) => {
-    // This will be handled by ProfessionalCanvas internally
     console.log('Copy element:', id);
   }, []);
 
   const handlePasteElement = useCallback(() => {
-    // This will be handled by ProfessionalCanvas internally
     console.log('Paste element');
   }, []);
 
@@ -172,45 +175,83 @@ export const OptimizedBrandifyStudio = memo(() => {
       <div className="h-screen bg-slate-900 overflow-hidden relative">
         <ZoomIndicator zoom={studio.toolState.zoom} />
         
+        {/* Editor Mode Toggle */}
+        <div className="absolute top-4 left-4 z-50">
+          <div className="bg-slate-800 rounded-lg p-2 flex gap-2">
+            <button
+              onClick={() => setEditorMode('konva')}
+              className={`px-3 py-1 rounded text-sm transition-colors ${
+                editorMode === 'konva' 
+                  ? 'bg-blue-600 text-white' 
+                  : 'text-slate-300 hover:bg-slate-700'
+              }`}
+            >
+              Konva.js
+            </button>
+            <button
+              onClick={() => setEditorMode('svg')}
+              className={`px-3 py-1 rounded text-sm transition-colors ${
+                editorMode === 'svg' 
+                  ? 'bg-green-600 text-white' 
+                  : 'text-slate-300 hover:bg-slate-700'
+              }`}
+            >
+              SVG.js
+            </button>
+          </div>
+        </div>
+        
         {/* Status bar para debug */}
         {process.env.NODE_ENV === 'development' && (
           <div className="absolute top-2 right-2 z-50 text-xs text-slate-400 bg-slate-800/80 p-2 rounded">
-            🎯 Enhanced Studio | Modo: {studio.interactionMode} | Selecionados: {studio.selectedCount} | 
+            🎯 Enhanced Studio | Modo: {studio.interactionMode} | Editor: {editorMode} | Selecionados: {studio.selectedCount} | 
             Undo: {studio.canUndo ? '✅' : '❌'} | Redo: {studio.canRedo ? '✅' : '❌'} |
             Grid: {gridEnabled ? '✅' : '❌'} | Snap: {snapEnabled ? '✅' : '❌'}
           </div>
         )}
         
         <div ref={canvasRef}>
-          <MemoizedProfessionalCanvas
-            elements={studio.elements}
-            selectedTool={mappedTool}
-            selectedColor={studio.toolState.selectedColor}
-            onAddElement={studio.addElement}
-            onSelectElement={studio.selectElement}
-            onUpdateElement={studio.updateElement}
-            onDeleteElement={handleDeleteElement}
-            onCopyElement={handleCopyElement}
-            onPasteElement={handlePasteElement}
-            onCreateText={handleCreateText}
-            selectedShape={studio.uiState.selectedShape}
-          />
+          {editorMode === 'konva' ? (
+            <MemoizedProfessionalCanvas
+              elements={studio.elements}
+              selectedTool={mappedTool}
+              selectedColor={studio.toolState.selectedColor}
+              onAddElement={studio.addElement}
+              onSelectElement={studio.selectElement}
+              onUpdateElement={studio.updateElement}
+              onDeleteElement={handleDeleteElement}
+              onCopyElement={handleCopyElement}
+              onPasteElement={handlePasteElement}
+              onCreateText={handleCreateText}
+              selectedShape={studio.uiState.selectedShape}
+            />
+          ) : (
+            <div className="h-full flex items-center justify-center">
+              <MemoizedSvgEditor enabled={true} className="w-full max-w-4xl" />
+            </div>
+          )}
         </div>
         
-        <MemoizedMainToolbar 
-          selectedTool={studio.toolState.selectedTool}
-          onToolSelect={studio.handleToolSelect}
-          selectedColor={studio.toolState.selectedColor}
-          onColorSelect={handleColorSelect}
-          selectedShape={studio.uiState.selectedShape}
-          onShapeSelect={handleShapeSelect}
-          onOpenTextPanel={handleToggleTextPanel}
-          showTextPanel={studio.uiState.showTextPropertiesPanel}
-        />
+        {editorMode === 'konva' && (
+          <MemoizedMainToolbar 
+            selectedTool={studio.toolState.selectedTool}
+            onToolSelect={studio.handleToolSelect}
+            selectedColor={studio.toolState.selectedColor}
+            onColorSelect={handleColorSelect}
+            selectedShape={studio.uiState.selectedShape}
+            onShapeSelect={handleShapeSelect}
+            onOpenTextPanel={handleToggleTextPanel}
+            showTextPanel={studio.uiState.showTextPropertiesPanel}
+          />
+        )}
         
-        <LayersButton onClick={handleLayersToggle} />
-        <GridButton onClick={handleAlignmentToggle} />
-        <ArtboardsButton onClick={handleArtboardsToggle} />
+        {editorMode === 'konva' && (
+          <>
+            <LayersButton onClick={handleLayersToggle} />
+            <GridButton onClick={handleAlignmentToggle} />
+            <ArtboardsButton onClick={handleArtboardsToggle} />
+          </>
+        )}
         
         {showEnhancedLayers && (
           <EnhancedLayersPanel
@@ -242,7 +283,7 @@ export const OptimizedBrandifyStudio = memo(() => {
           />
         )}
         
-        {studio.selectedElementData && (
+        {studio.selectedElementData && editorMode === 'konva' && (
           <MemoizedFloatingPropertiesPanel
             selectedElement={studio.selectedElementData}
             onUpdateElement={studio.updateElement}
